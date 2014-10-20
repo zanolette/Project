@@ -4,11 +4,11 @@ __author__ = 'fredpiech'
 import numpy as np
 import matplotlib.pyplot as plt
 
-z = np.zeros((400,400))
+z = np.zeros((10000,10000))
 
 # specify circle parameters: centre ij and radius
-ci,cj=200,200
-cr=200
+ci,cj=5000,5000
+cr=20
 
 # Create index arrays to z
 I,J=np.meshgrid(np.arange(z.shape[0]),np.arange(z.shape[1]))
@@ -19,8 +19,11 @@ z[np.where(np.sqrt((I-ci)**2+(J-cj)**2)<cr)]=1
 
 #Fast Fourier Transform of z
 zhat=np.fft.fft2(z)
-zhat=abs(zhat)
+zhat=np.fft.fftshift(zhat)
 
+zhat=np.abs(zhat)
+
+#zhat=np.log(zhat)
 print zhat
 
 # show result in a simple plot
