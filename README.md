@@ -1,32 +1,49 @@
 Project
 =======
-from numpy import *
+import numpy as np
+import matplotlib as mpl
+
+e = numpy.zeros((100,100))
+c = 50
+ra = 3
+j = -r
+i = -floor(sqrt(ra**2 - j**2))
+
+
+while j <= r:
+    while i <= ceil(sqrt(ra**2 - j**2)):
+        e[i+x0][j+y0] = 1
+        i += 1
+    j += 1
+
+
+        
+  '''
 a = array([[1,2],[3,4]])
 b = fft.fft2(a)
 
 c = array ([[0,0,0],[0,1,0],[0,0,0]])
 d = fft.fft2(c)
 
-e = np.empty((10,10))
-f = 4.5
-r = 4
-
+for j in range(2*r):    
+    for i in range(1 + 2*ceil(sqrt(r**2 - (j-r)**2))):
+        e[i + x0 - ceil(sqrt(r**2 - (j-r)**2))][j+y0-r] = 1
+  
 [[e[i][j] for j in range(len(e)) ]
                         for i in range(len(e))]
 
 if  abs(s - f) < floor(sqrt(f^2 - j^2))
-
-for j=-r:r,   ''' this function masks a circular aperture of radius r, at (x0,y0)
-    centre point is x0,y y = y0+j;'''
-    for i=x0-floor(sqrt(r^2 - j^2)):x0+ceil(sqrt(r^2 - j^2)),
-    counter1 = counter1 + mask ((j+y0),i); 	%!!!must be =+ not +=!!!
-    mask ((j+y0),i) = 0;	% now set to zero
-    counter3 = counter3 + 1;
-    end
-end
+  '''
 
 
-e = array (50,50)
-print
-
+s = array([[ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
+       [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
+       [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
+       [ 0.,  0.,  0.,  0.,  1.,  0.,  0.,  0.,  0.,  0.],
+       [ 0.,  0.,  0.,  1.,  1.,  1.,  0.,  0.,  0.,  0.],
+       [ 0.,  0.,  0.,  1.,  1.,  1.,  0.,  0.,  0.,  0.],
+       [ 0.,  0.,  0.,  1.,  1.,  1.,  0.,  0.,  0.,  0.],
+       [ 0.,  0.,  0.,  0.,  1.,  0.,  0.,  0.,  0.,  0.],
+       [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
+       [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.]])
 
