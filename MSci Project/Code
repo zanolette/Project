@@ -74,3 +74,6 @@ imageinv2 = plt.imshow(imageinv2, cmap='hot')
 plt.colorbar(imageinv2, orientation='horizontal')
 plt.show()
 
+#;laskdjf;laskjdf;lkasdjf
+#ad;wlfkjasdf;lkj
+print dx
