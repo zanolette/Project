@@ -54,19 +54,19 @@ plt.show()
 lda = 0.18
 #positions in km - ARBITARY LAMBDA = 0.18m
 
-#xpos = (np.random.rand(1,30)-0.5)*10
-#ypos = (np.random.rand(1,30)-0.5)*10
-xpos = [10, 10, -10, -10, 10, 0, -10, 0, 0, 20, 20, -20, -20, 20, 0, -20, 0, 5, 5, -5, -5, 5, 0, -5, 0, 10, 35, -25, -35, 7, 12, -24, 8]
-ypos = [10, -10, 10, -10, 0, 10, 0, -10, 0, 20, -20, 20, -20, 0, 20, 0, -20, 5, -5, 5, -5, 0, 5, 0, -5, 35, -10, 35, -25, 0, -23, 13, -32]
+xpos = (np.random.rand(1,30)-0.5)*10
+ypos = (np.random.rand(1,30)-0.5)*10
+#xpos = [10, 10, -10, -10, 10, 0, -10, 0, 0, 20, 20, -20, -20, 20, 0, -20, 0, 5, 5, -5, -5, 5, 0, -5, 0, 10, 35, -25, -35, 7, 12, -24, 8]
+#ypos = [10, -10, 10, -10, 0, 10, 0, -10, 0, 20, -20, 20, -20, 0, 20, 0, -20, 5, -5, 5, -5, 0, 5, 0, -5, 35, -10, 35, -25, 0, -23, 13, -32]
 dx = []
 dy = []
 
 #this takes the positions and turns them into baselines (no rotation included yet), shifted so they correspond with centre of image
-for i in range(len(xpos)):
-    for j in range(len(ypos)):
+for i in range(np.size(xpos)):
+    for j in range(np.size(ypos)):
         if i != j:
-            dx.append(ci + int((xpos[i]-xpos[j])/lda))  #doesn't take into account rotation of earth or angle of object
-            dy.append(cj + int((ypos[i]-ypos[j])/lda))
+            dx.append(ci + int((xpos[0,i]-xpos[0,j])/lda))  #doesn't take into account rotation of earth or angle of object
+            dy.append(cj + int((ypos[0,i]-ypos[0,j])/lda))
 
 print dx
 print dy
