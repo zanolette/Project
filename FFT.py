@@ -31,6 +31,12 @@ ri,rj=800,150 #centre point
 rr=10
 z[np.where(np.sqrt((I-ri)**2+(J-rj)**2)<rr)]=2
 
+z2=z
+
+z2 = plt.imshow(z2, cmap='hot')
+plt.colorbar(z2, orientation='horizontal')
+plt.show()
+
 
 #Fast Fourier Transform of z
 zhat=np.fft.fft2(z)
@@ -51,11 +57,12 @@ plt.colorbar(new, orientation='horizontal')
 plt.show()
 '''
 
-lda = 0.18
+lda=0.5
+SCALING=(1000/(lda+1)) / 500
 #positions in km - ARBITARY LAMBDA = 0.18m
 
-xpos = (np.random.rand(1,30)-0.5)*10
-ypos = (np.random.rand(1,30)-0.5)*10
+xpos = (np.random.rand(1,30)-0.5)*250
+ypos = (np.random.rand(1,30)-0.5)*250
 #xpos = [10, 10, -10, -10, 10, 0, -10, 0, 0, 20, 20, -20, -20, 20, 0, -20, 0, 5, 5, -5, -5, 5, 0, -5, 0, 10, 35, -25, -35, 7, 12, -24, 8]
 #ypos = [10, -10, 10, -10, 0, 10, 0, -10, 0, 20, -20, 20, -20, 0, 20, 0, -20, 5, -5, 5, -5, 0, 5, 0, -5, 35, -10, 35, -25, 0, -23, 13, -32]
 dx = []
@@ -65,8 +72,8 @@ dy = []
 for i in range(np.size(xpos)):
     for j in range(np.size(ypos)):
         if i != j:
-            dx.append(ci + int((xpos[0,i]-xpos[0,j])/lda))  #doesn't take into account rotation of earth or angle of object
-            dy.append(cj + int((ypos[0,i]-ypos[0,j])/lda))
+            dx.append(ci + int(((xpos[0,i]-xpos[0,j])/(lda+1))*SCALING))  #doesn't take into account rotation of earth or angle of object
+            dy.append(cj + int(((ypos[0,i]-ypos[0,j])/(lda+1))*SCALING))
 
 print dx
 print dy
