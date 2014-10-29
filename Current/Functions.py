@@ -28,7 +28,6 @@ def circlematrix(size, radius):
 
     return zhat
 
-
 #Imports and array from a text file and returns the baseline dx, dy and dz. depends on lambda
 def importarray(filename,lda):
     positions = []
@@ -52,10 +51,24 @@ def importarray(filename,lda):
 
     #float(positions[i][0]) = x coord of ith element
     #float(positions[i][1]) = y coord of ith element
-    plt.scatter(dx, dy)
-    plt.show()
 
     return (dx,dy,dz)
+
+#Maps baselines onto UV plane along with rotational matrix
+def rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, ci):
+
+    lenbase = len(dx)
+    uvplane = np.zeros((3,integrationtime*lenbase ))
+    #This measures the UV plane AND maps it onto our fourier plane
+    for t in range (integrationtime):
+        for i in range(lenbase):
+            uvplane[0][i + t*lenbase] = int(ci + scaling*(np.sin(H)*dx[i] + np.cos(H)*dy[i])) # have UV matrix with enough space to get 24 hours of integration
+            #t*lenbase makes sure we dont overwrite previous hours of integration
+            uvplane[1][i + t*lenbase] = int(ci + scaling*(-np.sin(delta)*np.cos(H)*dx[i] + np.sin(delta)*np.sin(H)*dy[i] + np.cos(delta)*dz[i]))
+            uvplane[2][i + t*lenbase] = np.cos(delta)*np.cos(H)*dx[i] - np.cos(delta)*np.sin(H)*dy[i] + np.sin(delta)*dz[i]
+        H += dH
+
+    return uvplane
 
 #This function takes matrix relating to the fourier space and inverts it. It plots both the fourier image and the real space image
 def invert(image):
