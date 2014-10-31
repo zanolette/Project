@@ -92,11 +92,13 @@ def rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size, zha
     return (image, UVcount)
 
 #This function takes matrix relating to the fourier space and inverts it. It plots both the fourier image and the real space image
-def invert(image, dtheta):
+def invert(image, dtheta,theta,size):
     image2 = np.log(abs(image)+1)
     image2 = plt.imshow(image2, cmap='hot')
 
     plt.colorbar(image2, orientation='horizontal')
+    plt.xlabel("1/theta")
+    plt.ylabel("1/theta")
     plt.show()
 
     #shows inverse image
@@ -107,4 +109,17 @@ def invert(image, dtheta):
     imageinv2 = plt.imshow(imageinv2, cmap='hot')
 
     plt.colorbar(imageinv2, orientation='horizontal')
+    plt.xlabel("theta")
+    #ticks = plt.ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x/(dtheta*size)))
+    #plt.xaxis.set_major_formatter(ticks)
+    #ticks = plt.ticker.FuncFormatter(lambda y, pos: '{0:g}'.format(y/(dtheta*size)))
+    #plt.yaxis.set_major_formatter(ticks)
+    ticks = plt.get_xticks()/(dtheta*size)
+    plt.set_xticklabels(ticks)
+    ticks = plt.get_yticks()/(dtheta*size)  #getting: AttributeError: 'module' object has no attribute 'get_xticks'
+    plt.set_yticklabels(ticks)
+    plt.ylabel("theta")
     plt.show()
+
+    #other option: ticks = your_plot.get_xticks()*10**9
+    #              your_plot.set_xticklabels(ticks)

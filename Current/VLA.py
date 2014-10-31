@@ -27,7 +27,7 @@ lda=1
 #DEFINE EXPERIMENT PARAMETERS
 H = 0.
 dH = 1. / (60.* 24.) * np.pi
-integrationtime = 5*60
+integrationtime = 60
 delta = 30./180. * np.pi
 scaling = 1./(size*dtheta)
 
@@ -58,7 +58,7 @@ for i in range (size):
 
 
 #shows sample fourier image
-func.invert(image, dtheta)
+func.invert(image, dtheta, theta, size)
 #func.invert(UVcount)
 
 #i'm testing this
