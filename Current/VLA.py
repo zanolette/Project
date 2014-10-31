@@ -2,6 +2,8 @@ __author__ = 'fredpiech'
 
 import numpy as np
 import matplotlib.pyplot as plt
+import pylab as pl
+from matplotlib import ticker
 import Functions as func
 
 #Define size of view and resolution
@@ -27,7 +29,7 @@ lda=1
 #DEFINE EXPERIMENT PARAMETERS
 H = 0.
 dH = 1. / (60.* 24.) * np.pi
-integrationtime = 60
+integrationtime = 30
 delta = 30./180. * np.pi
 scaling = 1./(size*dtheta)
 
