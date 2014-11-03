@@ -144,14 +144,8 @@ def invert(image, dtheta):
     #fig = plt.figure(figsize=(6, 3.2))
 
     plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='hot')
-
-
-    #cax = fig.add_axes([-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage])
-
-
-
-    plt.colorbar(imageinv2, orientation='horizontal')
-    plt.xlabel("theta")
+    plt.colorbar( orientation='horizontal')
+    plt.show()
 
     #ticks = plt.ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x/(dtheta*size)))
     #plt.xaxis.set_major_formatter(ticks)
@@ -161,8 +155,7 @@ def invert(image, dtheta):
     #plt.set_xticklabels(ticks)
     #ticks = plt.get_yticks()/(dtheta*size)  #getting: AttributeError: 'module' object has no attribute 'get_xticks'
     #plt.set_yticklabels(ticks)
-    plt.ylabel("theta")
-    plt.show()
+
     #can use xlim(0,end) but cuts graph doesn't change axis, xticks gives which ones are shown, but doesn't rescale
     #other option: ticks = your_plot.get_xticks()*10**9
     #              your_plot.set_xticklabels(ticks)

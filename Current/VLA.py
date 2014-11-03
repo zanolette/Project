@@ -60,7 +60,7 @@ for i in range (size):
 
 
 #shows sample fourier image
-func.invert(image, dtheta, theta, size)
+func.invert(image, dtheta)
 #func.invert(UVcount)
 
 #i'm testing this
