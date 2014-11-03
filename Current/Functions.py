@@ -93,18 +93,34 @@ def rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size, zha
 
 #This function takes matrix relating to the fourier space and inverts it. It plots both the fourier image and the real space image
 def invert(image, dtheta):
-    image2 = np.log(abs(image)+1)
-    image2 = plt.imshow(image2, cmap='hot')
 
-    plt.colorbar(image2, orientation='horizontal')
+    RangeinComplexImage = len(image[1])/dtheta
+
+    image2 = np.log(abs(image)+1)
+    image2 = plt.imshow(image2, extent=(-RangeinComplexImage,RangeinComplexImage,-RangeinComplexImage,RangeinComplexImage), interpolation='nearest',cmap='hot')
+
+    plt.colorbar( orientation='horizontal')
     plt.show()
 
     #shows inverse image
     imageinv = np.fft.ifft2(image)
-    imageinv2 = abs(imageinv)
+    imageinv = abs(imageinv)
+
     #ax = imageinv2.add_subplot(111)
 
-    imageinv2 = plt.imshow(imageinv2, cmap='hot')
+    #imageinv2 = plt.imshow(imageinv2, cmap='hot')
 
-    plt.colorbar(imageinv2, orientation='horizontal')
+    #plt.colorbar(imageinv2, orientation='horizontal')
+    #plt.show()
+    RangeinRealImage = (len(image[1])*dtheta)/2
+
+    fig = plt.figure(figsize=(6, 3.2))
+
+    ax = fig.add_subplot(111)
+    plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='hot')
+    ax.set_aspect('equal')
+
+    #cax = fig.add_axes([-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage])
+
+    plt.colorbar(orientation='vertical')
     plt.show()

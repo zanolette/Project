@@ -6,7 +6,7 @@ import Functions as func
 
 #Define size of view and resolution
 dtheta = 15./(60.**2)   #these will be given by 21cm later on
-theta = 8. #gives 960 points
+theta = 4. #gives 960 points
 size = int(theta/dtheta)
 ci=int(size/2)
 
@@ -16,7 +16,7 @@ ci=int(size/2)
 zhat = func.circlematrix(size, 100)
 
 #Define Wavelength
-lda=1
+lda=10
 
 # Now we import array positions
 (dx,dy,dz)=func.importarray('vla.b.cfg',lda)
@@ -27,7 +27,7 @@ lda=1
 #DEFINE EXPERIMENT PARAMETERS
 H = 0.
 dH = 1. / (60.* 24.) * np.pi
-integrationtime = 5*60
+integrationtime = 20*60
 delta = 30./180. * np.pi
 scaling = 1./(size*dtheta)
 
