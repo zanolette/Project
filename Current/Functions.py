@@ -1,5 +1,7 @@
 __author__ = 'fredpiech'
 import numpy as np
+import pylab as pl
+from matplotlib import ticker
 import matplotlib.pyplot as plt
 
 #creates fourier space matrix of circle radius "radius"
@@ -99,8 +101,33 @@ def invert(image, dtheta):
     image2 = np.log(abs(image)+1)
     image2 = plt.imshow(image2, extent=(-RangeinComplexImage,RangeinComplexImage,-RangeinComplexImage,RangeinComplexImage), interpolation='nearest',cmap='hot')
 
+
     plt.colorbar( orientation='horizontal')
     plt.show()
+    '''
+    plt.colorbar(image2, orientation='horizontal')
+    plt.xlabel("1./theta")
+    #axes = image2().add_subplot(111)
+    #a = image2.get_xticks().tolist()
+    #for i in range (0,len(a)):
+    #    a[i]=a[i]/size*dtheta
+    #image2.set_xticklabels(a)
+    #ticker.set_yticklabels(a)
+
+    #plt.xticks()
+    #x = np.linspace(0,theta,8)
+    #plt.xticks(range(0,size), x)
+    #ticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x))
+    #set_major_formatter(ticks)
+    #plt.ticklabel_format   tick_values(vmin, vmax)
+
+    #print x
+    #plt.xticks(x)
+   # plt.xticks(1./dtheta)
+   # plt.yticks(1./dtheta)
+    plt.ylabel("1./theta")
+    '''
+
 
     #shows inverse image
     imageinv = np.fft.ifft2(image)
@@ -114,13 +141,29 @@ def invert(image, dtheta):
     #plt.show()
     RangeinRealImage = (len(image[1])*dtheta)/2
 
-    fig = plt.figure(figsize=(6, 3.2))
+    #fig = plt.figure(figsize=(6, 3.2))
 
-    ax = fig.add_subplot(111)
     plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='hot')
-    ax.set_aspect('equal')
+
 
     #cax = fig.add_axes([-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage])
 
-    plt.colorbar(orientation='vertical')
+
+
+    plt.colorbar(imageinv2, orientation='horizontal')
+    plt.xlabel("theta")
+
+    #ticks = plt.ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x/(dtheta*size)))
+    #plt.xaxis.set_major_formatter(ticks)
+    #ticks = plt.ticker.FuncFormatter(lambda y, pos: '{0:g}'.format(y/(dtheta*size)))
+    #plt.yaxis.set_major_formatter(ticks)
+    #ticks = plt.get_xticks()/(dtheta*size)
+    #plt.set_xticklabels(ticks)
+    #ticks = plt.get_yticks()/(dtheta*size)  #getting: AttributeError: 'module' object has no attribute 'get_xticks'
+    #plt.set_yticklabels(ticks)
+    plt.ylabel("theta")
     plt.show()
+    #can use xlim(0,end) but cuts graph doesn't change axis, xticks gives which ones are shown, but doesn't rescale
+    #other option: ticks = your_plot.get_xticks()*10**9
+    #              your_plot.set_xticklabels(ticks)
+
