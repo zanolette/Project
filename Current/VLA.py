@@ -29,7 +29,7 @@ lda=10
 #DEFINE EXPERIMENT PARAMETERS
 H = 0.
 dH = 1. / (60.* 24.) * np.pi
-integrationtime = 20*60
+integrationtime = 10
 delta = 30./180. * np.pi
 scaling = 1./(size*dtheta)
 
@@ -56,11 +56,29 @@ for i in range (size):
             image[i][j]=real[0] + imaginary[0]*1j
 '''
 
+#THIS IS TO FIND THE PSF
+
+for i in range (size):
+    for j in range (size):
+        if image[i][j] != 0:
+            image[i][j]=1
+
+imageinv = np.fft.ifft2(image)
+imageinv = np.fft.fftshift(imageinv)
+imageinv = abs(imageinv)
+
+RangeinRealImage = (len(image[1])*dtheta)/2
+
+#fig = plt.figure(figsize=(6, 3.2))
+
+plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='Blues')
+plt.colorbar( orientation='horizontal')
+plt.show()
 
 
 
 #shows sample fourier image
-func.invert(image, dtheta)
+#func.invert(image, dtheta)
 #func.invert(UVcount)
 
 #i'm testing this
