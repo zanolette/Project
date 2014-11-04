@@ -12,7 +12,7 @@ theta = 4. #gives 960 points
 size = int(theta/dtheta)
 ci=int(size/2)
 
-
+#remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel)
 
 #creates fourier space matrix of circle radius 100
 zhat = func.circlematrix(size, 100)
@@ -29,7 +29,7 @@ lda=10
 #DEFINE EXPERIMENT PARAMETERS
 H = 0.
 dH = 1. / (60.* 24.) * np.pi
-integrationtime = 10
+integrationtime = 60
 delta = 30./180. * np.pi
 scaling = 1./(size*dtheta)
 
@@ -44,7 +44,7 @@ scaling = 1./(size*dtheta)
 (image, UVcount) = func.rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size, zhat)
 
 ####################################MEASURE##################################################
-'''
+
 # for loop that goes through the fourier space matrix and adds noise according to the number of times the signal gets sampled
 # need to make sure this is correct according to pritchard - noise on complex thing
 for i in range (size):
@@ -54,31 +54,15 @@ for i in range (size):
             real=np.random.normal(np.real(image[i][j]), sigma, 1)
             imaginary = np.random.normal(np.imag(image[i][j]), sigma, 1)
             image[i][j]=real[0] + imaginary[0]*1j
-'''
+
+
 
 #THIS IS TO FIND THE PSF
+func.psf(dtheta, image)
 
-for i in range (size):
-    for j in range (size):
-        if image[i][j] != 0:
-            image[i][j]=1
-
-imageinv = np.fft.ifft2(image)
-imageinv = np.fft.fftshift(imageinv)
-imageinv = abs(imageinv)
-
-RangeinRealImage = (len(image[1])*dtheta)/2
-
-#fig = plt.figure(figsize=(6, 3.2))
-
-plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='Blues')
-plt.colorbar( orientation='horizontal')
-plt.show()
-
-
-
+func.invert(image, dtheta)
 #shows sample fourier image
-#func.invert(image, dtheta)
-#func.invert(UVcount)
+
+
 
 #i'm testing this

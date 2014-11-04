@@ -4,6 +4,13 @@ import pylab as pl
 from matplotlib import ticker
 import matplotlib.pyplot as plt
 
+def printgraph (image, xrange, yrange, xlabel, ylabel):   #generic print function with ranges and labels
+    image2 = plt.imshow(image, extent=(-xrange,xrange,-yrange,yrange), interpolation='nearest',cmap='hot')
+    plt.colorbar( orientation='horizontal')
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.show()
+
 #creates fourier space matrix of circle radius "radius"
 def circlematrix(size, radius):
     # specify circle parameters: centre ij and radius
@@ -93,70 +100,53 @@ def rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size, zha
     print ("UV Plane Scan Complete, percentage of baselines ignored", (100*countvar/(integrationtime*lenbase)))
     return (image, UVcount)
 
+def psf(dtheta,image):
+    size = len(image[0])
+
+    psf = np.zeros((size,size))
+
+    for i in range (size):
+        for j in range (size):
+            if image[i][j] != 0:
+                psf[i][j]=1
+
+    imageinv = np.fft.ifft2(psf)
+    imageinv = np.fft.fftshift(imageinv)
+    imageinv = abs(imageinv)
+
+    RangeinRealImage = size*dtheta/2.
+
+    #fig = plt.figure(figsize=(6, 3.2))
+
+    plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='Blues')
+    plt.colorbar( orientation='horizontal')
+    plt.show()
+
+
 #This function takes matrix relating to the fourier space and inverts it. It plots both the fourier image and the real space image
 def invert(image, dtheta):
 
-    RangeinComplexImage = len(image[1])/dtheta
+    RangeinComplexImage = 0.5/dtheta
 
     image2 = np.log(abs(image)+1)
     image2 = plt.imshow(image2, extent=(-RangeinComplexImage,RangeinComplexImage,-RangeinComplexImage,RangeinComplexImage), interpolation='nearest',cmap='hot')
 
 
     plt.colorbar( orientation='horizontal')
-    plt.show()
-    '''
-    plt.colorbar(image2, orientation='horizontal')
     plt.xlabel("1./theta")
-    #axes = image2().add_subplot(111)
-    #a = image2.get_xticks().tolist()
-    #for i in range (0,len(a)):
-    #    a[i]=a[i]/size*dtheta
-    #image2.set_xticklabels(a)
-    #ticker.set_yticklabels(a)
-
-    #plt.xticks()
-    #x = np.linspace(0,theta,8)
-    #plt.xticks(range(0,size), x)
-    #ticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x))
-    #set_major_formatter(ticks)
-    #plt.ticklabel_format   tick_values(vmin, vmax)
-
-    #print x
-    #plt.xticks(x)
-   # plt.xticks(1./dtheta)
-   # plt.yticks(1./dtheta)
     plt.ylabel("1./theta")
-    '''
+    plt.show()
 
 
     #shows inverse image
     imageinv = np.fft.ifft2(image)
     imageinv = abs(imageinv)
 
-    #ax = imageinv2.add_subplot(111)
-
-    #imageinv2 = plt.imshow(imageinv2, cmap='hot')
-
-    #plt.colorbar(imageinv2, orientation='horizontal')
-    #plt.show()
     RangeinRealImage = (len(image[1])*dtheta)/2
-
-    #fig = plt.figure(figsize=(6, 3.2))
 
     plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='hot')
     plt.colorbar( orientation='horizontal')
+    plt.xlabel("theta")
+    plt.ylabel("theta")
     plt.show()
-
-    #ticks = plt.ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x/(dtheta*size)))
-    #plt.xaxis.set_major_formatter(ticks)
-    #ticks = plt.ticker.FuncFormatter(lambda y, pos: '{0:g}'.format(y/(dtheta*size)))
-    #plt.yaxis.set_major_formatter(ticks)
-    #ticks = plt.get_xticks()/(dtheta*size)
-    #plt.set_xticklabels(ticks)
-    #ticks = plt.get_yticks()/(dtheta*size)  #getting: AttributeError: 'module' object has no attribute 'get_xticks'
-    #plt.set_yticklabels(ticks)
-
-    #can use xlim(0,end) but cuts graph doesn't change axis, xticks gives which ones are shown, but doesn't rescale
-    #other option: ticks = your_plot.get_xticks()*10**9
-    #              your_plot.set_xticklabels(ticks)
 
