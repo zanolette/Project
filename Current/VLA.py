@@ -11,6 +11,9 @@ dtheta = 15./(60.**2)   #these will be given by 21cm later on
 theta = 4. #gives 960 points
 size = int(theta/dtheta)
 ci=int(size/2)
+eps = 1.    #this is instrument efficiency
+z = 20
+B = 10000        #Bandwidth (Hz) - taking this estimate for now, from MG Santos
 
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel)
 
@@ -28,9 +31,11 @@ lda=10
 
 #DEFINE EXPERIMENT PARAMETERS
 H = 0.
-dH = 1. / (60.* 24.) * np.pi
-integrationtime = 60
-delta = 30./180. * np.pi
+tint = 60.      #interval in seconds
+dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
+totalintegrationtime = 2    #total time in hours
+timestepsneeded= int(totalintegrationtime * 60 * 60 / tint) # unitlessmeasurement of number of steps needed
+delta = 30./180. * np.pi    #declination angle
 scaling = 1./(size*dtheta)
 
 
@@ -41,16 +46,18 @@ scaling = 1./(size*dtheta)
 
 
 #Apply rotation matrix onto baseline vector and maps onto fourier plane.
-(image, UVcount) = func.rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size, zhat)
+(image, UVcount) = func.rotationmatrix(dx, dy, dz, scaling, H, dH, timestepsneeded, delta, size, zhat)
 
 ####################################MEASURE##################################################
 
 # for loop that goes through the fourier space matrix and adds noise according to the number of times the signal gets sampled
 # need to make sure this is correct according to pritchard - noise on complex thing
+tsyst = 50 + 60*((1+z)/4.73)**2.55  #this is from "Probing . . . with the SKA" MG Santos
+
 for i in range (size):
     for j in range (size):
         if image[i][j] != 0:
-            sigma = 50000/np.sqrt(UVcount[i][j])
+            sigma = tsyst/(eps*np.sqrt(UVcount[i][j]*tint*B))       #error eqn according to NRAO course + Pritchard
             real=np.random.normal(np.real(image[i][j]), sigma, 1)
             imaginary = np.random.normal(np.imag(image[i][j]), sigma, 1)
             image[i][j]=real[0] + imaginary[0]*1j

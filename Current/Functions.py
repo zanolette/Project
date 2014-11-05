@@ -14,7 +14,7 @@ def printgraph (image, xrange, yrange, xlabel, ylabel):   #generic print functio
 #creates fourier space matrix of circle radius "radius"
 def circlematrix(size, radius):
     # specify circle parameters: centre ij and radius
-    z = np.zeros((size,size))
+    z = np.ones((size,size))
 
     ci,cj=int(size/2),(size/2) #centre point
     cr=radius  #arbitary for now
@@ -24,8 +24,11 @@ def circlematrix(size, radius):
 
     # np.sqrt((I-ci)**2+(J-cj)**2) calculates distance of all points to centre
     # Assign value of 1 to those points where distance to centre is less that cr:
-    z[np.where(np.sqrt((I-ci)**2+(J-cj)**2)<cr)]=100
+    z[np.where(np.sqrt((I-ci)**2+(J-cj)**2)<cr)]=0
 
+    z = z*0.02  #this is putting surrounding neutral gas to 20mk
+
+    printgraph(z, 1,1,"x","y")
     #Fast Fourier Transform of z
     zhat=np.fft.fft2(z)
     zhat=np.fft.fftshift(zhat)
