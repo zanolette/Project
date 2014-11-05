@@ -13,7 +13,7 @@ size = int(theta/dtheta)
 ci=int(size/2)
 eps = 1.    #this is instrument efficiency
 z = 20
-B = 10000        #Bandwidth (Hz) - taking this estimate for now, from MG Santos
+B = 80000000        #Bandwidth (Hz) - taking this estimate for now, from MG Santos
 
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel)
 
@@ -33,7 +33,7 @@ lda=10
 H = 0.
 tint = 60.      #interval in seconds
 dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
-totalintegrationtime = 2    #total time in hours
+totalintegrationtime = 20    #total time in hours
 timestepsneeded= int(totalintegrationtime * 60 * 60 / tint) # unitlessmeasurement of number of steps needed
 delta = 30./180. * np.pi    #declination angle
 scaling = 1./(size*dtheta)
