@@ -5,7 +5,7 @@ from matplotlib import ticker
 import matplotlib.pyplot as plt
 
 def printgraph (image, xrange, yrange, xlabel, ylabel):   #generic print function with ranges and labels
-    image2 = plt.imshow(image, extent=(-xrange,xrange,-yrange,yrange), interpolation='nearest',cmap='hot')
+    image2 = plt.imshow(image, extent=(-xrange,xrange,-yrange,yrange), interpolation='nearest',cmap='jet')
     plt.colorbar( orientation='horizontal')
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -97,7 +97,8 @@ def rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size, zha
             else:
                 #print ("error, image out of zhat bounds, baseline is", uvplane[0][i] , uvplane[1][i])
                 countvar += 1.
-
+        #plt.scatter(uvplane[0],uvplane[1])
+        #plt.show()
         H += dH
 
     print ("UV Plane Scan Complete, percentage of baselines ignored", (100*countvar/(integrationtime*lenbase)))
@@ -121,7 +122,7 @@ def psf(dtheta,image):
 
     #fig = plt.figure(figsize=(6, 3.2))
 
-    plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='Blues')
+    plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='gist_stern')
     plt.colorbar( orientation='horizontal')
     plt.show()
 

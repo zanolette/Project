@@ -18,24 +18,27 @@ B = 80000000        #Bandwidth (Hz) - taking this estimate for now, from MG Sant
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel)
 
 #creates fourier space matrix of circle radius 100
-zhat = func.circlematrix(size, 100)
+zhat = func.circlematrix(size, 120)
 
 #Define Wavelength
-lda=10
+lda=15
 
 # Now we import array positions
-(dx,dy,dz)=func.importarray('vla.b.cfg',lda)
+(dx,dy,dz)=func.importarray('MWAcoordinate.txt',lda) #'MWAcoordinate.txt''vla.a.cfg'
 
 #plt.scatter(dx, dy)
 #plt.show()
 
 #DEFINE EXPERIMENT PARAMETERS
 H = 0.
+
 tint = 60.      #interval in seconds
 dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
-totalintegrationtime = 20    #total time in hours
-timestepsneeded= int(totalintegrationtime * 60 * 60 / tint) # unitlessmeasurement of number of steps needed
-delta = 30./180. * np.pi    #declination angle
+totalintegrationtime = 1    #total time in hours
+timestepsneeded= 1#int(totalintegrationtime * 60 * 24 / tint) # unitlessmeasurement of number of steps needed
+delta = 90./180. * np.pi    #declination angle
+
+
 scaling = 1./(size*dtheta)
 
 
