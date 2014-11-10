@@ -11,8 +11,9 @@ dtheta = 15./(60.**2)   #these will be given by 21cm later on
 theta = 4. #gives 960 points
 size = int(theta/dtheta)
 ci=int(size/2)
-eps = 1.    #this is instrument efficiency
+eps = 1    #this is instrument efficiency
 z = 20
+#DEPENDS ON Z! FIND THIS
 B = 80000000        #Bandwidth (Hz) - taking this estimate for now, from MG Santos
 
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel)
@@ -56,6 +57,7 @@ scaling = 1./(size*dtheta)
 # for loop that goes through the fourier space matrix and adds noise according to the number of times the signal gets sampled
 # need to make sure this is correct according to pritchard - noise on complex thing
 tsyst = 50 + 60*((1+z)/4.73)**2.55  #this is from "Probing . . . with the SKA" MG Santos
+
 
 for i in range (size):
     for j in range (size):

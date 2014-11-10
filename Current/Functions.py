@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 def printgraph (image, xrange, yrange, xlabel, ylabel):   #generic print function with ranges and labels
     image2 = plt.imshow(image, extent=(-xrange,xrange,-yrange,yrange), interpolation='nearest',cmap='jet')
-    plt.colorbar( orientation='horizontal')
+    plt.colorbar( orientation='vertical')
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.show()
@@ -122,9 +122,11 @@ def psf(dtheta,image):
 
     #fig = plt.figure(figsize=(6, 3.2))
 
-    plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='gist_stern')
-    plt.colorbar( orientation='horizontal')
-    plt.show()
+    printgraph(imageinv, RangeinRealImage,RangeinRealImage,"theta x","theta y")
+
+    #plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='gist_stern')
+    #plt.colorbar( orientation='horizontal')
+    #plt.show()
 
 
 #This function takes matrix relating to the fourier space and inverts it. It plots both the fourier image and the real space image
@@ -133,13 +135,14 @@ def invert(image, dtheta):
     RangeinComplexImage = 0.5/dtheta
 
     image2 = np.log(abs(image)+1)
-    image2 = plt.imshow(image2, extent=(-RangeinComplexImage,RangeinComplexImage,-RangeinComplexImage,RangeinComplexImage), interpolation='nearest',cmap='hot')
 
+    printgraph(image2, RangeinComplexImage,RangeinComplexImage,"1/theta","1/theta y")
 
-    plt.colorbar( orientation='horizontal')
-    plt.xlabel("1./theta")
-    plt.ylabel("1./theta")
-    plt.show()
+    #image2 = plt.imshow(image2, extent=(-RangeinComplexImage,RangeinComplexImage,-RangeinComplexImage,RangeinComplexImage), interpolation='nearest',cmap='hot')
+    #plt.colorbar( orientation='horizontal')
+    #plt.xlabel("1./theta")
+    #plt.ylabel("1./theta")
+    #plt.show()
 
 
     #shows inverse image
@@ -148,9 +151,14 @@ def invert(image, dtheta):
 
     RangeinRealImage = (len(image[1])*dtheta)/2
 
-    plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='hot')
-    plt.colorbar( orientation='horizontal')
-    plt.xlabel("theta")
-    plt.ylabel("theta")
-    plt.show()
 
+    printgraph(imageinv, RangeinRealImage,RangeinRealImage,"theta x","theta y")
+
+
+    #plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='hot')
+    #plt.colorbar( orientation='horizontal')
+    #plt.xlabel("theta")
+    #plt.ylabel("theta")
+    #plt.show()
+
+def converter(H0, OmegaM, OmegaVAC, z):
