@@ -6,26 +6,35 @@ import pylab as pl
 from matplotlib import ticker
 import Functions as func
 import boxio as boximport
-
-#Define size of view and resolution
-dtheta = 15./(60.**2)   #these will be given by 21cm later on
-theta = 4. #gives 960 points
-size = 200#int(theta/dtheta)
-ci=100#int(size/2)
-eps = 1    #this is instrument efficiency
-z = 20
-#DEPENDS ON Z! FIND THIS
-B = 80000000        #Bandwidth (Hz) - taking this estimate for now, from MG Santos
+import Cosmo
 
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel)
 
-#creates fourier space matrix of circle radius 100
-#zhat = func.circlematrix(size, 120)
+
+
+#Define size of view and resolution
+z = 20
+theta = 4.
+
+size = 200 # box size - maybe write a code to get this out of the title of the 21cmfast files
+ci = 100
+
+dtheta = float(theta/size)
+print dtheta
+
+eps = 1    #this is instrument efficiency
+
+#DEPENDS ON Z! FIND THIS
+B = 8000000        #Bandwidth (Hz) - taking this estimate for now, from MG Santos
 
 
 
 
-zhat= func.twentyonecmmatrix('delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc')
+
+
+
+
+zhat= func.twentyonecmmatrix('delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc',theta/2)
 
 
 
@@ -37,7 +46,7 @@ zhat= func.twentyonecmmatrix('delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX
 lda=15
 
 # Now we import array positions
-(dx,dy,dz)=func.importarray('MWAcoordinate.txt',lda) #'MWAcoordinate.txt''vla.a.cfg'
+(dx,dy,dz)=func.importarray('vla.a.cfg',lda) #'MWAcoordinate.txt''vla.a.cfg'
 
 #plt.scatter(dx, dy)
 #plt.show()
@@ -47,8 +56,8 @@ H = 0.
 
 tint = 60.      #interval in seconds
 dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
-totalintegrationtime = 1    #total time in hours
-timestepsneeded= 1#int(totalintegrationtime * 60 * 24 / tint) # unitlessmeasurement of number of steps needed
+totalintegrationtime = 120    #total time in hours
+timestepsneeded= int(totalintegrationtime * 60 * 24 / tint) # unitlessmeasurement of number of steps needed
 delta = 90./180. * np.pi    #declination angle
 
 

@@ -41,14 +41,14 @@ def circlematrix(size, radius):
 
     return zhat
 
-def twentyonecmmatrix(filename):
+def twentyonecmmatrix(filename,theta):
     box=boximport.readbox(filename)
 
     ci=int(box.dim/2)
 
-    z=box.box_data[1]
+    z=box.box_data[199]
 
-    printgraph(z, 1,1,"x","y")
+    printgraph(z, theta,theta,"x","y")
 
     zhat=np.fft.fft2(z)
     zhat=np.fft.fftshift(zhat)
