@@ -3,6 +3,7 @@ import numpy as np
 import pylab as pl
 from matplotlib import ticker
 import matplotlib.pyplot as plt
+import boxio as boximport
 
 def printgraph (image, xrange, yrange, xlabel, ylabel):   #generic print function with ranges and labels
     image2 = plt.imshow(image, extent=(-xrange,xrange,-yrange,yrange), interpolation='nearest',cmap='jet')
@@ -39,6 +40,23 @@ def circlematrix(size, radius):
     #zhatabs=abs(zhat)
 
     return zhat
+
+def twentyonecmmatrix(filename):
+    box=boximport.readbox(filename)
+
+    ci=int(box.dim/2)
+
+    z=box.box_data[1]
+
+    printgraph(z, 1,1,"x","y")
+
+    zhat=np.fft.fft2(z)
+    zhat=np.fft.fftshift(zhat)
+
+    return zhat
+
+
+
 
 #Imports and array from a text file and returns the baseline dx, dy and dz. depends on lambda
 def importarray(filename,lda):
@@ -161,4 +179,3 @@ def invert(image, dtheta):
     #plt.ylabel("theta")
     #plt.show()
 
-def converter(H0, OmegaM, OmegaVAC, z):

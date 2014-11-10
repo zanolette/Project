@@ -5,12 +5,13 @@ import matplotlib.pyplot as plt
 import pylab as pl
 from matplotlib import ticker
 import Functions as func
+import boxio as boximport
 
 #Define size of view and resolution
 dtheta = 15./(60.**2)   #these will be given by 21cm later on
 theta = 4. #gives 960 points
-size = int(theta/dtheta)
-ci=int(size/2)
+size = 200#int(theta/dtheta)
+ci=100#int(size/2)
 eps = 1    #this is instrument efficiency
 z = 20
 #DEPENDS ON Z! FIND THIS
@@ -19,7 +20,18 @@ B = 80000000        #Bandwidth (Hz) - taking this estimate for now, from MG Sant
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel)
 
 #creates fourier space matrix of circle radius 100
-zhat = func.circlematrix(size, 120)
+#zhat = func.circlematrix(size, 120)
+
+
+
+
+zhat= func.twentyonecmmatrix('delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc')
+
+
+
+
+
+
 
 #Define Wavelength
 lda=15
