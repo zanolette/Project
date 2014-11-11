@@ -1,4 +1,4 @@
-__author__ = 'fredpiech'
+
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,16 +8,24 @@ import Functions as func
 import boxio as boximport
 import Cosmo
 
+# defines our universe
+CosmoUnits=Cosmo.CosmoUnits()
+
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel)
 
+#getting 21cm box information
+fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'
+box_info = boximport.parse_filename(fname)
 
 
 #Define size of view and resolution
-z = 20
-theta = 4.
+z = box_info['z']
+theta = CosmoUnits.thetaboxsize(z,box_info['BoxSize'])
+print theta
 
-size = 200 # box size - maybe write a code to get this out of the title of the 21cmfast files
-ci = 100
+size = box_info['dim'] # box size - maybe write a code to get this out of the title of the 21cmfast files
+
+ci = int(size/2)
 
 dtheta = float(theta/size)
 print dtheta
@@ -30,23 +38,16 @@ B = 8000000        #Bandwidth (Hz) - taking this estimate for now, from MG Santo
 
 
 
+zhat= func.twentyonecmmatrix(fname,theta/2)
 
 
 
 
-zhat= func.twentyonecmmatrix('delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc',theta/2)
-
-
-
-
-
-
-
-#Define Wavelength
-lda=15
+#Define Wavelength - find this out from z!!
+lda=.21106*(1+z)
 
 # Now we import array positions
-(dx,dy,dz)=func.importarray('vla.a.cfg',lda) #'MWAcoordinate.txt''vla.a.cfg'
+(dx,dy,dz)=func.importarray('MWAcoordinate.txt',lda) #'MWAcoordinate.txt''vla.a.cfg'
 
 #plt.scatter(dx, dy)
 #plt.show()
@@ -56,8 +57,8 @@ H = 0.
 
 tint = 60.      #interval in seconds
 dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
-totalintegrationtime = 120    #total time in hours
-timestepsneeded= int(totalintegrationtime * 60 * 24 / tint) # unitlessmeasurement of number of steps needed
+totalintegrationtime = 1    #total time in hours
+timestepsneeded= 1#int(totalintegrationtime * 60 * 24 / tint) # unitlessmeasurement of number of steps needed
 delta = 90./180. * np.pi    #declination angle
 
 

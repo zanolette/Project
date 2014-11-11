@@ -11,7 +11,7 @@ def printgraph (image, xrange, yrange, xlabel, ylabel):   #generic print functio
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.show()
-
+'''
 #creates fourier space matrix of circle radius "radius"
 def circlematrix(size, radius):
     # specify circle parameters: centre ij and radius
@@ -29,7 +29,7 @@ def circlematrix(size, radius):
 
     z = z*0.02  #this is putting surrounding neutral gas to 20mk
 
-    printgraph(z, 1,1,"x","y")
+    printgraph(z, 2,2,"x","y")
     #Fast Fourier Transform of z
     zhat=np.fft.fft2(z)
     zhat=np.fft.fftshift(zhat)
@@ -40,6 +40,7 @@ def circlematrix(size, radius):
     #zhatabs=abs(zhat)
 
     return zhat
+'''
 
 def twentyonecmmatrix(filename,theta):
     box=boximport.readbox(filename)

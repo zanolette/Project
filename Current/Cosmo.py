@@ -1,4 +1,4 @@
-__author__ = 'fredpiech'
+
 # A class that lays the ground works for getting the right cosmological units.
 
 import numpy as np
@@ -62,13 +62,16 @@ class CosmoUnits:
     def Tlighttravel(self, z): # returns result in gigayears
         return self.Dlighttravel(z)/self.CMpcperGigyear
 
-x=CosmoUnits(70,0.3,0.7)
+    def thetaboxsize(self,z,MPc):
+        return 360.*MPc/(self.Dcomovingtrans(z)*2.*np.pi)
 
-z=3.
+#x=CosmoUnits(70,0.3,0.7)
 
-print 'given a redshift of',z
+#z=3.
 
-print 'light travel time:', x.Tlighttravel(z),'Gigayears'
-print 'comoving radial distance:',x.Dcomovingrad(z) , 'Mpc'
-print 'angular distance:', x.Dangular(z), 'Mpc'
-print 'luminosity distance:', x.Dlum(z), 'Mpc'
+#print 'given a redshift of',z
+
+#print 'light travel time:', x.Tlighttravel(z),'Gigayears'
+#print 'comoving radial distance:',x.Dcomovingrad(z) , 'Mpc'
+#print 'angular distance:', x.Dangular(z), 'Mpc'
+#print 'luminosity distance:', x.Dlum(z), 'Mpc'

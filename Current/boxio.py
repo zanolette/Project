@@ -18,7 +18,7 @@ import re
 import sys
 import string
 #from mpl_toolkits.mplot3d import Axes3D
-from Current.Box import *
+from Box import *
 
 
 def readbox(filename):
