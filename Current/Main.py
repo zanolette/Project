@@ -37,31 +37,38 @@ B = 8000000        #Bandwidth (Hz) - taking this estimate for now, from MG Santo
 
 
 
-
+#imports 21cm box and takes single z slice then FFT's
 zhat= func.twentyonecmmatrix(fname,theta/2)
 
+#gets 2D psd of image then gets 1D radial psd - this is INPUT power spectrum
+psdwidth = 3    #can change this!
+abszhat=np.abs(zhat)**2
+radialpsd = func.radial_data(abszhat,psdwidth)
 
+spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
+spatialfreq=spatialfreq[:int(size/(psdwidth*2))]
+
+fig=plt.loglog(spatialfreq,radialpsd)
+plt.xlabel('k')
+plt.ylabel('P(k)')
+plt.show()
 
 
 #Define Wavelength - find this out from z!!
 lda=.21106*(1+z)
 
+
 # Now we import array positions
 (dx,dy,dz)=func.importarray('MWAcoordinate.txt',lda) #'MWAcoordinate.txt''vla.a.cfg'
 
-#plt.scatter(dx, dy)
-#plt.show()
 
 #DEFINE EXPERIMENT PARAMETERS
 H = 0.
-
 tint = 60.      #interval in seconds
 dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
-totalintegrationtime = 1    #total time in hours
+totalintegrationtime = 10    #total time in hours
 timestepsneeded= 1#int(totalintegrationtime * 60 * 24 / tint) # unitlessmeasurement of number of steps needed
 delta = 90./180. * np.pi    #declination angle
-
-
 scaling = 1./(size*dtheta)
 
 
@@ -74,7 +81,9 @@ scaling = 1./(size*dtheta)
 #Apply rotation matrix onto baseline vector and maps onto fourier plane.
 (image, UVcount) = func.rotationmatrix(dx, dy, dz, scaling, H, dH, timestepsneeded, delta, size, zhat)
 
+
 ####################################MEASURE##################################################
+
 
 # for loop that goes through the fourier space matrix and adds noise according to the number of times the signal gets sampled
 # need to make sure this is correct according to pritchard - noise on complex thing
@@ -90,13 +99,20 @@ for i in range (size):
             image[i][j]=real[0] + imaginary[0]*1j
 
 
+#gets 2D psd of image then gets 1D radial psd - this is OUTPUT power spectrum
+absimage=np.abs(image)**2
+radialpsd2 = func.radial_data(absimage,psdwidth)
+
+fig=plt.loglog(spatialfreq,radialpsd2)
+plt.xlabel('k')
+plt.ylabel('P(k)')
+plt.show()
 
 #THIS IS TO FIND THE PSF
-func.psf(dtheta, image)
+func.psfcrosssection(dtheta, image)
 
-func.invert(image, dtheta)
+
 #shows sample fourier image
+func.invert(image, dtheta)
 
 
-
-#i'm testing this

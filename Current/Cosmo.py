@@ -3,7 +3,7 @@
 
 import numpy as np
 
-class CosmoUnits:
+class CosmoUnits:   #all except thetaboxsize are ratio's or in MPc, but for angles need to remember rad - degrees
     def __init__(self,
                  H0=69.6,           # Hubble Constant
                  omega_m=0.286,     # Mass Density
