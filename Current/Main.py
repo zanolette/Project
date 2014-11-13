@@ -11,7 +11,7 @@ import Cosmo
 # defines our universe
 CosmoUnits=Cosmo.CosmoUnits()
 
-#remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel)
+#remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel,scalemin,scalemax)
 
 #getting 21cm box information
 fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'
@@ -30,7 +30,7 @@ ci = int(size/2)
 dtheta = float(theta/size)
 print dtheta
 
-eps = 1    #this is instrument efficiency
+eps = 0.5    #this is instrument efficiency
 
 #DEPENDS ON Z! FIND THIS
 B = 8000000        #Bandwidth (Hz) - taking this estimate for now, from MG Santos
@@ -38,7 +38,7 @@ B = 8000000        #Bandwidth (Hz) - taking this estimate for now, from MG Santo
 
 
 #imports 21cm box and takes single z slice
-z,zhat= func.twentyonecmmatrix(fname,theta/2)    #z will be used later to compute rms of image and measured sky
+zhat,twenty1 = func.twentyonecmmatrix(fname,theta/2)    #z will be used later to compute rms of image and measured sky
 
 
 #gets 2D psd of image then gets 1D radial psd - this is INPUT power spectrum
@@ -60,7 +60,7 @@ lda=.21106*(1+z)
 
 
 # Now we import array positions
-(dx,dy,dz)=func.importarray('MWAcoordinate.txt',lda) #'MWAcoordinate.txt''vla.a.cfg'
+(dx,dy,dz)=func.importarray('MWAhalved.txt',lda) #'MWAcoordinate.txt''vla.a.cfg'
 
 
 #DEFINE EXPERIMENT PARAMETERS
@@ -117,6 +117,6 @@ func.psfcrosssection(dtheta, image)
 func.invert(image, dtheta)
 
 #Compute rms between image and inputed 21cm
-print 'rms between 21cmbox and image is', func.rmscalc(z,image)
+print 'rms between 21cmbox and image is', func.rmscalc(twenty1,image)
 
 

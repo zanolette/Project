@@ -5,8 +5,20 @@ from matplotlib import ticker
 import matplotlib.pyplot as plt
 import boxio as boximport
 
-def printgraph (image, xrange, yrange, xlabel, ylabel):   #generic print function with ranges and labels
-    image2 = plt.imshow(image, extent=(-xrange,xrange,-yrange,yrange), interpolation='nearest',cmap='jet')
+def printgraph (image, xrange, yrange, xlabel, ylabel, scalemin,scalemax):   #generic print function with ranges and labels
+    if scalemin == 'None':
+        if scalemax == 'None':  #seems convoluted but allows us to use scalemin or max or not
+            image2 = plt.imshow(image, extent=(-xrange,xrange,-yrange,yrange), interpolation='nearest',cmap='jet')
+        else:
+            image2 = plt.imshow(image, extent=(-xrange,xrange,-yrange,yrange),vmax=scalemax, interpolation='nearest',cmap='jet')
+    else:
+        if scalemax == 'None':
+            image2 = plt.imshow(image, extent=(-xrange,xrange,-yrange,yrange),vmin=scalemin,interpolation='nearest',cmap='jet')
+        else:
+            image2 = plt.imshow(image, extent=(-xrange,xrange,-yrange,yrange),vmin=scalemin,vmax=scalemax, interpolation='nearest',cmap='jet')
+
+    #70 is chosen arbitarily from z=14 21cmbox which goes to 64, may need to change
+
     plt.colorbar( orientation='vertical')
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -18,18 +30,19 @@ def twentyonecmmatrix(filename,theta):  #imports 21cm box and takes single z sli
 
     ci=int(box.dim/2)
 
-    z=box.box_data[199]
+    twenty1=box.box_data[199]
 
-    printgraph(z, theta,theta,"theta x","theta y")
+    printgraph(twenty1, theta,theta,"theta","theta", 0, 70)
 
-    zhat=np.fft.fft2(z)     #then FFT
+    zhat=np.fft.fft2(twenty1)     #then FFT
     zhat=np.fft.fftshift(zhat)
-    return z,zhat
+    return zhat,twenty1     #as twenty1 will be used in rms calculation
 
 
 #Imports and array from a text file and returns the baseline dx, dy and dz. depends on lambda
 def importarray(filename,lda):
     positions = []
+
     with open(filename) as configa:
         for line in configa:
             positions.append(line.strip().split('\t'))
@@ -130,7 +143,7 @@ def psf(dtheta,image):
 
     #fig = plt.figure(figsize=(6, 3.2))
 
-    printgraph(imageinv, RangeinRealImage,RangeinRealImage,"theta x","theta y")
+    printgraph(imageinv, RangeinRealImage,RangeinRealImage,"theta","theta", 'None', 'None')
 
     #plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='gist_stern')
     #plt.colorbar( orientation='horizontal')
@@ -173,7 +186,7 @@ def invert(image, dtheta):
 
     image2 = np.log(abs(image)+1)   #!!!LOGGED!!! to make clear
 
-    printgraph(image2, RangeinComplexImage,RangeinComplexImage,"1/theta","1/theta y")
+    printgraph(image2, RangeinComplexImage,RangeinComplexImage,"1/theta","1/theta",'None','None')
 
     #image2 = plt.imshow(image2, extent=(-RangeinComplexImage,RangeinComplexImage,-RangeinComplexImage,RangeinComplexImage), interpolation='nearest',cmap='hot')
     #plt.colorbar( orientation='horizontal')
@@ -189,7 +202,7 @@ def invert(image, dtheta):
     RangeinRealImage = (len(image[1])*dtheta)/2
 
 
-    printgraph(imageinv, RangeinRealImage,RangeinRealImage,"theta x","theta y")
+    printgraph(imageinv, RangeinRealImage,RangeinRealImage,"theta","theta", 0,70)
 
 
     #plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='hot')
@@ -204,7 +217,7 @@ def rmscalc (twenty1cm,image):
 
     for i in range(max):
         for j in range(max):
-            squaredcount += (image[i][j] - twenty1cm[i][j])**2
+            squaredcount += (np.real(image[i][j]) - twenty1cm[i][j])**2     #or should this be real(image)
 
     squaredcount = squaredcount/(max**2)
     return np.sqrt(squaredcount)
