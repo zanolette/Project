@@ -22,10 +22,9 @@ def twentyonecmmatrix(filename,theta):  #imports 21cm box and takes single z sli
 
     printgraph(z, theta,theta,"theta x","theta y")
 
-    zhat=np.fft.fft2(z)
+    zhat=np.fft.fft2(z)     #then FFT
     zhat=np.fft.fftshift(zhat)
-
-    return zhat
+    return z,zhat
 
 
 #Imports and array from a text file and returns the baseline dx, dy and dz. depends on lambda
@@ -172,7 +171,7 @@ def invert(image, dtheta):
 
     RangeinComplexImage = 0.5/dtheta
 
-    image2 = np.log(abs(image)+1)
+    image2 = np.log(abs(image)+1)   #!!!LOGGED!!! to make clear
 
     printgraph(image2, RangeinComplexImage,RangeinComplexImage,"1/theta","1/theta y")
 
@@ -199,3 +198,13 @@ def invert(image, dtheta):
     #plt.ylabel("theta")
     #plt.show()
 
+def rmscalc (twenty1cm,image):
+    max = len(image[0])
+    squaredcount = 0    #this counts x**2 + y**2 . . . then will average and sqrt at end
+
+    for i in range(max):
+        for j in range(max):
+            squaredcount += (image[i][j] - twenty1cm[i][j])**2
+
+    squaredcount = squaredcount/(max**2)
+    return np.sqrt(squaredcount)

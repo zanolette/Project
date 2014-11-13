@@ -37,14 +37,15 @@ B = 8000000        #Bandwidth (Hz) - taking this estimate for now, from MG Santo
 
 
 
-#imports 21cm box and takes single z slice then FFT's
-zhat= func.twentyonecmmatrix(fname,theta/2)
+#imports 21cm box and takes single z slice
+z,zhat= func.twentyonecmmatrix(fname,theta/2)    #z will be used later to compute rms of image and measured sky
+
 
 #gets 2D psd of image then gets 1D radial psd - this is INPUT power spectrum
 psdwidth = 3    #can change this!
 abszhat=np.abs(zhat)**2
 radialpsd = func.radial_data(abszhat,psdwidth)
-
+del abszhat
 spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
 spatialfreq=spatialfreq[:int(size/(psdwidth*2))]
 
@@ -87,7 +88,7 @@ scaling = 1./(size*dtheta)
 
 # for loop that goes through the fourier space matrix and adds noise according to the number of times the signal gets sampled
 # need to make sure this is correct according to pritchard - noise on complex thing
-tsyst = 50 + 60*((1+z)/4.73)**2.55  #this is from "Probing . . . with the SKA" MG Santos
+tsyst = 50000 + 60000*((1+z)/4.73)**2.55  #(mK) this is from "Probing . . . with the SKA" MG Santos
 
 
 for i in range (size):
@@ -114,5 +115,8 @@ func.psfcrosssection(dtheta, image)
 
 #shows sample fourier image
 func.invert(image, dtheta)
+
+#Compute rms between image and inputed 21cm
+print 'rms between 21cmbox and image is', func.rmscalc(z,image)
 
 
