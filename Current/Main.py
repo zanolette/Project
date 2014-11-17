@@ -55,16 +55,15 @@ scaling = 1./(size*dtheta)
 #imports 21cm box and takes single z slice
 zhat,twenty1 = func.twentyonecmmatrix(fname,theta/2)    #z will be used later to compute rms of image and measured sky
 
-
+'''
 #gets 2D psd of image then gets 1D radial psd - this is INPUT power spectrum
 abszhat=np.abs(zhat)**2
-
-
 radialpsd = func.radial_data(abszhat,psdwidth)
 del abszhat
 spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
 spatialfreq=spatialfreq[:int(size/(psdwidth*2))]    #this is used to give axis for power spectrum plots
-'''
+
+
 #this is power spectrum of 21cmbox
 fig=plt.loglog(spatialfreq,radialpsd)
 plt.xlabel('k')
@@ -111,10 +110,8 @@ for i in range (size):
             imaginary = np.random.normal(np.imag(zhat[i][j]), sigma[i][j]/np.sqrt(2), 1)
             image[i][j]=real[0] + imaginary[0]*1j
 
-
+'''
 #gets 2D psd of image then gets 1D radial psd - this is OUTPUT power spectrum
-
-
 absimage=np.abs(image)**2
 radialpsd2 = func.radial_data(absimage,psdwidth)
 noiseradialpsd2 = func.radial_data(sigma,psdwidth)
@@ -127,7 +124,7 @@ plt.show()
 
 #THIS IS TO FIND THE PSF
 func.psfcrosssection(dtheta, image)
-
+'''
 
 #shows sample fourier image
 image = func.invert(image, dtheta)  #at the moment this overwrites inverse space image after its inverted
