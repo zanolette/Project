@@ -87,11 +87,16 @@ def radial_data(data,width): #here width means how many pixels wide each band is
 
 
 #Maps baselines onto UV plane along with rotational matrix
-def rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size, zhat):
+
+#FRED CHANGED THIS!!!  - Now this functions merely takes all of the locations and maps out the UV plane completely together with a count
+#We will have to mask it onto the image later.
+#Pritchards suggestion to make this faster...
+
+def rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size):
+
     ci = int(size/2)
     lenbase = len(dx)
 
-    image = np.zeros((size,size),'complex')
     UVcount = np.zeros((size,size),'complex')
 
     countvar = 0.
@@ -110,9 +115,6 @@ def rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size, zha
         #Sample fourier space positions (zhat) for this given time
         for i in range(len(uvplane[0])):
             if uvplane[0][i] < size and uvplane[1][i] < size and uvplane[0][i] > 0 and uvplane[1][i] > 0 :   #this is to stop crashing
-                if image[uvplane[0][i], uvplane[1][i]]==0: # this to decrease run time by not going over same point twice
-                    image[uvplane[0][i], uvplane[1][i]] = zhat[uvplane[0][i], uvplane[1][i]]
-                #PSFimage counts how often a point is traced in the uv plane
                 UVcount[uvplane[0][i], uvplane[1][i]] += 1
             else:
                 #print ("error, image out of zhat bounds, baseline is", uvplane[0][i] , uvplane[1][i])
@@ -122,7 +124,7 @@ def rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size, zha
         H += dH
 
     print ("UV Plane Scan Complete, percentage of baselines ignored", (100*countvar/(integrationtime*lenbase)))
-    return (image, UVcount)
+    return (UVcount)
 
 
 def psf(dtheta,image):

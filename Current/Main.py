@@ -44,6 +44,8 @@ zhat,twenty1 = func.twentyonecmmatrix(fname,theta/2)    #z will be used later to
 #gets 2D psd of image then gets 1D radial psd - this is INPUT power spectrum
 psdwidth = 3    #can change this!
 abszhat=np.abs(zhat)**2
+
+'''
 radialpsd = func.radial_data(abszhat,psdwidth)
 del abszhat
 spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
@@ -53,7 +55,7 @@ fig=plt.loglog(spatialfreq,radialpsd)
 plt.xlabel('k')
 plt.ylabel('P(k)')
 plt.show()
-
+'''
 
 #Define Wavelength - find this out from z!!
 lda=.21106*(1+z)
@@ -80,7 +82,7 @@ scaling = 1./(size*dtheta)
 
 
 #Apply rotation matrix onto baseline vector and maps onto fourier plane.
-(image, UVcount) = func.rotationmatrix(dx, dy, dz, scaling, H, dH, timestepsneeded, delta, size, zhat)
+UVcount = func.rotationmatrix(dx, dy, dz, scaling, H, dH, timestepsneeded, delta, size)
 
 
 ####################################MEASURE##################################################
@@ -91,16 +93,21 @@ scaling = 1./(size*dtheta)
 tsyst = 50000 + 60000*((1+z)/4.73)**2.55  #(mK) this is from "Probing . . . with the SKA" MG Santos
 
 
+#using UV count - this now merges the UVcoverage and the Image
+
+image = np.zeros((size,size),'complex')
 for i in range (size):
     for j in range (size):
-        if image[i][j] != 0:
+        if UVcount[i][j] != 0:
             sigma = tsyst/(eps*np.sqrt(UVcount[i][j]*tint*B))       #error eqn according to NRAO course + Pritchard
-            real=np.random.normal(np.real(image[i][j]), sigma, 1)
-            imaginary = np.random.normal(np.imag(image[i][j]), sigma, 1)
+            real=np.random.normal(np.real(zhat[i][j]), sigma, 1)
+            imaginary = np.random.normal(np.imag(zhat[i][j]), sigma, 1)
             image[i][j]=real[0] + imaginary[0]*1j
 
 
 #gets 2D psd of image then gets 1D radial psd - this is OUTPUT power spectrum
+
+'''
 absimage=np.abs(image)**2
 radialpsd2 = func.radial_data(absimage,psdwidth)
 
@@ -108,7 +115,7 @@ fig=plt.loglog(spatialfreq,radialpsd2)
 plt.xlabel('k')
 plt.ylabel('P(k)')
 plt.show()
-
+'''
 #THIS IS TO FIND THE PSF
 func.psfcrosssection(dtheta, image)
 
