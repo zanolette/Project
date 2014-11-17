@@ -32,7 +32,7 @@ def twentyonecmmatrix(filename,theta):  #imports 21cm box and takes single z sli
 
     twenty1=box.box_data[199]
 
-    printgraph(twenty1, theta,theta,"theta","theta", 0, 70)
+    #printgraph(twenty1, theta,theta,"theta","theta", 0, 70)
 
     zhat=np.fft.fft2(twenty1)     #then FFT
     zhat=np.fft.fftshift(zhat)
@@ -108,7 +108,6 @@ def rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size):
 
         for i in range(lenbase): #one application of the rotation matrix
             uvplane[0][i] = int(ci + scaling*(np.sin(H)*dx[i] + np.cos(H)*dy[i])) # have UV matrix with enough space to get 24 hours of integration
-            #t*lenbase makes sure we dont overwrite previous hours of integration
             uvplane[1][i] = int(ci + scaling*(-np.sin(delta)*np.cos(H)*dx[i] + np.sin(delta)*np.sin(H)*dy[i] + np.cos(delta)*dz[i]))
             uvplane[2][i] = np.cos(delta)*np.cos(H)*dx[i] - np.cos(delta)*np.sin(H)*dy[i] + np.sin(delta)*dz[i]
 
@@ -213,8 +212,11 @@ def invert(image, dtheta):
     #plt.ylabel("theta")
     #plt.show()
 
+    return imageinv
+
 def rmscalc (twenty1cm,image):
     max = len(image[0])
+
     squaredcount = 0    #this counts x**2 + y**2 . . . then will average and sqrt at end
 
     for i in range(max):
