@@ -28,8 +28,6 @@ def printgraph (image, xrange, yrange, xlabel, ylabel, scalemin,scalemax):   #ge
 def twentyonecmmatrix(filename,theta):  #imports 21cm box and takes single z slice then FFT's
     box=boximport.readbox(filename)
 
-    ci=int(box.dim/2)
-
     twenty1=box.box_data[199]
 
     #printgraph(twenty1, theta,theta,"theta","theta", 0, 70)
@@ -187,7 +185,7 @@ def invert(image, dtheta):
 
     image2 = np.log(abs(image)+1)   #!!!LOGGED!!! to make clear
 
-    printgraph(image2, RangeinComplexImage,RangeinComplexImage,"1/theta","1/theta",'None','None')
+    #printgraph(image2, RangeinComplexImage,RangeinComplexImage,"1/theta","1/theta",'None','None')
 
     #image2 = plt.imshow(image2, extent=(-RangeinComplexImage,RangeinComplexImage,-RangeinComplexImage,RangeinComplexImage), interpolation='nearest',cmap='hot')
     #plt.colorbar( orientation='horizontal')
@@ -203,7 +201,7 @@ def invert(image, dtheta):
     RangeinRealImage = (len(image[1])*dtheta)/2
 
 
-    printgraph(imageinv, RangeinRealImage,RangeinRealImage,"theta","theta", 0,70)
+    #printgraph(imageinv, RangeinRealImage,RangeinRealImage,"theta","theta", 0,70)
 
 
     #plt.imshow(imageinv,extent=(-RangeinRealImage,RangeinRealImage,-RangeinRealImage,RangeinRealImage),  interpolation='nearest', cmap='hot')
@@ -214,14 +212,14 @@ def invert(image, dtheta):
 
     return imageinv
 
-def rmscalc (twenty1cm,image):
-    max = len(image[0])
+def rmscalc (twenty1cm,image3D,max):
 
     squaredcount = 0    #this counts x**2 + y**2 . . . then will average and sqrt at end
 
     for i in range(max):
         for j in range(max):
-            squaredcount += (np.real(image[i][j]) - twenty1cm[i][j])**2     #or should this be real(image)
+            for k in range(max):
+                squaredcount += (np.real(image3D[i][j][k]) - twenty1cm[i][j][k])**2     #or should this be real(image)
 
     squaredcount = squaredcount/(max**2)
     return np.sqrt(squaredcount)
