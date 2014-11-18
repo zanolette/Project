@@ -67,15 +67,16 @@ B = 1420.41e6*dl/((1+z)*CosmoUnits.Dcomovingrad(z))        #Bandwidth (Hz) - thi
 sigma3D = np.zeros((size,size,size))    #initialised so we can save all slices here
 image3D = np.zeros((size,size,size))
 
+#imports 21cm box and takes single z slice
+#zhat,twenty1 = func.twentyonecmmatrix(fname,theta/2)    #z will be used later to compute rms of image and measured sky
+box=boximport.readbox(fname)
+twenty1 = box.box_data  #so we have it seperate - this is 3D!
 
 ##########################This is where we introduce a slice################################
 
 for slice in range(size):   #iterates over all slices
 
-    #imports 21cm box and takes single z slice
-    #zhat,twenty1 = func.twentyonecmmatrix(fname,theta/2)    #z will be used later to compute rms of image and measured sky
-    box=boximport.readbox(fname)
-    twenty1 = box.box_data  #so we have it seperate - this is 3D!
+    print slice
 
     zhat=np.fft.fft2(twenty1[slice])     #then FFT of the specific slice
     zhat=np.fft.fftshift(zhat)  #this gives us the FFT of twenty1
@@ -83,7 +84,7 @@ for slice in range(size):   #iterates over all slices
     '''
     #gets 2D psd of image then gets 1D radial psd of this slice - this is INPUT power spectrum
     abszhat=np.abs(zhat)**2
-    radialpsd = func.radial_data(abszhat,psdwidth)
+    radialpsd = func.powerspectrum2D(abszhat,psdwidth)
     del abszhat
     spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
     spatialfreq=spatialfreq[:int(size/(psdwidth*2))]    #this is used to give axis for power spectrum plots
@@ -122,14 +123,11 @@ for slice in range(size):   #iterates over all slices
                 imaginary = np.random.normal(np.imag(zhat[i][j]), sigma[i][j]/np.sqrt(2), 1)
                 image[i][j]=real[0] + imaginary[0]*1j
 
-    sigma3D[slice]=sigma    #this means first index of sigma3D is for the slice
-
-
     '''
     #gets 2D psd of image then gets 1D radial psd - this is OUTPUT power spectrum
     absimage=np.abs(image)**2
-    radialpsd2 = func.radial_data(absimage,psdwidth)
-    noiseradialpsd2 = func.radial_data(sigma,psdwidth)
+    radialpsd2 = func.powerspectrum2D(absimage,psdwidth)
+    noiseradialpsd2 = func.powerspectrum2D(sigma,psdwidth)
     fig1=plt.loglog(spatialfreq,noiseradialpsd2)
     plt.loglog(spatialfreq,radialpsd2)
     plt.loglog(spatialfreq,radialpsd)
@@ -141,10 +139,30 @@ for slice in range(size):   #iterates over all slices
     func.psfcrosssection(dtheta, image)
     '''
 
-    #shows sample fourier image
-    image = func.invert(image, dtheta)  #at the moment this overwrites inverse space image after its inverted
-    image3D[slice] = image  #saves this image slice
+    sigma = func.invert(sigma, dtheta)  #at the moment this overwrites inverse space image after its inverted
+    sigma3D[slice] = sigma  #saves this image slice in real space
 
+
+    image = func.invert(image, dtheta)  #at the moment this overwrites inverse space image after its inverted
+    image3D[slice] = image  #saves this image slice in real space
+
+#This calculates 3D powerspectrum, after all slices are done
+imagepowerspectrum = func.powerspectrum3D(image3D,psdwidth,size)
+print 'done imagepowerspectrum'
+sigmapowerspectrum = func.powerspectrum3D(sigma3D,psdwidth,size)
+print 'done sigmapowerspectrum'
+twenty1powerspectrum = func.powerspectrum3D(twenty1,psdwidth,size)
+print 'done twenty1powerspectrum'
+
+spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
+spatialfreq=spatialfreq[:int(size/(psdwidth*2))]    #this is used to give axis for power spectrum plots
+plt.loglog(spatialfreq,imagepowerspectrum)
+plt.loglog(spatialfreq,sigmapowerspectrum)
+plt.loglog(spatialfreq,twenty1powerspectrum)
+plt.xlabel('k')
+plt.ylabel('P(k)')
+plt.show()
+    
 #Compute rms between image and inputed 21cm - only do this if willing to wait
 print 'rms between 21cmbox and image is', func.rmscalc(twenty1,image3D,size)
 

@@ -64,8 +64,8 @@ def importarray(filename,lda):
 
     return (dx,dy,dz)
 
-
-def radial_data(data,width): #here width means how many pixels wide each band is
+##2D version##
+def powerspectrum2D(data,width): #here width means how many pixels wide each band is
     size = len(data[0])
     rmax = int(size/2.)  #also same as centre
 
@@ -80,6 +80,30 @@ def radial_data(data,width): #here width means how many pixels wide each band is
                 if np.sqrt(i**2+j**2) < r+1 and np.sqrt(i**2+j**2) > r:    #r+1 as starts at 0 and goes to rmax-1
                     countarray[1][int(r/width)-1] += 1  #not the -1 is a fudge to get it to stay in bounds, but only determining where data is put
                     countarray[0][int(r/width)-1] += data[rmax + i][rmax + j]
+
+    return countarray[0]/countarray[1]
+
+##3D version##
+def powerspectrum3D(image3D,psdwidth,size): #here width means how many pixels wide each band is
+
+    rmax = int(size/2.)  #also same as centre
+
+    #these 3 take image into fourier space and make |p(k)|^2
+    image3D = np.fft.fftn(image3D)
+    image3D = np.fft.fftshift(image3D)
+    image3D = np.abs(image3D)**2
+    #starts at rmax, adds all pixel counts for sqrt(x^2 + y^2) < r and number of pixels counted
+
+    countarray = np.zeros((2,int(rmax/psdwidth)))    #this is due to slits of width 'width' and radius is rmax
+
+    #this goes over all points in image, and adds the cumulative counts and number of counts for each band of k, starting with < r=1
+    for r in range (rmax):
+        for i in range (-rmax,rmax,1):
+            for j in range (-rmax,rmax,1):
+                for k in range (-rmax,rmax,1):
+                    if np.sqrt(i**2+j**2+k**2) < r+1 and np.sqrt(i**2+j**2+k**2) > r:    #r+1 as starts at 0 and goes to rmax-1
+                        countarray[1][int(r/psdwidth)-1] += 1  #not the -1 is a fudge to get it to stay in bounds, but only determining where data is put
+                        countarray[0][int(r/psdwidth)-1] += image3D[rmax + i][rmax + j]
 
     return countarray[0]/countarray[1]
 
@@ -124,8 +148,7 @@ def rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size):
     return (UVcount)
 
 
-def psf(dtheta,image):
-    size = len(image[0])
+def psf(dtheta,image,size):
 
     psf = np.zeros((size,size))
 
@@ -149,9 +172,8 @@ def psf(dtheta,image):
     #plt.show()
 
 
-def psfcrosssection(dtheta, image):
+def psfcrosssection(dtheta, image,size):
 
-    size = len(image[0])
     ci=int(size/2)
 
     psf = np.zeros((size,size))
