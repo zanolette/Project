@@ -8,13 +8,14 @@ import Functions as func
 import boxio as boximport
 import Cosmo
 
+
 # defines our universe
 CosmoUnits=Cosmo.CosmoUnits()
 
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel,scalemin,scalemax)
 
 #getting 21cm box information
-fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'
+fname = 'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'
 box_info = boximport.parse_filename(fname)
 
 
@@ -142,10 +143,15 @@ for slice in range(size):   #iterates over all slices
     sigma = func.invert(sigma, dtheta)  #at the moment this overwrites inverse space image after its inverted
     sigma3D[slice] = sigma  #saves this image slice in real space
 
-
     image = func.invert(image, dtheta)  #at the moment this overwrites inverse space image after its inverted
     image3D[slice] = image  #saves this image slice in real space
 
+np.save('image3Darraydim%s,%sMpc,z%s'%(size,box_info['BoxSize'],z),image3D)
+np.save('sigma3Darraydim%s,%sMpc,z%s'%(size,box_info['BoxSize'],z),sigma3D)
+
+##############################IS DONE IN ANALYSE BOXES NOW##########################################
+
+'''
 #This calculates 3D powerspectrum, after all slices are done
 imagepowerspectrum = func.powerspectrum3D(image3D,psdwidth,size)
 print 'done imagepowerspectrum'
@@ -172,5 +178,4 @@ plt.show()
 
 #Compute rms between image and inputed 21cm - only do this if willing to wait
 print 'rms between 21cmbox and image is', func.rmscalc(twenty1,image3D,size)
-
-
+'''

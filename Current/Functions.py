@@ -88,6 +88,12 @@ def powerspectrum3D(image3D,psdwidth,size): #here width means how many pixels wi
 
     rmax = int(size/2.)  #also same as centre
 
+    '''
+    plt.imshow(image3D[50],  interpolation='nearest',cmap='jet')
+    plt.colorbar( orientation='vertical')
+    plt.show()
+    '''
+
     #these 3 take image into fourier space and make |p(k)|^2
     image3D = np.fft.fftn(image3D)
     image3D = np.fft.fftshift(image3D)
@@ -99,13 +105,14 @@ def powerspectrum3D(image3D,psdwidth,size): #here width means how many pixels wi
 
     #this goes over all points in image, and adds the cumulative counts and number of counts for each band of k, starting with < r=1
     for r in range (rmax):
-        for i in range (-r-1,r+1,1):    #from -(r+1) to r+1 as then sqrt(x^2 + y^2 + z^2) must be < r^2
-            for j in range (-r-1,r+1,1):
-                for k in range (-r-1,r+1,1):
+        for i in range (-r,r,1):    #from -(r+1) to r+1 as then sqrt(x^2 + y^2 + z^2) must be < r^2
+            for j in range (-r,r,1):
+                for k in range (-r,r,1):
                     if np.sqrt(i**2+j**2+k**2) < r+1 and np.sqrt(i**2+j**2+k**2) >= r:    #r+1 as starts at 0 and goes to rmax-1
                         countarray[1][int(r/psdwidth)-1] += 1  #not the -1 is a fudge to get it to stay in bounds, but only determining where data is put
                         countarray[0][int(r/psdwidth)-1] += image3D[rmax + i][rmax + j][rmax + k]
         print r
+
     return countarray[0]/countarray[1]
 
 
