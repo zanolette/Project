@@ -94,17 +94,18 @@ def powerspectrum3D(image3D,psdwidth,size): #here width means how many pixels wi
     image3D = np.abs(image3D)**2
     #starts at rmax, adds all pixel counts for sqrt(x^2 + y^2) < r and number of pixels counted
 
+    print 'fourier transform done'
     countarray = np.zeros((2,int(rmax/psdwidth)))    #this is due to slits of width 'width' and radius is rmax
 
     #this goes over all points in image, and adds the cumulative counts and number of counts for each band of k, starting with < r=1
     for r in range (rmax):
-        for i in range (-rmax,rmax,1):
-            for j in range (-rmax,rmax,1):
-                for k in range (-rmax,rmax,1):
-                    if np.sqrt(i**2+j**2+k**2) < r+1 and np.sqrt(i**2+j**2+k**2) > r:    #r+1 as starts at 0 and goes to rmax-1
+        for i in range (-r-1,r+1,1):    #from -(r+1) to r+1 as then sqrt(x^2 + y^2 + z^2) must be < r^2
+            for j in range (-r-1,r+1,1):
+                for k in range (-r-1,r+1,1):
+                    if np.sqrt(i**2+j**2+k**2) < r+1 and np.sqrt(i**2+j**2+k**2) >= r:    #r+1 as starts at 0 and goes to rmax-1
                         countarray[1][int(r/psdwidth)-1] += 1  #not the -1 is a fudge to get it to stay in bounds, but only determining where data is put
-                        countarray[0][int(r/psdwidth)-1] += image3D[rmax + i][rmax + j]
-
+                        countarray[0][int(r/psdwidth)-1] += image3D[rmax + i][rmax + j][rmax + k]
+        print r
     return countarray[0]/countarray[1]
 
 
@@ -243,5 +244,5 @@ def rmscalc (twenty1cm,image3D,max):
             for k in range(max):
                 squaredcount += (np.real(image3D[i][j][k]) - twenty1cm[i][j][k])**2     #or should this be real(image)
 
-    squaredcount = squaredcount/(max**2)
+    squaredcount = squaredcount/(max**3)
     return np.sqrt(squaredcount)

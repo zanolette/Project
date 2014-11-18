@@ -162,7 +162,14 @@ plt.loglog(spatialfreq,twenty1powerspectrum)
 plt.xlabel('k')
 plt.ylabel('P(k)')
 plt.show()
-    
+
+plt.loglog(spatialfreq,spatialfreq**3*imagepowerspectrum/(2*np.pi**2))
+plt.loglog(spatialfreq,spatialfreq**3*sigmapowerspectrum/(2*np.pi**2))
+plt.loglog(spatialfreq,spatialfreq**3*twenty1powerspectrum/(2*np.pi**2))
+plt.xlabel('k')
+plt.ylabel('k$^3$ P(k)/2$\pi^2$')
+plt.show()
+
 #Compute rms between image and inputed 21cm - only do this if willing to wait
 print 'rms between 21cmbox and image is', func.rmscalc(twenty1,image3D,size)
 
