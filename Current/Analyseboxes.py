@@ -10,7 +10,7 @@ import Cosmo
 
 psdwidth = 1
 
-fname = 'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'
+fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#
 box_info = boximport.parse_filename(fname)
 
 #Define size of view and resolution
@@ -26,13 +26,23 @@ twenty1 = box.box_data  #so we have it seperate - this is 3D!
 
 ###############################################################################
 
-image3D = np.load('image3Darray%s.npy'% size)
-sigma3D = np.load('sigma3Darray%s.npy'% size)
+#image3D = np.load('image3Darray%s.npy'% size)
+#sigma3D = np.load('sigma3Darray%s.npy'% size)
+
+image3D = np.load('image3Darray.npy')
+
+###########################2Drep###############################################
+
+func.visualizereionizationslicebyslice(image3D,twenty1, size, z, theta)
+#func.visualizereionization(twenty1, size, z, box_info['BoxSize'])
+
+#################################################################################
 
 #Gives evolution of 2D power spectrum
 func.powerspectrumevolution(image3D,psdwidth,size,dtheta)
 
 ###########################POWERSPECTRUM########################################
+
 '''
 #This calculates 3D powerspectrum, after all slices are done
 imagepowerspectrum = func.powerspectrum3D(image3D,psdwidth,size)
@@ -62,4 +72,3 @@ plt.show()
 print 'rms between 21cmbox and image is', func.rmscalc(twenty1,image3D,size)
 '''
 ################################################################################
-
