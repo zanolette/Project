@@ -82,22 +82,6 @@ for slice in range(size):   #iterates over all slices
     zhat=np.fft.fft2(twenty1[slice])     #then FFT of the specific slice
     zhat=np.fft.fftshift(zhat)  #this gives us the FFT of twenty1
 
-    '''
-    #gets 2D psd of image then gets 1D radial psd of this slice - this is INPUT power spectrum
-    abszhat=np.abs(zhat)**2
-    radialpsd = func.powerspectrum2D(abszhat,psdwidth)
-    del abszhat
-    spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
-    spatialfreq=spatialfreq[:int(size/(psdwidth*2))]    #this is used to give axis for power spectrum plots
-
-
-    #this is power spectrum of 21cmbox
-    fig=plt.loglog(spatialfreq,radialpsd)
-    plt.xlabel('k')
-    plt.ylabel('P(k)')
-    plt.show()
-    '''
-
 
     #CODE THAT CAN BE USED TO CHECK OUR SPATIAL FREQUENCY IS IN THE RIGHT UNITS
     #spatialfreq=np.fft.fftfreq(size, dtheta)
@@ -124,21 +108,10 @@ for slice in range(size):   #iterates over all slices
                 imaginary = np.random.normal(np.imag(zhat[i][j]), sigma[i][j]/np.sqrt(2), 1)
                 image[i][j]=real[0] + imaginary[0]*1j
 
-    '''
-    #gets 2D psd of image then gets 1D radial psd - this is OUTPUT power spectrum
-    absimage=np.abs(image)**2
-    radialpsd2 = func.powerspectrum2D(absimage,psdwidth)
-    noiseradialpsd2 = func.powerspectrum2D(sigma,psdwidth)
-    fig1=plt.loglog(spatialfreq,noiseradialpsd2)
-    plt.loglog(spatialfreq,radialpsd2)
-    plt.loglog(spatialfreq,radialpsd)
-    plt.xlabel('k')
-    plt.ylabel('P(k)')
-    plt.show()
 
     #THIS IS TO FIND THE PSF
     func.psfcrosssection(dtheta, image)
-    '''
+
 
     sigma = func.invert(sigma, dtheta)  #at the moment this overwrites inverse space image after its inverted
     sigma3D[slice] = sigma  #saves this image slice in real space

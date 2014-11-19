@@ -64,9 +64,34 @@ def importarray(filename,lda):
 
     return (dx,dy,dz)
 
+def powerspectrumevolution(data,width,size,dtheta):    #this is to show 2D power spectrum evolving with z
+    rmax = int(size/2.)
+
+    psevolution = np.zeros((size,int(rmax/width)))    #this will store each 2D powerspectrum with its z
+
+    #xaxis needs to be k
+    spatialfreq=np.fft.fftfreq(int(size/width), dtheta)
+    spatialfreq=spatialfreq[:int(size/(width*2))]
+
+    for i in range (size):
+        temp = powerspectrum2D(data[i],width,size)
+        psevolution[i] = temp
+
+        #saves the 2Dpowerspectrum file
+        plt.loglog(spatialfreq,temp)
+        plt.ylim((12,18))
+        plt.xlim((2,50))    #will need to adjust these manually if major changes made to input
+        plt.yticks(range(10,21,1))
+        plt.xlabel('k')
+        plt.ylabel('P(k)')
+        plt.savefig('PowerSpectrumEvolution/100MPc,loglogplot/%i' %i)
+        plt.clf()
+
+        print i
+
 ##2D version##
-def powerspectrum2D(data,width): #here width means how many pixels wide each band is
-    size = len(data[0])
+def powerspectrum2D(data,width,size): #here width means how many pixels wide each band is
+
     rmax = int(size/2.)  #also same as centre
 
     #starts at rmax, adds all pixel counts for sqrt(x^2 + y^2) < r and number of pixels counted

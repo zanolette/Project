@@ -29,9 +29,11 @@ twenty1 = box.box_data  #so we have it seperate - this is 3D!
 image3D = np.load('image3Darray%s.npy'% size)
 sigma3D = np.load('sigma3Darray%s.npy'% size)
 
+#Gives evolution of 2D power spectrum
+func.powerspectrumevolution(image3D,psdwidth,size,dtheta)
 
 ###########################POWERSPECTRUM########################################
-
+'''
 #This calculates 3D powerspectrum, after all slices are done
 imagepowerspectrum = func.powerspectrum3D(image3D,psdwidth,size)
 print 'done imagepowerspectrum'
@@ -58,5 +60,6 @@ plt.show()
 
 #Compute rms between image and inputed 21cm - only do this if willing to wait
 print 'rms between 21cmbox and image is', func.rmscalc(twenty1,image3D,size)
-
+'''
 ################################################################################
+
