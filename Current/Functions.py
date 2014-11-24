@@ -374,5 +374,14 @@ def visualizereionizationslicebyslice(image,twenty1, size, z, theta):
 
 
 
+def phasecomparison(twenty1, image, size):
 
+    phasearray=np.zeros((360,360))
 
+    for i in range(size):
+        for j in range(size):
+            for k in range(size):
+                phasearray[int(np.angle(twenty1[i][j][k], deg='True'))][int(np.angle(image[i][j][k], deg='True'))]+=1
+
+    plt.imshow(phasearray)
+    plt.show()

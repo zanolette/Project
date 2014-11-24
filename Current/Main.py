@@ -15,7 +15,7 @@ CosmoUnits=Cosmo.CosmoUnits()
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel,scalemin,scalemax)
 
 #getting 21cm box information
-fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#
+fname = 'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#
 box_info = boximport.parse_filename(fname)
 
 
@@ -108,10 +108,11 @@ for slice in range(size):   #iterates over all slices
                 image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
 
 
+func.phasecomparison(twenty1inverse, image3Dinverse, size)
 
 #THIS IS TO FIND THE PSF
 #func.psfcrosssection(dtheta, image3Dinverse[int(size/2.)],size)
-
+'''
 (kaxis,Powerspectrum) = func.powerspectrum3D(twenty1inverse,psdwidth,size,dtheta)
 plt.loglog(kaxis,Powerspectrum)#*(kaxis**3)/(2*np.pi**2))
 print 1
@@ -125,7 +126,7 @@ plt.xlabel('k')
 plt.ylabel('P(k)')
 
 plt.show()
-
+'''
     #THIS IS TO FIND THE PSF
     #func.psfcrosssection(dtheta, image,size)
 
