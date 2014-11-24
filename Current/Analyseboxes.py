@@ -10,7 +10,7 @@ import Cosmo
 
 psdwidth = 2
 
-fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#
+fname = 'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#
 box_info = boximport.parse_filename(fname)
 
 #Define size of view and resolution
@@ -29,7 +29,7 @@ twenty1 = box.box_data  #so we have it seperate - this is 3D!
 #image3D = np.load('image3Darray%s.npy'% size)
 #sigma3D = np.load('sigma3Darray%s.npy'% size)
 
-image3D = np.load('image3Darray.npy')
+image3D = np.load('image3Darraydim%s,%sMpc,z%s,time%s.npy'%(size,box_info['BoxSize'],z,120))
 
 ###########################2Drep###############################################
 
@@ -39,7 +39,7 @@ image3D = np.load('image3Darray.npy')
 #################################################################################
 
 #Gives evolution of 2D power spectrum
-func.powerspectrumevolution(image3D,psdwidth,size,dtheta)
+#func.powerspectrumevolution(image3D,psdwidth,size,dtheta)
 
 ###########################POWERSPECTRUM########################################
 

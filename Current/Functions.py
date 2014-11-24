@@ -112,7 +112,7 @@ def powerspectrum2D(data,width,size): #here width means how many pixels wide eac
     return countarray[0]/countarray[1]
 
 ##3D version##
-def powerspectrum3D(image3D,width,size): #here width means how many pixels wide each band is
+def powerspectrum3D(image3Dinv,width,size,dtheta): #here width means how many pixels wide each band is
 
     rmax = int(size/2.)  #also same as centre
 
@@ -123,22 +123,48 @@ def powerspectrum3D(image3D,width,size): #here width means how many pixels wide 
     '''
 
     #these 3 take image into fourier space and make |p(k)|^2
-    image3D = np.fft.fftn(image3D)
-    image3D = np.fft.fftshift(image3D)
-    image3D = np.abs(image3D)**2
+    #image3D = np.fft.fftn(image3D)
+    #image3D = np.fft.fftshift(image3D)
+
+    image3Dinv = np.abs(image3Dinv)**2
 
 
     print 'fourier transform done'
-    countarray = np.zeros((2,1+int(np.sqrt(2.*rmax**2)/width)))
+
+    countarray = np.zeros((2,1+int(np.sqrt(3.*rmax**2)/width)))
+
+    print len(countarray[0])
 
     for i in range(size):
         for j in range (size):
             for k in range (size):
-                r = int(np.sqrt((i-rmax)**2 + (j-rmax)**2 + (k-rmax)**2)/width)   #works out how far it is from the centre
-                countarray[1][r] += 1   #adds 1 to count, r/width so can save larger wedges
-                countarray[0][r] += image3D[i][j][k]
 
-    return countarray[0]/countarray[1]
+                r = int(np.sqrt((i-rmax)**2 + (j-rmax)**2 + (k-rmax)**2)/width)   #works out how far it is from the centre
+
+
+                countarray[1][r] += 1   #adds 1 to count, r/width so can save larger wedges
+                countarray[0][r] += image3Dinv[i][j][k]
+
+    PowerSpectrum = countarray[0]/countarray[1]
+
+    rsize = int(np.sqrt(3.*rmax**2)/width)
+    #need an array that represents kmax (to the corner of the cube) = np.sqrt(3*(1/dtheta)**2)
+    kmax = np.sqrt(3*(1/dtheta)**2)
+    kaxis = np.arange(0,kmax+1,(kmax)/rsize) # rmax steps on the kaxis - ranging from 0 to kmax
+
+    print len(kaxis)
+    print len(PowerSpectrum)
+    #kaxis = range(0,rmax,width)
+    #kaxis = (kaxis/rmax)
+
+
+    return kaxis, PowerSpectrum
+
+
+
+
+
+
 
 '''
     #this goes over all points in image, and adds the cumulative counts and number of counts for each band of k, starting with < r=1

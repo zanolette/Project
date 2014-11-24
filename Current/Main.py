@@ -15,7 +15,7 @@ CosmoUnits=Cosmo.CosmoUnits()
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel,scalemin,scalemax)
 
 #getting 21cm box information
-fname = 'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'
+fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#
 box_info = boximport.parse_filename(fname)
 
 
@@ -44,7 +44,7 @@ H = 0.
 tint = 60.      #interval in seconds
 dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
 totalintegrationtime = 1    #total time in hours
-timestepsneeded= 1#int(totalintegrationtime * 60 * 24 / tint) # unitlessmeasurement of number of steps needed
+timestepsneeded= 1 #int(totalintegrationtime * 60 * 24 / tint) # unitlessmeasurement of number of steps needed
 delta = 90./180. * np.pi    #declination angle
 scaling = 1./(size*dtheta)
 
@@ -108,24 +108,51 @@ for slice in range(size):   #iterates over all slices
                 image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
 
 
+
 #THIS IS TO FIND THE PSF
-func.psfcrosssection(dtheta, image3Dinverse[int(size/2.)],size)
+#func.psfcrosssection(dtheta, image3Dinverse[int(size/2.)],size)
+
+(kaxis,Powerspectrum) = func.powerspectrum3D(twenty1inverse,psdwidth,size,dtheta)
+plt.loglog(kaxis,Powerspectrum)#*(kaxis**3)/(2*np.pi**2))
+print 1
+(kaxis,Powerspectrum)=func.powerspectrum3D(image3Dinverse,psdwidth,size,dtheta)
+plt.loglog(kaxis,Powerspectrum)#*(kaxis**3)/(2*np.pi**2))
+print 2
+(kaxis,Powerspectrum)=func.powerspectrum3D(sigma3Dinverse,psdwidth,size,dtheta)
+plt.loglog(kaxis,Powerspectrum)#*(kaxis**3)/(2*np.pi**2))
+print 3
+plt.xlabel('k')
+plt.ylabel('P(k)')
+
+plt.show()
+
+    #THIS IS TO FIND THE PSF
+    #func.psfcrosssection(dtheta, image,size)
 
 
-image3D = np.fft.ifftn(image3Dinverse)
+
+
+#image3D = np.fft.ifftn(image3Dinverse)
+#dont think we need to shift -
+#image3D = np.abs(image3D)
+
+#sigma3D = np.fft.ifftn(sigma3Dinverse)
 #######do we need a shift here?###########
-image3D = np.abs(image3D)
+#sigma3D = np.abs(sigma3D)
 
-sigma3D = np.fft.ifftn(sigma3Dinverse)
-#######do we need a shift here?###########
-sigma3D = np.abs(sigma3D)
+#func.visualizereionizationslicebyslice(image3D,twenty1, size, z, theta)
 
-np.save('image3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),image3D)
-np.save('sigma3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),sigma3D)
+
+
+#np.save('image3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),image3D)
+#np.save('sigma3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),sigma3D)
+
+#np.save('image3Darraydim%s,%sMpc,z%s,time%s'%(size,box_info['BoxSize'],z,timestepsneeded),image3D)
+#np.save('sigma3Darraydim%s,%sMpc,z%s,time&s'%(size,box_info['BoxSize'],z,timestepsneeded),sigma3D)
+'''
 
 ##############################IS DONE IN ANALYSE BOXES NOW##########################################
 
-'''
 #This calculates 3D powerspectrum, after all slices are done
 imagepowerspectrum = func.powerspectrum3D(image3D,psdwidth,size)
 print 'done imagepowerspectrum'
