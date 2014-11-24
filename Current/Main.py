@@ -65,13 +65,16 @@ UVcount = func.rotationmatrix(dx, dy, dz, scaling, H, dH, timestepsneeded, delta
 tsyst = 50000 + 60000*((1+z)/4.73)**2.55  #(mK) this is from "Probing . . . with the SKA" MG Santos
 B = 1420.41e6*dl/((1+z)*CosmoUnits.Dcomovingrad(z))        #Bandwidth (Hz) - this is given by frequency inteval. DeltaF = f1-f2, seperated by deltaz = z* deltaL/Dcomovingrad
 
-sigma3D = np.zeros((size,size,size))    #initialised so we can save all slices here
-image3D = np.zeros((size,size,size))
-
 #imports 21cm box and takes single z slice
 #zhat,twenty1 = func.twentyonecmmatrix(fname,theta/2)    #z will be used later to compute rms of image and measured sky
 box=boximport.readbox(fname)
 twenty1 = box.box_data  #so we have it seperate - this is 3D!
+
+twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
+twenty1inverse = np.fft.fftshift(twenty1inverse)
+
+image3Dinverse = np.zeros((size,size,size),'complex')   #so we can save into a 3D box in fourier space
+sigma3Dinverse = np.zeros((size,size,size))
 
 ##########################This is where we introduce a slice################################
 
@@ -79,8 +82,7 @@ for slice in range(size):   #iterates over all slices
 
     print slice
 
-    zhat=np.fft.fft2(twenty1[slice])     #then FFT of the specific slice
-    zhat=np.fft.fftshift(zhat)  #this gives us the FFT of twenty1
+    zhat = twenty1inverse[slice]    #takes a 2D slice of 21cm in fourier space
 
 
     #CODE THAT CAN BE USED TO CHECK OUR SPATIAL FREQUENCY IS IN THE RIGHT UNITS
@@ -97,30 +99,29 @@ for slice in range(size):   #iterates over all slices
 
     #using UV count - this now merges the UVcoverage and the Image
 
-    image = np.zeros((size,size),'complex')
-    sigma = np.zeros((size,size))
-
     for i in range (size):
         for j in range (size):
             if UVcount[i][j] != 0:
-                sigma[i][j] = tsyst/(eps*np.sqrt(UVcount[i][j]*tint*B))       #saved seperately to calculate power spectrum seperately, error eqn according to NRAO course + Pritchard
-                real=np.random.normal(np.real(zhat[i][j]), sigma[i][j]/np.sqrt(2), 1)     #sqrt(2) here as real and imag components share it
-                imaginary = np.random.normal(np.imag(zhat[i][j]), sigma[i][j]/np.sqrt(2), 1)
-                image[i][j]=real[0] + imaginary[0]*1j
+                sigma3Dinverse[slice][i][j] = tsyst/(eps*np.sqrt(UVcount[i][j]*tint*B))       #saved seperately to calculate power spectrum seperately, error eqn according to NRAO course + Pritchard
+                real=np.random.normal(np.real(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)     #sqrt(2) here as real and imag components share it
+                imaginary = np.random.normal(np.imag(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)
+                image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
 
 
-    #THIS IS TO FIND THE PSF
-    func.psfcrosssection(dtheta, image)
+#THIS IS TO FIND THE PSF
+func.psfcrosssection(dtheta, image3Dinverse[int(size/2.)],size)
 
 
-    sigma = func.invert(sigma, dtheta)  #at the moment this overwrites inverse space image after its inverted
-    sigma3D[slice] = sigma  #saves this image slice in real space
+image3D = np.fft.ifftn(image3Dinverse)
+#######do we need a shift here?###########
+image3D = np.abs(image3D)
 
-    image = func.invert(image, dtheta)  #at the moment this overwrites inverse space image after its inverted
-    image3D[slice] = image  #saves this image slice in real space
+sigma3D = np.fft.ifftn(sigma3Dinverse)
+#######do we need a shift here?###########
+sigma3D = np.abs(sigma3D)
 
-np.save('image3Darraydim%s,%sMpc,z%s'%(size,box_info['BoxSize'],z),image3D)
-np.save('sigma3Darraydim%s,%sMpc,z%s'%(size,box_info['BoxSize'],z),sigma3D)
+np.save('image3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),image3D)
+np.save('sigma3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),sigma3D)
 
 ##############################IS DONE IN ANALYSE BOXES NOW##########################################
 

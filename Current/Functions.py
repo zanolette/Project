@@ -66,25 +66,28 @@ def importarray(filename,lda):
 
 def powerspectrumevolution(data,width,size,dtheta):    #this is to show 2D power spectrum evolving with z
     rmax = int(size/2.)
+    rsize = 1+int(np.sqrt(2.*rmax**2)/width)      #this is largest r box (taking into account shell widths)
 
-    psevolution = np.zeros((size,int(rmax/width)))    #this will store each 2D powerspectrum with its z
+
+    psevolution = np.zeros((size,rsize))    #this will store each 2D powerspectrum with its z
 
     #xaxis needs to be k
-    spatialfreq=np.fft.fftfreq(int(size/width), dtheta)
-    spatialfreq=spatialfreq[:int(size/(width*2))]
+    spatialfreq=np.fft.fftfreq(2*rsize, dtheta)
+    spatialfreq=spatialfreq[:rsize]
+
 
     for i in range (size):
         temp = powerspectrum2D(data[i],width,size)
         psevolution[i] = temp
 
         #saves the 2Dpowerspectrum file
-        plt.loglog(spatialfreq,temp)
-        plt.ylim((12,18))
-        plt.xlim((2,50))    #will need to adjust these manually if major changes made to input
-        plt.yticks(range(10,21,1))
+        plt.plot(spatialfreq,temp)
+        plt.ylim((12,40))
+        plt.xlim((0,46))    #will need to adjust these manually if major changes made to input
+        #plt.yticks(range(10,21,1))
         plt.xlabel('k')
         plt.ylabel('P(k)')
-        plt.savefig('PowerSpectrumEvolution/100MPc,loglogplot/%i' %i)
+        plt.savefig('test/%i' %i)
         plt.clf()
 
         print i
@@ -96,20 +99,20 @@ def powerspectrum2D(data,width,size): #here width means how many pixels wide eac
 
     #starts at rmax, adds all pixel counts for sqrt(x^2 + y^2) < r and number of pixels counted
 
-    countarray = np.zeros((2,int(rmax/width)))    #this is due to slits of width 'width' and radius is rmax
+    countarray = np.zeros((2,1 + int(np.sqrt(2.*rmax**2)/width)))    #this is due to slits of width 'width' and radius is rmax, so longest r is sqrt(r**2 + r**2)
 
     #this goes over all points in image, and adds the cumulative counts and number of counts for each band of k, starting with < r=1
-    for r in range (rmax):
-        for i in range (-rmax,rmax,1):
-            for j in range (-rmax,rmax,1):
-                if np.sqrt(i**2+j**2) < r+1 and np.sqrt(i**2+j**2) > r:    #r+1 as starts at 0 and goes to rmax-1
-                    countarray[1][int(r/width)-1] += 1  #not the -1 is a fudge to get it to stay in bounds, but only determining where data is put
-                    countarray[0][int(r/width)-1] += data[rmax + i][rmax + j]
+    for i in range(size):
+        for j in range (size):
+            r = int(np.sqrt((i-rmax)**2 + (j-rmax)**2)/width)   #works out how far it is from the centre, r/width so can save larger wedges
+
+            countarray[1][r] += 1   #adds 1 to count,
+            countarray[0][r] += data[i][j]
 
     return countarray[0]/countarray[1]
 
 ##3D version##
-def powerspectrum3D(image3D,psdwidth,size): #here width means how many pixels wide each band is
+def powerspectrum3D(image3D,width,size): #here width means how many pixels wide each band is
 
     rmax = int(size/2.)  #also same as centre
 
@@ -123,11 +126,21 @@ def powerspectrum3D(image3D,psdwidth,size): #here width means how many pixels wi
     image3D = np.fft.fftn(image3D)
     image3D = np.fft.fftshift(image3D)
     image3D = np.abs(image3D)**2
-    #starts at rmax, adds all pixel counts for sqrt(x^2 + y^2) < r and number of pixels counted
+
 
     print 'fourier transform done'
-    countarray = np.zeros((2,int(rmax/psdwidth)))    #this is due to slits of width 'width' and radius is rmax
+    countarray = np.zeros((2,1+int(np.sqrt(2.*rmax**2)/width)))
 
+    for i in range(size):
+        for j in range (size):
+            for k in range (size):
+                r = int(np.sqrt((i-rmax)**2 + (j-rmax)**2 + (k-rmax)**2)/width)   #works out how far it is from the centre
+                countarray[1][r] += 1   #adds 1 to count, r/width so can save larger wedges
+                countarray[0][r] += image3D[i][j][k]
+
+    return countarray[0]/countarray[1]
+
+'''
     #this goes over all points in image, and adds the cumulative counts and number of counts for each band of k, starting with < r=1
     for r in range (rmax):
         for i in range (-r,r,1):    #from -(r+1) to r+1 as then sqrt(x^2 + y^2 + z^2) must be < r^2
@@ -139,7 +152,7 @@ def powerspectrum3D(image3D,psdwidth,size): #here width means how many pixels wi
         print r
 
     return countarray[0]/countarray[1]
-
+    '''
 
 #Maps baselines onto UV plane along with rotational matrix
 
@@ -234,7 +247,7 @@ def psfcrosssection(dtheta, image,size):
 
 
 #This function takes matrix relating to the fourier space and inverts it. It plots both the fourier image and the real space image
-def invert(image, dtheta):
+def invert2D(image, dtheta):
 
     RangeinComplexImage = 0.5/dtheta
 
