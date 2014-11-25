@@ -373,15 +373,60 @@ def visualizereionizationslicebyslice(image,twenty1, size, z, theta):
         plt.close(fig)
 
 
-
+#counts and compares the number of corresponding angles (x axis is 21cmfast and y axis is our image)
 def phasecomparison(twenty1, image, size):
 
-    phasearray=np.zeros((360,360))
+    phasearray=np.zeros((629,629))
 
     for i in range(size):
         for j in range(size):
             for k in range(size):
-                phasearray[int(np.angle(twenty1[i][j][k], deg='True'))][int(np.angle(image[i][j][k], deg='True'))]+=1
+                twenty1phase=int(100*(np.angle(twenty1[i][j][k])+np.pi))
 
-    plt.imshow(phasearray)
+                imagephase = int(100*(np.angle(image[i][j][k])+np.pi))
+
+                phasearray[twenty1phase][imagephase]+=1
+
+    plt.imshow(phasearray, extent=(0,2*np.pi, 2*np.pi,0))
+    plt.xlabel('21cmfast Phase (radians)')
+    plt.ylabel('Image Phase (radians)')
     plt.show()
+
+
+def bubblesizedistribution(image, size):
+
+    distribution=np.zeros(size*size*size) # this is the maximum size of a bubble so thats what ive made the distribution array equal to
+
+    averagetemp=np.average(image)
+
+    for i in range(size):
+        for j in range(size):
+            for k in range(size):
+
+                #set up the ones and zeros according to some cut-off temperature
+                if image[i][j][k] < average:
+                    image[i][j][k]=0
+                else:
+                    image[i][j][k] = 1
+
+    allones=0
+    while allones = 0:
+        counter = 0
+        for i in range(size):
+            for j in range(size):
+                for k in range(size):
+
+                    if image[i][j][k]==0:
+                        image, count = numberofnearestneighbours(image, i, j, k)
+                    else :
+                        if i == size-1 and j == size-1 and k== size-1:
+                            allones = 1
+
+
+#this function goes through all the unoccupied nearest neighbours and returns the modified image and the count of that bubble size
+def numberofnearestneighbours(image, i, j, k):
+    bubblesize=1
+
+
+
+
