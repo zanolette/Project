@@ -393,39 +393,107 @@ def phasecomparison(twenty1, image, size):
     plt.show()
 
 
-def bubblesizedistribution(image, size):
+def bubblesizedistribution(imageoriginal, size):
+
+    image = imageoriginal #we dont want to change the original
 
     distribution=np.zeros(size*size*size) # this is the maximum size of a bubble so thats what ive made the distribution array equal to
 
     averagetemp=np.average(image)
+
+    print averagetemp
+
 
     for i in range(size):
         for j in range(size):
             for k in range(size):
 
                 #set up the ones and zeros according to some cut-off temperature
-                if image[i][j][k] < average:
-                    image[i][j][k]=0
+                if image[i][j][k] < 1.:
+                    image[i][j][k] = 0
                 else:
                     image[i][j][k] = 1
 
-    allones=0
-    while allones = 0:
-        counter = 0
-        for i in range(size):
-            for j in range(size):
-                for k in range(size):
 
-                    if image[i][j][k]==0:
-                        image, count = numberofnearestneighbours(image, i, j, k)
-                    else :
-                        if i == size-1 and j == size-1 and k== size-1:
-                            allones = 1
+    for i in range(size):
+        for j in range(size):
+            for k in range(size):
+
+                if image[i][j][k]==0:
+                    image, count = numberofnearestneighbours(image, i, j, k, size)
+                    distribution[count]+=1
+
+
+    return distribution
+
 
 
 #this function goes through all the unoccupied nearest neighbours and returns the modified image and the count of that bubble size
-def numberofnearestneighbours(image, i, j, k):
+def numberofnearestneighbours(image, i, j, k, size):
+
     bubblesize=1
+    image[i][j][k]=1
+
+    unvisitedi=list()
+    unvisitedj=list()
+    unvisitedk=list()
+
+    unvisitedi.append(i)
+    unvisitedj.append(j)
+    unvisitedk.append(k)
+
+    while len(unvisitedi) != 0: # while there are still sights which havent been checked for occupied nearest neighbours - keep checking
+
+        i=unvisitedi.pop()
+        j=unvisitedj.pop()
+        k=unvisitedk.pop()
+
+        #These functions check all the nearest neightbours - count them also sets equal to 1
+        #also pushes onto unvisited
+
+        if i!= size-1 and image[i+1][j][k] == 0:           # i+1
+            image[i+1][j][k]=1
+            bubblesize+=1
+            unvisitedi.append(i+1)
+            unvisitedj.append(j)
+            unvisitedk.append(k)
+        if  i!=0 and image[i-1][j][k] == 0:           # i-1
+            image[i-1][j][k]=1
+            bubblesize+=1
+            unvisitedi.append(i-1)
+            unvisitedj.append(j)
+            unvisitedk.append(k)
+        if j!= size-1 and image[i][j+1][k] == 0:           # j+1
+            image[i][j+1][k]=1
+            bubblesize+=1
+            unvisitedi.append(i)
+            unvisitedj.append(j+1)
+            unvisitedk.append(k)
+        if j!=0 and image[i][j-1][k] == 0:           # j-1
+            image[i][j-1][k]=1
+            bubblesize+=1
+            unvisitedi.append(i)
+            unvisitedj.append(j-1)
+            unvisitedk.append(k)
+        if k!= size-1 and image[i][j][k+1] == 0:           # k+1
+            image[i][j][k+1]=1
+            bubblesize+=1
+            unvisitedi.append(i)
+            unvisitedj.append(j)
+            unvisitedk.append(k+1)
+        if k!= 0 and image[i][j][k-1] == 0:           # k-1
+            image[i][j][k-1]=1
+            bubblesize+=1
+            unvisitedi.append(i)
+            unvisitedj.append(j)
+            unvisitedk.append(k-1)
+
+    return image, bubblesize
+
+
+
+
+
 
 
 
