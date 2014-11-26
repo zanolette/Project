@@ -319,7 +319,7 @@ def rmscalc (twenty1cm,image3D,max):
     return np.sqrt(squaredcount)
 
 #this function takes ONE image box and represents it as a 2d plot of horizontal average temperature against z
-def visualizereionization(image, size, z, theta):
+def visualizereionizationagainstz(image, size, z, theta):
 
     yvszimage = np.zeros((size,size));
 
@@ -329,28 +329,21 @@ def visualizereionization(image, size, z, theta):
             for j in range(size):
                 yvszimage[i][j]=np.average(image[i][j])
 
-
-
-    fig = plt.figure()
     a1=fig.add_subplot(1,2,1)
     imgplot = plt.imshow(twenty1[t],extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet',vmin=0,vmax=70)
     a1.set_title('21cmfast')
-    plt.xlabel('X axis in $^\circ$s')
-    plt.ylabel('Y axis in $^\circ$s')
+    plt.xlabel('Z axis in Mpc')
+    plt.ylabel('Average over Y axis in Mpc')
     a2=fig.add_subplot(1,2,2)
     plt.setp( a2.get_yticklabels(), visible=False)
     imgplot = plt.imshow(image[t],extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet',vmin=0,vmax=70)
-    plt.xlabel('X axis in $^\circ$s')
+    plt.xlabel('Z axis in Mpc')
     a2.set_title('SKA Image')
 
+    plt.show()
 
 
-    #plt.imshow(yvsz, extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet',vmin=0,vmax=70)
-    #plt.xlabel('X axis in $^\circle$s')
-    #plt.ylabel('Y axis in $^\circle$s')
-    #plt.colorbar( orientation='vertical')
-    plt.savefig('Image/image%i.png'%t)
-    plt.close(fig)
+
 
 
 #this function prints out all the slices of 2 boxes to be compared - create gif on freds computer using "convert -delay 10 image*.png animated.gif"
@@ -392,6 +385,24 @@ def phasecomparison(twenty1, image, size):
     plt.ylabel('Image Phase (radians)')
     plt.show()
 
+# This is a binning algo - linear binning - might have to move on to a log binning if we want clearer data...
+def binningforbubblesizedist(distribution, binsizes):
+
+    distribution = np.trim_zeros(distribution, 'b') #this trims the trailing zeros
+
+    distsize=len(distribution)
+    print distsize
+
+    binneddist=np.zeros((2,int(distsize/binsizes)+1))
+
+    for i in range(distsize):
+        if i%binsizes == 0:
+            binneddist[0][i/binsizes] = float(i + float(binsizes)/2)
+        binneddist[1][int(i/binsizes)] = distribution[i]
+
+    return binneddist[0], binneddist[1]
+
+
 
 def bubblesizedistribution(imageoriginal, size):
 
@@ -424,7 +435,8 @@ def bubblesizedistribution(imageoriginal, size):
                     distribution[count]+=1
 
 
-    return distribution
+    return binningforbubblesizedist(distribution, 1)
+
 
 
 
@@ -489,12 +501,4 @@ def numberofnearestneighbours(image, i, j, k, size):
             unvisitedk.append(k-1)
 
     return image, bubblesize
-
-
-
-
-
-
-
-
 

@@ -109,15 +109,17 @@ for slice in range(size):   #iterates over all slices
                 image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
 
 
-func.phasecomparison(twenty1inverse, image3Dinverse, size)
+#func.phasecomparison(twenty1inverse, image3Dinverse, size)
 
 image3D = np.fft.ifftn(image3Dinverse)
 
-distimage= func.bubblesizedistribution(image3D, size)
-dist21= func.bubblesizedistribution(twenty1, size)
+#func.visualizereionizationagainstz(image3D, size, z, theta)
 
-plt.loglog(distimage)
-plt.loglog(dist21)
+distimagex, distimagey= func.bubblesizedistribution(image3D, size)
+dist21x, dist21y= func.bubblesizedistribution(twenty1, size)
+
+plt.loglog(distimagex,distimagey)
+plt.loglog(dist21x, dist21y)
 plt.xlabel('Bubble Size')
 plt.ylabel('Number of Bubbles')
 plt.show()
