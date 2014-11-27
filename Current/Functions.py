@@ -402,6 +402,28 @@ def binningforbubblesizedist(distribution, binsizes):
 
     return binneddist[0], binneddist[1]
 
+def logbinningforbubblesizedist(distribution, powerfactor=1.2):
+
+    distribution = np.trim_zeros(distribution, 'b') #this trims the trailing zeros
+    largestbubble = len(distribution)
+
+    numberofbins = int(np.ceil(np.log(largestbubble)/np.log(powerfactor))) #safetyfactor
+
+    bins = np.zeros((2, numberofbins))
+
+    for i in range(numberofbins):
+        bins[0][i]=powerfactor**i #need to account for loads of bins in range 1-10
+
+    for i in range(numberofbins-1):
+        lowtemp = int(np.floor(bins[0][i]))
+        hightemp = int(np.floor(bins[0][i+1]))
+        for j in range(lowtemp,hightemp):
+            bins[1][i]+=distribution[j]
+        bin[0][i]=np.sqrt(bin[0][i]*bin[0][i+1]) # relabelling the correct log position of each bin
+
+    return bins[0], bins[1]
+
+
 
 
 def bubblesizedistribution(imageoriginal, size):
@@ -420,7 +442,7 @@ def bubblesizedistribution(imageoriginal, size):
             for k in range(size):
 
                 #set up the ones and zeros according to some cut-off temperature
-                if image[i][j][k] < 1.:
+                if image[i][j][k] < 0.1*averagetemp: # this is checking is a point is below a threshold temperature that we define as the temperature required to describe a space ionized
                     image[i][j][k] = 0
                 else:
                     image[i][j][k] = 1
@@ -435,7 +457,7 @@ def bubblesizedistribution(imageoriginal, size):
                     distribution[count]+=1
 
 
-    return binningforbubblesizedist(distribution, 1)
+    return logbinningforbubblesizedist(distribution, 1.5) #this automatically logbins
 
 
 
