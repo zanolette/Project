@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="343c117a-242a-4430-a162-2878237c46b0" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Current/Analyseboxes.py" afterPath="$PROJECT_DIR$/Current/Analyseboxes.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Current/Functions.py" afterPath="$PROJECT_DIR$/Current/Functions.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Current/TestBubbleSize.py" afterPath="$PROJECT_DIR$/Current/TestBubbleSize.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Current/Main.py" afterPath="$PROJECT_DIR$/Current/Main.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="MSciProject.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -29,9 +31,11 @@
       <file leaf-file-name="Main.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Current/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1264" max-vertical-offset="2955">
-              <caret line="105" column="89" selection-start-line="105" selection-start-column="89" selection-end-line="105" selection-end-column="89" />
-              <folding />
+            <state vertical-scroll-proportion="-8.076923" vertical-offset="1590" max-vertical-offset="3135">
+              <caret line="120" column="38" selection-start-line="120" selection-start-column="38" selection-end-line="120" selection-end-column="38" />
+              <folding>
+                <element signature="e#2#20#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -46,21 +50,33 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Analyseboxes.py" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="Analyseboxes.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Current/Analyseboxes.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="229" max-vertical-offset="1110">
-              <caret line="33" column="79" selection-start-line="33" selection-start-column="79" selection-end-line="33" selection-end-column="79" />
+            <state vertical-scroll-proportion="0.66480446" vertical-offset="903" max-vertical-offset="1545">
+              <caret line="90" column="0" selection-start-line="90" selection-start-column="0" selection-end-line="90" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Functions.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Functions.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Current/Functions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.33272728" vertical-offset="6072" max-vertical-offset="7920">
-              <caret line="421" column="41" selection-start-line="421" selection-start-column="41" selection-end-line="421" selection-end-column="41" />
+            <state vertical-scroll-proportion="-9.807693" vertical-offset="2010" max-vertical-offset="8085">
+              <caret line="151" column="58" selection-start-line="151" selection-start-column="58" selection-end-line="151" selection-end-column="58" />
+              <folding>
+                <element signature="e#1#19#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Cosmo.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Current/Cosmo.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1245">
+              <caret line="14" column="30" selection-start-line="14" selection-start-column="30" selection-end-line="14" selection-end-column="30" />
               <folding />
             </state>
           </provider>
@@ -87,9 +103,9 @@
         <option value="$PROJECT_DIR$/Cosmo.py" />
         <option value="$PROJECT_DIR$/Current/VLA.py" />
         <option value="$PROJECT_DIR$/Current/Cosmo.py" />
-        <option value="$PROJECT_DIR$/Current/Analyseboxes.py" />
-        <option value="$PROJECT_DIR$/Current/Main.py" />
         <option value="$PROJECT_DIR$/Current/TestBubbleSize.py" />
+        <option value="$PROJECT_DIR$/Current/Main.py" />
+        <option value="$PROJECT_DIR$/Current/Analyseboxes.py" />
         <option value="$PROJECT_DIR$/Current/Functions.py" />
       </list>
     </option>
@@ -144,7 +160,7 @@
       <recent name="$PROJECT_DIR$/Current" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.VLA (1)">
+  <component name="RunManager" selected="Python.Analyseboxes">
     <configuration default="false" name="VLA" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -367,9 +383,9 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.VLA (1)" />
-        <item index="1" class="java.lang.String" itemvalue="Python.TestBubbleSize" />
-        <item index="2" class="java.lang.String" itemvalue="Python.Analyseboxes" />
+        <item index="0" class="java.lang.String" itemvalue="Python.Analyseboxes" />
+        <item index="1" class="java.lang.String" itemvalue="Python.VLA (1)" />
+        <item index="2" class="java.lang.String" itemvalue="Python.TestBubbleSize" />
         <item index="3" class="java.lang.String" itemvalue="Python.VLA" />
         <item index="4" class="java.lang.String" itemvalue="Python.Cosmo" />
       </list>
@@ -432,19 +448,13 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Current/Analyseboxes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="525" max-vertical-offset="1350">
-          <caret line="35" column="70" selection-start-line="35" selection-start-column="70" selection-end-line="35" selection-end-column="70" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Current/Functions.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="3480" max-vertical-offset="4620">
           <caret line="269" column="19" selection-start-line="269" selection-start-column="12" selection-end-line="269" selection-end-column="19" />
-          <folding />
+          <folding>
+            <element signature="e#1#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -452,7 +462,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2790">
           <caret line="152" column="0" selection-start-line="152" selection-start-column="0" selection-end-line="152" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#2#20#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -468,7 +480,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="390" max-vertical-offset="1095">
           <caret line="96" column="60" selection-start-line="96" selection-start-column="60" selection-end-line="96" selection-end-column="60" />
-          <folding />
+          <folding>
+            <element signature="e#1#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -476,7 +490,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="1732" max-vertical-offset="2670">
           <caret line="143" column="0" selection-start-line="143" selection-start-column="0" selection-end-line="143" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#2#20#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -484,7 +500,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2640">
           <caret line="97" column="0" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#2#20#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -492,7 +510,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="784" max-vertical-offset="2265">
           <caret line="97" column="0" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#2#20#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -500,7 +520,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="784" max-vertical-offset="2265">
           <caret line="97" column="0" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#2#20#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -529,7 +551,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="934" max-vertical-offset="2265">
           <caret line="148" column="69" selection-start-line="148" selection-start-column="69" selection-end-line="148" selection-end-column="69" />
-          <folding />
+          <folding>
+            <element signature="e#2#20#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -558,7 +582,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="1980" max-vertical-offset="2115">
           <caret line="132" column="69" selection-start-line="132" selection-start-column="69" selection-end-line="132" selection-end-column="69" />
-          <folding />
+          <folding>
+            <element signature="e#2#20#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -587,7 +613,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="105" max-vertical-offset="1935">
           <caret line="117" column="3" selection-start-line="117" selection-start-column="3" selection-end-line="117" selection-end-column="3" />
-          <folding />
+          <folding>
+            <element signature="e#2#20#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -752,13 +780,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Current/Cosmo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="499" max-vertical-offset="1245">
-          <caret line="77" column="0" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/matplotlib/image.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="6043" max-vertical-offset="21375">
@@ -773,6 +794,22 @@
         </state>
       </provider>
     </entry>
+    <entry file="file:///System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/lib/npyio.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33272728" vertical-offset="4932" max-vertical-offset="27975">
+          <caret line="366" column="0" selection-start-line="366" selection-start-column="0" selection-end-line="366" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Current/Cosmo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1245">
+          <caret line="14" column="30" selection-start-line="14" selection-start-column="30" selection-end-line="14" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Current/TestBubbleSize.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="270">
@@ -781,26 +818,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Current/Analyseboxes.py">
+    <entry file="file://$PROJECT_DIR$/Current/Functions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="229" max-vertical-offset="1110">
-          <caret line="33" column="79" selection-start-line="33" selection-start-column="79" selection-end-line="33" selection-end-column="79" />
-          <folding />
+        <state vertical-scroll-proportion="-9.807693" vertical-offset="2010" max-vertical-offset="8085">
+          <caret line="151" column="58" selection-start-line="151" selection-start-column="58" selection-end-line="151" selection-end-column="58" />
+          <folding>
+            <element signature="e#1#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Current/Main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1144" max-vertical-offset="2955">
-          <caret line="105" column="89" selection-start-line="105" selection-start-column="89" selection-end-line="105" selection-end-column="89" />
-          <folding />
+        <state vertical-scroll-proportion="-8.076923" vertical-offset="1590" max-vertical-offset="3135">
+          <caret line="120" column="38" selection-start-line="120" selection-start-column="38" selection-end-line="120" selection-end-column="38" />
+          <folding>
+            <element signature="e#2#20#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Current/Functions.py">
+    <entry file="file://$PROJECT_DIR$/Current/Analyseboxes.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33272728" vertical-offset="6072" max-vertical-offset="7920">
-          <caret line="421" column="41" selection-start-line="421" selection-start-column="41" selection-end-line="421" selection-end-column="41" />
+        <state vertical-scroll-proportion="0.66480446" vertical-offset="903" max-vertical-offset="1545">
+          <caret line="90" column="0" selection-start-line="90" selection-start-column="0" selection-end-line="90" selection-end-column="0" />
           <folding />
         </state>
       </provider>

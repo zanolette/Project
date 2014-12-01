@@ -4,6 +4,7 @@ import pylab as pl
 from matplotlib import ticker
 import matplotlib.pyplot as plt
 import boxio as boximport
+import Cosmo as Cosmo
 
 def printgraph (image, xrange, yrange, xlabel, ylabel, scalemin,scalemax):   #generic print function with ranges and labels
     if scalemin == 'None':
@@ -112,7 +113,12 @@ def powerspectrum2D(data,width,size): #here width means how many pixels wide eac
     return countarray[0]/countarray[1]
 
 ##3D version##
-def powerspectrum3D(image3Dinv,width,size,dtheta): #here width means how many pixels wide each band is
+def powerspectrum3D(image3Dinv,width,size,dtheta, dx, z): #here width means how many pixels wide each band is
+
+    CosmoUnits=Cosmo.CosmoUnits() # REMOVE THIS FROM FUNCTIONS LATER MAYBE
+    # to get scalefactor of inverse space in MPc^-1 instead of theta^1
+    kscalefactor=CosmoUnits.Dcomovingtrans(z)
+    print kscalefactor
 
     rmax = int(size/2.)  #also same as centre
 
@@ -129,8 +135,6 @@ def powerspectrum3D(image3Dinv,width,size,dtheta): #here width means how many pi
     image3Dinv = np.abs(image3Dinv)**2
 
 
-    print 'fourier transform done'
-
     countarray = np.zeros((2,1+int(np.sqrt(3.*rmax**2)/width)))
 
     print len(countarray[0])
@@ -145,20 +149,26 @@ def powerspectrum3D(image3Dinv,width,size,dtheta): #here width means how many pi
                 countarray[1][r] += 1   #adds 1 to count, r/width so can save larger wedges
                 countarray[0][r] += image3Dinv[i][j][k]
 
-    PowerSpectrum = countarray[0]/countarray[1]
+    PowerSpectrum = countarray[0]/(countarray[1]*size**3) * (2*np.pi)**3/(2*np.pi**2)  # have to devide by V ???
 
     rsize = int(np.sqrt(3.*rmax**2)/width)
+
     #need an array that represents kmax (to the corner of the cube) = np.sqrt(3*(1/dtheta)**2)
-    kmax = np.sqrt(3*(1/dtheta)**2)
-    kaxis = np.arange(0,kmax+1,(kmax)/rsize) # rmax steps on the kaxis - ranging from 0 to kmax
 
-    print len(kaxis)
-    print len(PowerSpectrum)
-    #kaxis = range(0,rmax,width)
-    #kaxis = (kaxis/rmax)
+    # Ignore - READ BELOW - THIS MIGHT BE AN ISSUE BUT WE ARE CONFIDENT... FOR NOW
+    #kmax = np.sqrt(3*(1/(dtheta*kscalefactor)**2))#NO actually maybe the z component is different - we are investigating it in terms of distance already.
+    #kmax = np.sqrt(2*(1/(dtheta*kscalefactor)**2)+(1/dx)**2)
 
+    # RECAP - WE GET A BOX THAT HAS REAL SPACE SMALL UNITS OF DX (MPC), HENCE K SPACE LARGEST SIZE IS 1/DX (MPC^-1) - HENCE THE FOLLOWING FOR KMAX:
+    kmax = np.sqrt(3*(1/(2*dx))**2) #finds kmax (from centre to outer corner) for a k space that is 1/2dx large
 
-    return kaxis, PowerSpectrum
+    #print 'the smallest steps are equal to '
+    #print dtheta*kscalefactor
+
+    kaxis = np.arange(0,kmax+(kmax)/rsize,(kmax)/rsize) # rmax steps on the kaxis - ranging from 0 to kmax
+    #kaxis=kaxis/kscalefactor
+
+    return kaxis, PowerSpectrum # delta(k-ko) gives a factor of V - assuming no (2pi)**3 factor - depends on the three dimensional fourier convention -
 
 
 
@@ -341,9 +351,6 @@ def visualizereionizationagainstz(image, size, z, theta):
     a2.set_title('SKA Image')
 
     plt.show()
-
-
-
 
 
 #this function prints out all the slices of 2 boxes to be compared - create gif on freds computer using "convert -delay 10 image*.png animated.gif"

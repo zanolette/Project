@@ -118,6 +118,12 @@ image3D = np.fft.ifftn(image3Dinverse)
 distimagex, distimagey= func.bubblesizedistribution(image3D, size)
 dist21x, dist21y= func.bubblesizedistribution(twenty1, size)
 
+ionizedsites = np.sum(dist21x*dist21y)
+ionizedproportion=ionizedsites/(size**3)
+
+print 'Ionized Proportion is:'
+print ionizedproportion
+
 plt.loglog(distimagex,distimagey)
 plt.loglog(dist21x, dist21y)
 plt.xlabel('Bubble Size')

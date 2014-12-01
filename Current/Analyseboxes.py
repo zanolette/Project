@@ -24,12 +24,31 @@ dtheta = float(theta/size)
 box=boximport.readbox(fname)
 twenty1 = box.box_data  #so we have it seperate - this is 3D!
 
+dx=float(box_info['dim'])/float(box_info['BoxSize'])
+
 ###############################################################################
 
 #image3D = np.load('image3Darray%s.npy'% size)
 #sigma3D = np.load('sigma3Darray%s.npy'% size)
 
-image3D = np.load('image3Darraydim%s,%sMpc,z%s,time%s.npy'%(size,box_info['BoxSize'],z,120))
+#image3D = np.load('image3Darraydim%s,%sMpc,z%s,time%s.npy'%(size,box_info['BoxSize'],z,120))
+#sigma3D = np.load('sigma3Darraydim%s,%sMpc,z%s,time%s.npy'%(size,box_info['BoxSize'],z,120))
+
+image3D = np.load('image3Darraydim%s,%sMpc,z%s.npy'%(size,box_info['BoxSize'],z))
+sigma3D = np.load('sigma3Darraydim%s,%sMpc,z%s.npy'%(size,box_info['BoxSize'],z))
+
+image3Dinv=np.fft.fftn(image3D)
+image3Dinv=np.fft.fftshift(image3Dinv)
+
+sigma3Dinv=np.fft.fftn(sigma3D)
+sigma3Dinv=np.fft.fftshift(sigma3Dinv)
+
+twenty1inv = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
+twenty1inv = np.fft.fftshift(twenty1inv)
+
+
+realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
+print realps[:,0]
 
 ###########################2Drep###############################################
 
@@ -43,32 +62,42 @@ image3D = np.load('image3Darraydim%s,%sMpc,z%s,time%s.npy'%(size,box_info['BoxSi
 
 ###########################POWERSPECTRUM########################################
 
-'''
+
 #This calculates 3D powerspectrum, after all slices are done
-imagepowerspectrum = func.powerspectrum3D(image3D,psdwidth,size)
+imagek, imagepowerspectrum = func.powerspectrum3D(image3Dinv,psdwidth,size,dtheta,dx, z)
 print 'done imagepowerspectrum'
-sigmapowerspectrum = func.powerspectrum3D(sigma3D,psdwidth,size)
+print len(imagek), len(imagepowerspectrum)
+sigmak, sigmapowerspectrum = func.powerspectrum3D(sigma3Dinv,psdwidth,size,dtheta, dx, z)
 print 'done sigmapowerspectrum'
-twenty1powerspectrum = func.powerspectrum3D(twenty1,psdwidth,size)
+twenty1k, twenty1powerspectrum = func.powerspectrum3D(twenty1inv,psdwidth,size,dtheta,dx, z)
 print 'done twenty1powerspectrum'
 
-spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
-spatialfreq=spatialfreq[:int(size/(psdwidth*2))]    #this is used to give axis for power spectrum plots
-plt.loglog(spatialfreq,imagepowerspectrum)
-plt.loglog(spatialfreq,sigmapowerspectrum)
-plt.loglog(spatialfreq,twenty1powerspectrum)
+
+
+#spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
+#spatialfreq=spatialfreq[:int(size/(psdwidth*2))]    #this is used to give axis for power spectrum plots
+plt.loglog(imagek,imagepowerspectrum)
+#plt.loglog(sigmak,sigmapowerspectrum)
+plt.loglog(twenty1k,twenty1powerspectrum)
+plt.loglog(realps[:,0],realps[:,1]*(2*np.pi**2)/(realps[:,0]**3))
 plt.xlabel('k')
 plt.ylabel('P(k)')
 plt.show()
 
-plt.loglog(spatialfreq,spatialfreq**3*imagepowerspectrum/(2*np.pi**2))
-plt.loglog(spatialfreq,spatialfreq**3*sigmapowerspectrum/(2*np.pi**2))
-plt.loglog(spatialfreq,spatialfreq**3*twenty1powerspectrum/(2*np.pi**2))
+plt.loglog(imagek,(imagek)**3*imagepowerspectrum/(2*np.pi**2))
+#plt.loglog(sigmak,sigmak**3*sigmapowerspectrum/(2*np.pi**2))
+plt.loglog(twenty1k,(twenty1k)**3*twenty1powerspectrum/(2*np.pi**2))
+plt.loglog(realps[:,0],realps[:,1])
+
 plt.xlabel('k')
 plt.ylabel('k$^3$ P(k)/2$\pi^2$')
 plt.show()
 
 #Compute rms between image and inputed 21cm - only do this if willing to wait
-print 'rms between 21cmbox and image is', func.rmscalc(twenty1,image3D,size)
-'''
+#print 'rms between 21cmbox and image is', func.rmscalc(twenty1,image3D,size)
+
 ################################################################################
+
+
+
+print twenty1powerspectrum[0], realps[0,1]
