@@ -442,7 +442,7 @@ def logbinningforbubblesizedist(distribution, powerfactor=1.2):
 
 
 
-def bubblesizedistribution(imageoriginal, size):
+def bubblesizedistribution(imageoriginal, size,thresholdfraction):
 
     image = imageoriginal #we dont want to change the original
 
@@ -458,7 +458,7 @@ def bubblesizedistribution(imageoriginal, size):
             for k in range(size):
                 temperature += image[i][j][k]
                 #set up the ones and zeros according to some cut-off temperature
-                if image[i][j][k] < 0.5*averagetemp: # this is checking is a point is below a threshold temperature that we define as the temperature required to describe a space ionized
+                if image[i][j][k] < thresholdfraction*averagetemp: # this is checking is a point is below a threshold temperature that we define as the temperature required to describe a space ionized
                     image[i][j][k] = 0
                 else:
                     image[i][j][k] = 1
@@ -541,3 +541,37 @@ def numberofnearestneighbours(image, i, j, k, size):
 
     return image, bubblesize
 
+def secondbubbledistributioncalculator(image,size, thresholdfraction,iterations = 10000):
+
+    cutoff = thresholdfraction*np.average()     #this is cutoff threshold based on average temp
+
+    rmax = np.sqrt(3*size**2)
+    meanfreepathdistribution = np.zeros(rmax)   #this is rmax long as that is largest possible bubble size
+
+    for counter in range (iterations):
+        #random element of image
+        i = np.floor(np.random.random()*size) #floor not int as don't want it rounded to size, which would be out of bounds
+        j = np.floor(np.random.random()*size)
+        k = np.floor(np.random.random()*size)
+
+        if image[i][j][k] < cutoff:
+                di = np.floor(np.random.random.randn()) #floor not int as don't want it rounded to size, which would be out of bounds
+                dj = np.floor(np.random.random.randn())
+                dk = np.floor(np.random.random.randn())
+
+                length = np.sqrt(di**2 + dj**2 + dk**2) #so we can normalise
+
+                di = di/length  #normailised
+                dj = dj/length
+                dk = dk/length
+
+                freepath = 1
+
+                while image[int(i+freepath*di)][int(j+freepath*dj)][int(k+freepath*dk)] < cutoff:
+                    freepath += 1
+
+                meanfreepathdistribution[freepath] += 1   #this is adding 1 to the element which's index corresponds to the free path radius - ie estimate of radius
+        else:
+            counter -= 1
+
+    return meanfreepathdistribution

@@ -116,8 +116,8 @@ image3D = np.abs(image3D)
 
 #func.visualizereionizationagainstz(image3D, size, z, theta)
 
-distimagex, distimagey= func.bubblesizedistribution(image3D, size)
-dist21x, dist21y= func.bubblesizedistribution(twenty1, size)
+distimagex, distimagey= func.bubblesizedistribution(image3D, size,0.5)
+dist21x, dist21y= func.bubblesizedistribution(twenty1, size,0.5)
 
 ionizedsites = np.sum(dist21x*dist21y)
 ionizedproportion=ionizedsites/(size**3)
