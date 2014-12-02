@@ -115,10 +115,19 @@ def powerspectrum2D(data,width,size): #here width means how many pixels wide eac
 ##3D version##
 def powerspectrum3D(image3Dinv,width,size,dtheta, dx, z): #here width means how many pixels wide each band is
 
-    CosmoUnits=Cosmo.CosmoUnits() # REMOVE THIS FROM FUNCTIONS LATER MAYBE
+
+    #UNSURE ABOUT K to R MAPPING
+    #CosmoUnits=Cosmo.CosmoUnits() # REMOVE THIS FROM FUNCTIONS LATER MAYBE
     # to get scalefactor of inverse space in MPc^-1 instead of theta^1
-    kscalefactor=CosmoUnits.Dcomovingtrans(z)
-    print kscalefactor
+    # Ignore - READ BELOW - THIS MIGHT BE AN ISSUE BUT WE ARE CONFIDENT... FOR NOW
+    #kmax = np.sqrt(3*(1/(dtheta*kscalefactor)**2))#NO actually maybe the z component is different - we are investigating it in terms of distance already.
+    #kmax = np.sqrt(2*(1/(dtheta*kscalefactor)**2)+(1/dx)**2)
+
+    # RECAP - WE GET A BOX THAT HAS REAL SPACE SMALL UNITS OF DX (MPC), HENCE K SPACE LARGEST SIZE IS 1/DX (MPC^-1) - HENCE THE FOLLOWING FOR KMAX:
+    kmax = np.sqrt(3*(1/(2*float(dx)))**2) #finds kmax (from centre to outer corner) for a k space that is 1/2dx large
+
+    rspacemaxradius=np.sqrt(3*(size/2)**2)
+    ktorratio=kmax/rspacemaxradius
 
     rmax = int(size/2.)  #also same as centre
 
@@ -135,7 +144,7 @@ def powerspectrum3D(image3Dinv,width,size,dtheta, dx, z): #here width means how 
     image3Dinv = np.abs(image3Dinv)**2
 
 
-    countarray = np.zeros((2,1+int(np.sqrt(3.*rmax**2)/width)))
+    countarray = np.zeros((3,1+int(np.sqrt(3.*rmax**2)/width)))
 
     print len(countarray[0])
 
@@ -148,19 +157,17 @@ def powerspectrum3D(image3Dinv,width,size,dtheta, dx, z): #here width means how 
 
                 countarray[1][r] += 1   #adds 1 to count, r/width so can save larger wedges
                 countarray[0][r] += image3Dinv[i][j][k]
+                countarray[2][r] += (r*width*ktorratio)**3 * image3Dinv[i][j][k] #/(2*np.pi**2)
 
-    PowerSpectrum = countarray[0]/(countarray[1]*size**3) * (2*np.pi)**3/(2*np.pi**2)  # have to devide by V ???
+    PowerSpectrum = countarray[0]/(countarray[1]*size**3) # FUDGE (2*np.pi)**3/(2*np.pi**2)  # have to devide by V ???
+    DelDel = countarray[2]/(countarray[1]*size**3)
+
 
     rsize = int(np.sqrt(3.*rmax**2)/width)
 
     #need an array that represents kmax (to the corner of the cube) = np.sqrt(3*(1/dtheta)**2)
 
-    # Ignore - READ BELOW - THIS MIGHT BE AN ISSUE BUT WE ARE CONFIDENT... FOR NOW
-    #kmax = np.sqrt(3*(1/(dtheta*kscalefactor)**2))#NO actually maybe the z component is different - we are investigating it in terms of distance already.
-    #kmax = np.sqrt(2*(1/(dtheta*kscalefactor)**2)+(1/dx)**2)
 
-    # RECAP - WE GET A BOX THAT HAS REAL SPACE SMALL UNITS OF DX (MPC), HENCE K SPACE LARGEST SIZE IS 1/DX (MPC^-1) - HENCE THE FOLLOWING FOR KMAX:
-    kmax = np.sqrt(3*(1/(2*dx))**2) #finds kmax (from centre to outer corner) for a k space that is 1/2dx large
 
     #print 'the smallest steps are equal to '
     #print dtheta*kscalefactor
@@ -168,7 +175,7 @@ def powerspectrum3D(image3Dinv,width,size,dtheta, dx, z): #here width means how 
     kaxis = np.arange(0,kmax+(kmax)/rsize,(kmax)/rsize) # rmax steps on the kaxis - ranging from 0 to kmax
     #kaxis=kaxis/kscalefactor
 
-    return kaxis, PowerSpectrum # delta(k-ko) gives a factor of V - assuming no (2pi)**3 factor - depends on the three dimensional fourier convention -
+    return kaxis, PowerSpectrum, DelDel # delta(k-ko) gives a factor of V - assuming no (2pi)**3 factor - depends on the three dimensional fourier convention -
 
 
 

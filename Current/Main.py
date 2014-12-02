@@ -15,7 +15,7 @@ CosmoUnits=Cosmo.CosmoUnits()
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel,scalemin,scalemax)
 
 #getting 21cm box information
-fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#
+fname = 'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#
 box_info = boximport.parse_filename(fname)
 
 
@@ -110,7 +110,7 @@ for slice in range(size):   #iterates over all slices
 
 
 #func.phasecomparison(twenty1inverse, image3Dinverse, size)
-
+'''
 image3D = np.fft.ifftn(image3Dinverse)
 image3D = np.abs(image3D)
 
@@ -131,7 +131,7 @@ plt.xlabel('Bubble Size')
 plt.ylabel('Number of Bubbles')
 plt.show()
 
-
+'''
 #THIS IS TO FIND THE PSF
 #func.psfcrosssection(dtheta, image3Dinverse[int(size/2.)],size)
 '''
@@ -175,33 +175,40 @@ plt.show()
 
 
 ##############################POWER SPECTRUM##########################################
+#download real power spectrum
+realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
 
-
-imagek, imagepowerspectrum = func.powerspectrum3D(image3Dinverse,psdwidth,size,dtheta,dx, z)
+imagek, imagepowerspectrum , imagedeldel= func.powerspectrum3D(image3Dinverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
 print 'done imagepowerspectrum'
 print len(imagek), len(imagepowerspectrum)
-sigmak, sigmapowerspectrum = func.powerspectrum3D(sigma3Dinverse,psdwidth,size,dtheta, dx, z)
+sigmak, sigmapowerspectrum , sigmadeldel= func.powerspectrum3D(sigma3Dinverse,psdwidth,size,dtheta, float(box_info['dim'])/float(box_info['BoxSize']), z)
 print 'done sigmapowerspectrum'
-twenty1k, twenty1powerspectrum = func.powerspectrum3D(twenty1inverse,psdwidth,size,dtheta,dx, z)
+twenty1k, twenty1powerspectrum, twenty1deldel= func.powerspectrum3D(twenty1inverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z)
 print 'done twenty1powerspectrum'
 
 
 
 #spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
 #spatialfreq=spatialfreq[:int(size/(psdwidth*2))]    #this is used to give axis for power spectrum plots
-plt.loglog(imagek,imagepowerspectrum)
-#plt.loglog(sigmak,sigmapowerspectrum)
-plt.loglog(twenty1k,twenty1powerspectrum)
-plt.loglog(realps[:,0],realps[:,1]*(2*np.pi**2)/(realps[:,0]**3))
-plt.xlabel('k')
-plt.ylabel('P(k)')
+plt.loglog(imagek,imagedeldel)
+plt.loglog(sigmak,sigmadeldel)
+plt.loglog(twenty1k,twenty1deldel)
+plt.loglog(realps[:,0],realps[:,1])
+plt.xlim(0.02,3)
+
+plt.xlabel('k (MPc$^{-1}$)')
+plt.ylabel('k$^3$ P(k)/2$\pi^2$')
 plt.show()
 
-plt.loglog(imagek,(imagek)**3*imagepowerspectrum/(2*np.pi**2))
-#plt.loglog(sigmak,sigmak**3*sigmapowerspectrum/(2*np.pi**2))
-plt.loglog(twenty1k,(twenty1k)**3*twenty1powerspectrum/(2*np.pi**2))
-plt.loglog(realps[:,0],realps[:,1])
 
-plt.xlabel('k')
-plt.ylabel('k$^3$ P(k)/2$\pi^2$')
+
+plt.loglog(imagek,imagepowerspectrum)
+plt.loglog(sigmak,sigmapowerspectrum)
+plt.loglog(twenty1k,twenty1powerspectrum)
+plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3))    #Important: here, as with other plot, we have no 2Pi**2 factor
+plt.ylim(0,10000)
+plt.xlim(0.02,3)
+
+plt.xlabel('k (MPc$^{-1}$)')
+plt.ylabel('P(k)')
 plt.show()
