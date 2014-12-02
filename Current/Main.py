@@ -112,6 +112,7 @@ for slice in range(size):   #iterates over all slices
 #func.phasecomparison(twenty1inverse, image3Dinverse, size)
 
 image3D = np.fft.ifftn(image3Dinverse)
+image3D = np.abs(image3D)
 
 #func.visualizereionizationagainstz(image3D, size, z, theta)
 
@@ -171,34 +172,36 @@ plt.show()
 
 #np.save('image3Darraydim%s,%sMpc,z%s,time%s'%(size,box_info['BoxSize'],z,timestepsneeded),image3D)
 #np.save('sigma3Darraydim%s,%sMpc,z%s,time&s'%(size,box_info['BoxSize'],z,timestepsneeded),sigma3D)
-'''
 
-##############################IS DONE IN ANALYSE BOXES NOW##########################################
 
-#This calculates 3D powerspectrum, after all slices are done
-imagepowerspectrum = func.powerspectrum3D(image3D,psdwidth,size)
+##############################POWER SPECTRUM##########################################
+
+
+imagek, imagepowerspectrum = func.powerspectrum3D(image3Dinverse,psdwidth,size,dtheta,dx, z)
 print 'done imagepowerspectrum'
-sigmapowerspectrum = func.powerspectrum3D(sigma3D,psdwidth,size)
+print len(imagek), len(imagepowerspectrum)
+sigmak, sigmapowerspectrum = func.powerspectrum3D(sigma3Dinverse,psdwidth,size,dtheta, dx, z)
 print 'done sigmapowerspectrum'
-twenty1powerspectrum = func.powerspectrum3D(twenty1,psdwidth,size)
+twenty1k, twenty1powerspectrum = func.powerspectrum3D(twenty1inverse,psdwidth,size,dtheta,dx, z)
 print 'done twenty1powerspectrum'
 
-spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
-spatialfreq=spatialfreq[:int(size/(psdwidth*2))]    #this is used to give axis for power spectrum plots
-plt.loglog(spatialfreq,imagepowerspectrum)
-plt.loglog(spatialfreq,sigmapowerspectrum)
-plt.loglog(spatialfreq,twenty1powerspectrum)
+
+
+#spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
+#spatialfreq=spatialfreq[:int(size/(psdwidth*2))]    #this is used to give axis for power spectrum plots
+plt.loglog(imagek,imagepowerspectrum)
+#plt.loglog(sigmak,sigmapowerspectrum)
+plt.loglog(twenty1k,twenty1powerspectrum)
+plt.loglog(realps[:,0],realps[:,1]*(2*np.pi**2)/(realps[:,0]**3))
 plt.xlabel('k')
 plt.ylabel('P(k)')
 plt.show()
 
-plt.loglog(spatialfreq,spatialfreq**3*imagepowerspectrum/(2*np.pi**2))
-plt.loglog(spatialfreq,spatialfreq**3*sigmapowerspectrum/(2*np.pi**2))
-plt.loglog(spatialfreq,spatialfreq**3*twenty1powerspectrum/(2*np.pi**2))
+plt.loglog(imagek,(imagek)**3*imagepowerspectrum/(2*np.pi**2))
+#plt.loglog(sigmak,sigmak**3*sigmapowerspectrum/(2*np.pi**2))
+plt.loglog(twenty1k,(twenty1k)**3*twenty1powerspectrum/(2*np.pi**2))
+plt.loglog(realps[:,0],realps[:,1])
+
 plt.xlabel('k')
 plt.ylabel('k$^3$ P(k)/2$\pi^2$')
 plt.show()
-
-#Compute rms between image and inputed 21cm - only do this if willing to wait
-print 'rms between 21cmbox and image is', func.rmscalc(twenty1,image3D,size)
-'''
