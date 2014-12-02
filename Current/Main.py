@@ -15,7 +15,7 @@ CosmoUnits=Cosmo.CosmoUnits()
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel,scalemin,scalemax)
 
 #getting 21cm box information
-fname = 'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#
+fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#
 box_info = boximport.parse_filename(fname)
 
 
@@ -110,31 +110,31 @@ for slice in range(size):   #iterates over all slices
 
 
 #func.phasecomparison(twenty1inverse, image3Dinverse, size)
-'''
+
+
+
 image3D = np.fft.ifftn(image3Dinverse)
-image3D = np.abs(image3D)
+image3D = np.abs(np.real(image3D))
+
 
 #func.visualizereionizationagainstz(image3D, size, z, theta)
+
+meanpathx,meanpathdist = func.secondbubbledistributioncalculator(image3D,size,0.5,10000)
 
 distimagex, distimagey= func.bubblesizedistribution(image3D, size,0.5)
 dist21x, dist21y= func.bubblesizedistribution(twenty1, size,0.5)
 
-ionizedsites = np.sum(dist21x*dist21y)
-ionizedproportion=ionizedsites/(size**3)
-
-print 'Ionized Proportion is:'
-print ionizedproportion
-
-plt.loglog(distimagex,distimagey)
+figure = plt.loglog(distimagex,distimagey)
 plt.loglog(dist21x, dist21y)
+plt.loglog(meanpathx,meanpathdist)
 plt.xlabel('Bubble Size')
-plt.ylabel('Number of Bubbles')
+plt.ylabel('Bubble Size Probability')
 plt.show()
 
 '''
 #THIS IS TO FIND THE PSF
 #func.psfcrosssection(dtheta, image3Dinverse[int(size/2.)],size)
-'''
+
 (kaxis,Powerspectrum) = func.powerspectrum3D(twenty1inverse,psdwidth,size,dtheta)
 plt.loglog(kaxis,Powerspectrum)#*(kaxis**3)/(2*np.pi**2))
 print 1
@@ -173,7 +173,7 @@ plt.show()
 #np.save('image3Darraydim%s,%sMpc,z%s,time%s'%(size,box_info['BoxSize'],z,timestepsneeded),image3D)
 #np.save('sigma3Darraydim%s,%sMpc,z%s,time&s'%(size,box_info['BoxSize'],z,timestepsneeded),sigma3D)
 
-
+'''
 ##############################POWER SPECTRUM##########################################
 #download real power spectrum
 realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
@@ -212,3 +212,4 @@ plt.xlim(0.02,3)
 plt.xlabel('k (MPc$^{-1}$)')
 plt.ylabel('P(k)')
 plt.show()
+'''

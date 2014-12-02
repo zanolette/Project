@@ -416,7 +416,7 @@ def binningforbubblesizedist(distribution, binsizes):
 
     return binneddist[0], binneddist[1]
 
-def logbinningforbubblesizedist(distribution, powerfactor=1.2):
+def logbinningforbubblesizedist(distribution, size, powerfactor=1.2):
 
     distribution = np.trim_zeros(distribution, 'b') #this trims the trailing zeros
     largestbubble = len(distribution)
@@ -437,7 +437,12 @@ def logbinningforbubblesizedist(distribution, powerfactor=1.2):
         bins[0][i]=np.sqrt(float(lowtemp*hightemp))
         #bin[0][i]=np.sqrt(bin[0][i]*bin[0][i+1]) # relabelling the correct log position of each bin
 
-    return bins[0], bins[1]
+    numberofcounts = 0  #this is so we know the normalisation factor
+    for i in range(len(bins[1])):
+        numberofcounts += bins[1][i]
+
+
+    return bins[0], bins[1]/numberofcounts
 
 
 
@@ -450,20 +455,22 @@ def bubblesizedistribution(imageoriginal, size,thresholdfraction):
 
     averagetemp=np.average(image)
 
+    print 'printing average temp'
     print averagetemp
     temperature=0
 
     for i in range(size):
         for j in range(size):
             for k in range(size):
-                temperature += image[i][j][k]
+
                 #set up the ones and zeros according to some cut-off temperature
                 if image[i][j][k] < thresholdfraction*averagetemp: # this is checking is a point is below a threshold temperature that we define as the temperature required to describe a space ionized
                     image[i][j][k] = 0
                 else:
                     image[i][j][k] = 1
 
-    print temperature/(size*size*size)
+    print 'percentage of ionised'
+    print np.average(image)
 
     for i in range(size):
         for j in range(size):
@@ -474,7 +481,7 @@ def bubblesizedistribution(imageoriginal, size,thresholdfraction):
                     distribution[count]+=1
 
 
-    return logbinningforbubblesizedist(distribution, 1.5) #this automatically logbins
+    return logbinningforbubblesizedist(distribution,size, 1.5) #this automatically logbins
 
 
 
@@ -541,37 +548,57 @@ def numberofnearestneighbours(image, i, j, k, size):
 
     return image, bubblesize
 
-def secondbubbledistributioncalculator(image,size, thresholdfraction,iterations = 10000):
+def secondbubbledistributioncalculator(image,size, thresholdfraction,iterations = 100000):
 
-    cutoff = thresholdfraction*np.average()     #this is cutoff threshold based on average temp
+    cutoff = thresholdfraction*np.average(image)     #this is cutoff threshold based on average temp
 
     rmax = np.sqrt(3*size**2)
     meanfreepathdistribution = np.zeros(rmax)   #this is rmax long as that is largest possible bubble size
 
-    for counter in range (iterations):
+    counter = 0
+
+    while counter < iterations:
         #random element of image
         i = np.floor(np.random.random()*size) #floor not int as don't want it rounded to size, which would be out of bounds
         j = np.floor(np.random.random()*size)
         k = np.floor(np.random.random()*size)
 
         if image[i][j][k] < cutoff:
-                di = np.floor(np.random.random.randn()) #floor not int as don't want it rounded to size, which would be out of bounds
-                dj = np.floor(np.random.random.randn())
-                dk = np.floor(np.random.random.randn())
 
-                length = np.sqrt(di**2 + dj**2 + dk**2) #so we can normalise
+            di = np.random.randn() #floor not int as don't want it rounded to size, which would be out of bounds
+            dj = np.random.randn()
+            dk = np.random.randn()
 
-                di = di/length  #normailised
-                dj = dj/length
-                dk = dk/length
+            if di == 0 and dj == 0 and dk == 0:     #safeguard
+                di = 1
 
-                freepath = 1
+            length = np.sqrt(di**2 + dj**2 + dk**2) #so we can normalise
 
+            di = di/length  #normailised
+            dj = dj/length
+            dk = dk/length
+
+            freepath = 1
+
+            if int(i + di) > 0 and int(i + di) < size-1 and int(j + dj) > 0 and int(j + dj) < size-1 and int(k + dk) > 0 and int(k + dk) < size-1:  #checking already not going to go out of bounds
                 while image[int(i+freepath*di)][int(j+freepath*dj)][int(k+freepath*dk)] < cutoff:
-                    freepath += 1
+                    if int(i + freepath*di) > 0 and int(i + freepath*di) < size-1 and int(j + freepath*dj) > 0 and int(j + freepath*dj) < size-1 and int(k + freepath*dk) > 0 and int(k + freepath*dk) < size-1:
+                            freepath += 1
+                    else:
+                        break   #this stops us going out of image bounds
 
-                meanfreepathdistribution[freepath] += 1   #this is adding 1 to the element which's index corresponds to the free path radius - ie estimate of radius
-        else:
-            counter -= 1
+            meanfreepathdistribution[freepath] += 1   #this is adding 1 to the element which's index corresponds to the free path radius - ie estimate of radius
 
-    return meanfreepathdistribution
+            counter += 1
+
+
+
+    meanfreepathdistribution = np.trim_zeros(meanfreepathdistribution, 'b') #this trims the trailing zeros
+
+    arraysize = len(meanfreepathdistribution)
+    volume = np.zeros(arraysize)  #first column is xposition, second is count at that x, we'll rescale xpositions to 4pi * r^3
+
+    for i in range (arraysize):
+        volume[i] = 4/3*np.pi*(float(i)-0.5)**3     #this converts to volume, but r-0.5 as last point we don't know how far between ionised and notionised point, so guess halfway
+
+    return volume, meanfreepathdistribution/iterations     #this is mean free path (distance) not volume!!, divided by N to get probability of getting that radius
