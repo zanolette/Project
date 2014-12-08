@@ -19,6 +19,7 @@ fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_T
 box_info = boximport.parse_filename(fname)
 
 
+
 #Define size of view and resolution
 z = box_info['z']
 theta = CosmoUnits.thetaboxsize(z,box_info['BoxSize'])
@@ -116,19 +117,29 @@ for slice in range(size):   #iterates over all slices
 image3D = np.fft.ifftn(image3Dinverse)
 image3D = np.abs(np.real(image3D))
 
+print '21cm neutral fraction is',box_info['nf'] #this is so we can compare to our bubbledist function - should get same fraction for 21cm
 
 #func.visualizereionizationagainstz(image3D, size, z, theta)
+cutoff = 0.65
+iterations = 10000
+imagemeanpathx,imagemeanpathdist = func.secondbubbledistributioncalculator(image3D,size,cutoff,dl,iterations)
+twenty1meanpathx,twenty1meanpathdist = func.secondbubbledistributioncalculator(twenty1inverse,size,cutoff,dl,iterations)
 
-meanpathx,meanpathdist = func.secondbubbledistributioncalculator(image3D,size,0.5,10000)
+#twenty1meanpathdistweighted = twenty1meanpathdist/twenty1meanpathx  #this weights the average to take into account that large bubbles are sampled more often by dividing by volume
+#twenty1meanpathdistweighted = twenty1meanpathdistweighted/sum(twenty1meanpathdistweighted)    #this normalises the probability
 
-distimagex, distimagey= func.bubblesizedistribution(image3D, size,0.5)
-dist21x, dist21y= func.bubblesizedistribution(twenty1, size,0.5)
+distimagex, distimagey= func.bubblesizedistribution(image3D, size,dl,cutoff,'image')
+dist21x, dist21y= func.bubblesizedistribution(twenty1, size,dl,cutoff,'twenty1')
 
 figure = plt.loglog(distimagex,distimagey)
 plt.loglog(dist21x, dist21y)
-plt.loglog(meanpathx,meanpathdist)
-plt.xlabel('Bubble Size')
-plt.ylabel('Bubble Size Probability')
+plt.loglog(imagemeanpathx,imagemeanpathdist)
+plt.loglog(twenty1meanpathx,twenty1meanpathdist)
+
+plt.xlabel('Ionised Volume (MPc$^{3}$)')
+plt.ylabel('Probability')
+plt.xlim(2,100000)
+plt.ylim(0.000007,1)
 plt.show()
 
 '''

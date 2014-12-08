@@ -416,7 +416,7 @@ def binningforbubblesizedist(distribution, binsizes):
 
     return binneddist[0], binneddist[1]
 
-def logbinningforbubblesizedist(distribution, size, powerfactor=1.2):
+def logbinningforbubblesizedist(distribution, size,dl, powerfactor=1.5):
 
     distribution = np.trim_zeros(distribution, 'b') #this trims the trailing zeros
     largestbubble = len(distribution)
@@ -442,12 +442,12 @@ def logbinningforbubblesizedist(distribution, size, powerfactor=1.2):
         numberofcounts += bins[1][i]
 
 
-    return bins[0], bins[1]/numberofcounts
+    return dl**3*bins[0], bins[1]/numberofcounts    # factor of dl**3 as in volume (element^3) but need MPc^3
 
 
 
 
-def bubblesizedistribution(imageoriginal, size,thresholdfraction):
+def bubblesizedistribution(imageoriginal, size,dl,thresholdfraction,imagename):
 
     image = imageoriginal #we dont want to change the original
 
@@ -469,7 +469,7 @@ def bubblesizedistribution(imageoriginal, size,thresholdfraction):
                 else:
                     image[i][j][k] = 1
 
-    print 'percentage of ionised'
+    print '%s neutral fraction is' %imagename
     print np.average(image)
 
     for i in range(size):
@@ -481,7 +481,7 @@ def bubblesizedistribution(imageoriginal, size,thresholdfraction):
                     distribution[count]+=1
 
 
-    return logbinningforbubblesizedist(distribution,size, 1.5) #this automatically logbins
+    return logbinningforbubblesizedist(distribution,size,dl, 1.5) #this automatically logbins
 
 
 
@@ -548,7 +548,7 @@ def numberofnearestneighbours(image, i, j, k, size):
 
     return image, bubblesize
 
-def secondbubbledistributioncalculator(image,size, thresholdfraction,iterations = 100000):
+def secondbubbledistributioncalculator(image,size, thresholdfraction,dl,iterations = 10000):   #dl is dim[box]/size which give how many MPc each element is
 
     cutoff = thresholdfraction*np.average(image)     #this is cutoff threshold based on average temp
 
@@ -599,6 +599,8 @@ def secondbubbledistributioncalculator(image,size, thresholdfraction,iterations 
     volume = np.zeros(arraysize)  #first column is xposition, second is count at that x, we'll rescale xpositions to 4pi * r^3
 
     for i in range (arraysize):
-        volume[i] = 4/3*np.pi*(float(i)-0.5)**3     #this converts to volume, but r-0.5 as last point we don't know how far between ionised and notionised point, so guess halfway
+        volume[i] = dl**3*4/3*np.pi*(float(i)-0.5)**3     #this converts to volume, but r-0.5 as last point we don't know how far between ionised and notionised point, so guess halfway. FACTOR of dl**3: as want in MPc^3
 
-    return volume, meanfreepathdistribution/iterations     #this is mean free path (distance) not volume!!, divided by N to get probability of getting that radius
+    #this is a normalised weighted mean free path probability, so divided by r^3 to get relation to chance of sampling that size of bubble. divided by N to get probability
+    meanfreepathdistribution = meanfreepathdistribution/volume  #has to be done outside of return so that sum() function works
+    return volume, meanfreepathdistribution/sum(meanfreepathdistribution)   #no need for 1/N factor as taken into account with sum
