@@ -552,6 +552,8 @@ def secondbubbledistributioncalculator(image,size, thresholdfraction,dl,iteratio
 
     cutoff = thresholdfraction*np.average(image)     #this is cutoff threshold based on average temp
 
+    print cutoff
+
     rmax = np.sqrt(3*size**2)
     meanfreepathdistribution = np.zeros(rmax)   #this is rmax long as that is largest possible bubble size
 

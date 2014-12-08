@@ -1,0 +1,66 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pylab as pl
+from matplotlib import ticker
+import Functions as func
+import boxio as boximport
+import Cosmo
+
+
+# defines our universe
+CosmoUnits=Cosmo.CosmoUnits()
+
+#remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel,scalemin,scalemax)
+
+#getting 21cm box information
+fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#
+box_info = boximport.parse_filename(fname)
+box=boximport.readbox(fname)
+
+#Define size of view and resolution
+z = box_info['z']
+theta = CosmoUnits.thetaboxsize(z,box_info['BoxSize'])
+print theta
+
+size = box_info['dim'] # box size - maybe write a code to get this out of the title of the 21cmfast files
+
+ci = int(size/2)
+
+dtheta = float(theta/size)
+print dtheta
+
+eps = 0.5    #this is instrument efficiency
+
+
+#DEPENDS ON Z! FIND THIS
+dl = box_info['BoxSize']/size
+psdwidth = 3    #can change this!
+
+twenty1 = box.box_data  #so we have it seperate - this is 3D!
+
+twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
+twenty1inverse = np.fft.fftshift(twenty1inverse)
+
+print '21cm neutral fraction is',box_info['nf'] #this is so we can compare to our bubbledist function - should get same fraction for 21cm
+
+#func.visualizereionizationagainstz(image3D, size, z, theta)
+cutoff = 0.65
+
+dist21x, dist21y= func.bubblesizedistribution(twenty1, size,dl,cutoff,'twenty1')
+
+
+
+for iterations in range(2,8):
+
+    iterations = 10**iterations
+    twenty1meanpathx,twenty1meanpathdist = func.secondbubbledistributioncalculator(twenty1inverse,size,cutoff,dl,iterations)
+
+    plt.loglog(dist21x, dist21y)
+    plt.loglog(twenty1meanpathx,twenty1meanpathdist)
+
+    plt.title('Iterations = %i'%iterations)
+    plt.xlabel('Ionised Volume (MPc$^{3}$)')
+    plt.ylabel('Probability')
+    #plt.xlim(2,100000)
+    #plt.ylim(0.000007,1)
+    plt.show()
