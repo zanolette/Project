@@ -604,5 +604,5 @@ def secondbubbledistributioncalculator(image,size, thresholdfraction,dl,iteratio
         volume[i] = dl**3*4/3*np.pi*(float(i)-0.5)**3     #this converts to volume, but r-0.5 as last point we don't know how far between ionised and notionised point, so guess halfway. FACTOR of dl**3: as want in MPc^3
 
     #this is a normalised weighted mean free path probability, so divided by r^3 to get relation to chance of sampling that size of bubble. divided by N to get probability
-    meanfreepathdistribution = meanfreepathdistribution/volume  #has to be done outside of return so that sum() function works
+    #meanfreepathdistribution = meanfreepathdistribution/volume  #has to be done outside of return so that sum() function works
     return volume, meanfreepathdistribution/sum(meanfreepathdistribution)   #no need for 1/N factor as taken into account with sum
