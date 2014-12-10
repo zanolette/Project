@@ -178,6 +178,91 @@ def powerspectrum3D(image3Dinv,width,size,dtheta, dx, z): #here width means how 
     return kaxis, PowerSpectrum, DelDel # delta(k-ko) gives a factor of V - assuming no (2pi)**3 factor - depends on the three dimensional fourier convention -
 
 
+##################3D version WITH WEDGE REMOVED#############################
+def powerspectrum3Dwedge(image3Dinv,width,size,dtheta, dx, z): #here width means how many pixels wide each band is
+    #FOR THIS METHOD: we will first go over all of 3D box and set to zero any elements within wedge, then method will continue as usual
+
+
+    #UNSURE ABOUT K to R MAPPING
+    #CosmoUnits=Cosmo.CosmoUnits() # REMOVE THIS FROM FUNCTIONS LATER MAYBE
+    # to get scalefactor of inverse space in MPc^-1 instead of theta^1
+    # Ignore - READ BELOW - THIS MIGHT BE AN ISSUE BUT WE ARE CONFIDENT... FOR NOW
+    #kmax = np.sqrt(3*(1/(dtheta*kscalefactor)**2))#NO actually maybe the z component is different - we are investigating it in terms of distance already.
+    #kmax = np.sqrt(2*(1/(dtheta*kscalefactor)**2)+(1/dx)**2)
+
+
+
+    # RECAP - WE GET A BOX THAT HAS REAL SPACE SMALL UNITS OF DX (MPC), HENCE K SPACE LARGEST SIZE IS 1/DX (MPC^-1) - HENCE THE FOLLOWING FOR KMAX:
+    kmax = np.sqrt(3*(1/(2*float(dx)))**2) #finds kmax (from centre to outer corner) for a k space that is 1/2dx large
+
+    rspacemaxradius=np.sqrt(3*(size/2)**2)
+    ktorratio=kmax/rspacemaxradius
+
+    rmax = int(size/2.)  #also same as centre
+
+    '''
+    plt.imshow(image3D[50],  interpolation='nearest',cmap='jet')
+    plt.colorbar( orientation='vertical')
+    plt.show()
+    '''
+
+    #these 3 take image into fourier space and make |p(k)|^2
+    #image3D = np.fft.fftn(image3D)
+    #image3D = np.fft.fftshift(image3D)
+
+    image3Dinv = np.abs(image3Dinv)**2
+
+
+    countarray = np.zeros((3,1+int(np.sqrt(3.*rmax**2)/width)))
+
+    print len(countarray[0])
+
+    #these will have an equation eventually
+    gradient = 0.5
+    perpkcutoff = 0.055    #this is at what point the wedge becomes important - note i've taken these initial estimates from wedge I paper
+    parrkcutoff = 0.5   #this is the size of contaminated kparrallels when not needing wedge
+    constant = perpkcutoff - parrkcutoff/gradient   #(this is just working out C for y = mx + C)
+
+
+    for i in range(size):
+        for j in range (size):
+            for k in range (size):
+
+                r = int(np.sqrt((i-rmax)**2 + (j-rmax)**2 + (k-rmax)**2)/width)   #works out how far it is from the centre
+                kperp = np.sqrt(i**2 + j**2)
+
+                #condition for < perpkcutoff is k < parrkcutoff
+                # if i=x,j=y,k=z, then x**2 + y**2 = perp**2
+                #so condition once past perpkcutoff is if k > gradient*sqrt(i**2 + j**2) + constant
+                if kperp < perpkcutoff:
+                    if np.abs(k) > parrkcutoff:
+                        countarray[1][r] += 1   #adds 1 to count, r/width so can save larger wedges
+                        countarray[0][r] += image3Dinv[i][j][k]
+                        countarray[2][r] += (r*width*ktorratio)**3 * image3Dinv[i][j][k] #/(2*np.pi**2)
+
+                elif abs(k) > gradient*kperp + constant:    #this neglects wedge elements, abs as kparrallel = abs(kz)
+                    countarray[1][r] += 1
+                    countarray[0][r] += image3Dinv[i][j][k]
+                    countarray[2][r] += (r*width*ktorratio)**3 * image3Dinv[i][j][k] #/(2*np.pi**2)
+
+
+    PowerSpectrum = countarray[0]/(countarray[1]*size**3) # FUDGE (2*np.pi)**3/(2*np.pi**2)  # have to devide by V ???
+    DelDel = countarray[2]/(countarray[1]*size**3)
+
+
+    rsize = int(np.sqrt(3.*rmax**2)/width)
+
+    #need an array that represents kmax (to the corner of the cube) = np.sqrt(3*(1/dtheta)**2)
+
+
+
+    #print 'the smallest steps are equal to '
+    #print dtheta*kscalefactor
+
+    kaxis = np.arange(0,kmax+(kmax)/rsize,(kmax)/rsize) # rmax steps on the kaxis - ranging from 0 to kmax
+    #kaxis=kaxis/kscalefactor
+
+    return kaxis, PowerSpectrum, DelDel # delta(k-ko) gives a factor of V - assuming no (2pi)**3 factor - depends on the three dimensional fourier convention -
 
 
 

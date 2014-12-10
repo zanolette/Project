@@ -192,12 +192,12 @@ for fname in glob.glob(path):
     #ARENT COMPARING TO THE 21cmfast OUTPUT because our stuff works as seen in always
     #realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
 
-    imagek, imagepowerspectrum , imagedeldel= func.powerspectrum3D(image3Dinverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
+    imagek, imagepowerspectrum , imagedeldel= func.powerspectrum3Dwedge(image3Dinverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
     print 'done imagepowerspectrum'
     print len(imagek), len(imagepowerspectrum)
-    sigmak, sigmapowerspectrum , sigmadeldel= func.powerspectrum3D(sigma3Dinverse,psdwidth,size,dtheta, float(box_info['dim'])/float(box_info['BoxSize']), z)
+    sigmak, sigmapowerspectrum , sigmadeldel= func.powerspectrum3Dwedge(sigma3Dinverse,psdwidth,size,dtheta, float(box_info['dim'])/float(box_info['BoxSize']), z)
     print 'done sigmapowerspectrum'
-    twenty1k, twenty1powerspectrum, twenty1deldel= func.powerspectrum3D(twenty1inverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z)
+    twenty1k, twenty1powerspectrum, twenty1deldel= func.powerspectrum3Dwedge(twenty1inverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z)
     print 'done twenty1powerspectrum'
 
 
