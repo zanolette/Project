@@ -154,10 +154,10 @@ def powerspectrum3D(image3Dinv,width,size,dtheta, dx, z): #here width means how 
 
                 r = int(np.sqrt((i-rmax)**2 + (j-rmax)**2 + (k-rmax)**2)/width)   #works out how far it is from the centre
 
-
-                countarray[1][r] += 1   #adds 1 to count, r/width so can save larger wedges
-                countarray[0][r] += image3Dinv[i][j][k]
-                countarray[2][r] += (r*width*ktorratio)**3 * image3Dinv[i][j][k] #/(2*np.pi**2)
+                if image3Dinv[i][j][k] >= 0:    #this is as masked points are set to -1. No original points can be < 0
+                    countarray[1][r] += 1   #adds 1 to count, r/width so can save larger wedges
+                    countarray[0][r] += image3Dinv[i][j][k]
+                    countarray[2][r] += (r*width*ktorratio)**3 * image3Dinv[i][j][k] #/(2*np.pi**2)
 
     PowerSpectrum = countarray[0]/(countarray[1]*size**3) # FUDGE (2*np.pi)**3/(2*np.pi**2)  # have to devide by V ???
     DelDel = countarray[2]/(countarray[1]*size**3)
@@ -195,6 +195,8 @@ def powerspectrum3Dwedge(image3Dinv,width,size,dtheta, dx, z): #here width means
     # RECAP - WE GET A BOX THAT HAS REAL SPACE SMALL UNITS OF DX (MPC), HENCE K SPACE LARGEST SIZE IS 1/DX (MPC^-1) - HENCE THE FOLLOWING FOR KMAX:
     kmax = np.sqrt(3*(1/(2*float(dx)))**2) #finds kmax (from centre to outer corner) for a k space that is 1/2dx large
 
+    print 'kmax is', kmax
+
     rspacemaxradius=np.sqrt(3*(size/2)**2)
     ktorratio=kmax/rspacemaxradius
 
@@ -218,29 +220,31 @@ def powerspectrum3Dwedge(image3Dinv,width,size,dtheta, dx, z): #here width means
     print len(countarray[0])
 
     #these will have an equation eventually
+    #we want to write these in units of "index" rather than per Mpc
+    #as its easier to work with our image box in terms of indices
     gradient = 0.5
-    perpkcutoff = 0.055    #this is at what point the wedge becomes important - note i've taken these initial estimates from wedge I paper
-    parrkcutoff = 0.5   #this is the size of contaminated kparrallels when not needing wedge
-    constant = perpkcutoff - parrkcutoff/gradient   #(this is just working out C for y = mx + C)
-
+    perpkcutoff = 0.055/ktorratio    #this is at what point the wedge becomes important - note i've taken these initial estimates from wedge I paper
+    parrkcutoff = 0.5 /ktorratio  #this is the size of contaminated kparrallels when not needing wedge
+    #constant = perpkcutoff - parrkcutoff/gradient   #(this is just working out C for y = mx + C)
+    print 'perpkcutoff is', perpkcutoff
 
     for i in range(size):
         for j in range (size):
             for k in range (size):
 
                 r = int(np.sqrt((i-rmax)**2 + (j-rmax)**2 + (k-rmax)**2)/width)   #works out how far it is from the centre
-                kperp = np.sqrt(i**2 + j**2)
+                kperp = np.sqrt((i-rmax)**2 + (j-rmax)**2)
 
                 #condition for < perpkcutoff is k < parrkcutoff
                 # if i=x,j=y,k=z, then x**2 + y**2 = perp**2
                 #so condition once past perpkcutoff is if k > gradient*sqrt(i**2 + j**2) + constant
                 if kperp < perpkcutoff:
-                    if np.abs(k) > parrkcutoff:
+                    if np.abs(k-rmax) > parrkcutoff:
                         countarray[1][r] += 1   #adds 1 to count, r/width so can save larger wedges
                         countarray[0][r] += image3Dinv[i][j][k]
                         countarray[2][r] += (r*width*ktorratio)**3 * image3Dinv[i][j][k] #/(2*np.pi**2)
 
-                elif abs(k) > gradient*kperp + constant:    #this neglects wedge elements, abs as kparrallel = abs(kz)
+                elif np.abs(k-rmax) > np.sqrt(kperp-perpkcutoff)+parrkcutoff:    #this neglects wedge elements, which is parabola when not in loglog, abs as kparrallel = abs(kz)
                     countarray[1][r] += 1
                     countarray[0][r] += image3Dinv[i][j][k]
                     countarray[2][r] += (r*width*ktorratio)**3 * image3Dinv[i][j][k] #/(2*np.pi**2)

@@ -197,7 +197,7 @@ for fname in glob.glob(path):
     print len(imagek), len(imagepowerspectrum)
     sigmak, sigmapowerspectrum , sigmadeldel= func.powerspectrum3Dwedge(sigma3Dinverse,psdwidth,size,dtheta, float(box_info['dim'])/float(box_info['BoxSize']), z)
     print 'done sigmapowerspectrum'
-    twenty1k, twenty1powerspectrum, twenty1deldel= func.powerspectrum3Dwedge(twenty1inverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z)
+    twenty1k, twenty1powerspectrum, twenty1deldel= func.powerspectrum3D(twenty1inverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z)
     print 'done twenty1powerspectrum'
 
 
