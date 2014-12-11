@@ -15,215 +15,255 @@ CosmoUnits=Cosmo.CosmoUnits()
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel,scalemin,scalemax)
 
 #getting 21cm box information
-#fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#
+fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#
 
-path = "BOXES/*"
-for fname in glob.glob(path):
+#path = "BOXES/*"
+#for fname in glob.glob(path):
 
-    box_info = boximport.parse_filename(fname)
+box_info = boximport.parse_filename(fname)
 
-    #Define size of view and resolution
-    z = box_info['z']
-    theta = CosmoUnits.thetaboxsize(z,box_info['BoxSize'])
-    print theta
+#Define size of view and resolution
+z = box_info['z']
+theta = CosmoUnits.thetaboxsize(z,box_info['BoxSize'])
+print theta
 
-    size = box_info['dim'] # box size - maybe write a code to get this out of the title of the 21cmfast files
+size = box_info['dim'] # box size - maybe write a code to get this out of the title of the 21cmfast files
 
-    ci = int(size/2)
+ci = int(size/2)
 
-    dtheta = float(theta/size)
-    print dtheta
+dtheta = float(theta/size)
+print dtheta
 
-    eps = 0.5    #this is instrument efficiency
-
-
-    #DEPENDS ON Z! FIND THIS
-    dl = box_info['BoxSize']/size
-    psdwidth = 3    #can change this!
+eps = 0.5    #this is instrument efficiency
 
 
-    #DEFINE EXPERIMENT PARAMETERS
-    H = 0.
-    tint = 60.      #interval in seconds
-    dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
-    totalintegrationtime = 1    #total time in hours
-    timestepsneeded= 1 #int(totalintegrationtime * 60 * 24 / tint) # unitlessmeasurement of number of steps needed
-    delta = 90./180. * np.pi    #declination angle
-    scaling = 1./(size*dtheta)
+#DEPENDS ON Z! FIND THIS
+dl = box_info['BoxSize']/size
+psdwidth = 3    #can change this!
 
 
-    #Define Wavelength - find this out from z!!
-    lda=.21106*(1+z)
+#DEFINE EXPERIMENT PARAMETERS
+H = 0.
+tint = 60.      #interval in seconds
+dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
+totalintegrationtime = 1    #total time in hours
+timestepsneeded= 1 #int(totalintegrationtime * 60 * 24 / tint) # unitlessmeasurement of number of steps needed
+delta = 90./180. * np.pi    #declination angle
+scaling = 1./(size*dtheta)
 
 
-    # Now we import array positions
-    (dx,dy,dz)=func.importarray('MWAhalved.txt',lda) #this assumes lda doesn't change too much over slices!!! 'MWAcoordinate.txt''vla.a.cfg' 'MWAhalved.txt'
+#Define Wavelength - find this out from z!!
+lda=.21106*(1+z)
 
 
-    #Apply rotation matrix onto baseline vector and maps onto fourier plane.
-    UVcount = func.rotationmatrix(dx, dy, dz, scaling, H, dH, timestepsneeded, delta, size)
+# Now we import array positions
+(dx,dy,dz)=func.importarray('MWAhalved.txt',lda) #this assumes lda doesn't change too much over slices!!! 'MWAcoordinate.txt''vla.a.cfg' 'MWAhalved.txt'
 
 
-    # need to make sure this is correct according to pritchard - noise on complex thing
-    tsyst = 50000 + 60000*((1+z)/4.73)**2.55  #(mK) this is from "Probing . . . with the SKA" MG Santos
-    B = 1420.41e6*dl/((1+z)*CosmoUnits.Dcomovingrad(z))        #Bandwidth (Hz) - this is given by frequency inteval. DeltaF = f1-f2, seperated by deltaz = z* deltaL/Dcomovingrad
-
-    #imports 21cm box and takes single z slice
-    #zhat,twenty1 = func.twentyonecmmatrix(fname,theta/2)    #z will be used later to compute rms of image and measured sky
-    box=boximport.readbox(fname)
-    twenty1 = box.box_data  #so we have it seperate - this is 3D!
+#Apply rotation matrix onto baseline vector and maps onto fourier plane.
+UVcount = func.rotationmatrix(dx, dy, dz, scaling, H, dH, timestepsneeded, delta, size)
 
 
-    twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
-    twenty1inverse = np.fft.fftshift(twenty1inverse)
+# need to make sure this is correct according to pritchard - noise on complex thing
+tsyst = 50000 + 60000*((1+z)/4.73)**2.55  #(mK) this is from "Probing . . . with the SKA" MG Santos
+B = 1420.41e6*dl/((1+z)*CosmoUnits.Dcomovingrad(z))        #Bandwidth (Hz) - this is given by frequency inteval. DeltaF = f1-f2, seperated by deltaz = z* deltaL/Dcomovingrad
 
-    image3Dinverse = np.zeros((size,size,size),'complex')   #so we can save into a 3D box in fourier space
-    sigma3Dinverse = np.zeros((size,size,size))
-
-    ##########################This is where we introduce a slice################################
-
-    for slice in range(size):   #iterates over all slices
-
-        print slice
-
-        zhat = twenty1inverse[slice]    #takes a 2D slice of 21cm in fourier space
+#imports 21cm box and takes single z slice
+#zhat,twenty1 = func.twentyonecmmatrix(fname,theta/2)    #z will be used later to compute rms of image and measured sky
+box=boximport.readbox(fname)
+twenty1 = box.box_data  #so we have it seperate - this is 3D!
 
 
-        #CODE THAT CAN BE USED TO CHECK OUR SPATIAL FREQUENCY IS IN THE RIGHT UNITS
-        #spatialfreq=np.fft.fftfreq(size, dtheta)
-        #print spatialfreq[4] - spatialfreq[3]
-        #print scaling
+twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
+twenty1inverse = np.fft.fftshift(twenty1inverse)
+
+image3Dinverse = np.zeros((size,size,size),'complex')   #so we can save into a 3D box in fourier space
+sigma3Dinverse = np.zeros((size,size,size))
+
+##########################This is where we introduce a slice################################
+
+for slice in range(size):   #iterates over all slices
+
+    print slice
+
+    zhat = twenty1inverse[slice]    #takes a 2D slice of 21cm in fourier space
 
 
-        ####################################MEASURE##################################################
+    #CODE THAT CAN BE USED TO CHECK OUR SPATIAL FREQUENCY IS IN THE RIGHT UNITS
+    #spatialfreq=np.fft.fftfreq(size, dtheta)
+    #print spatialfreq[4] - spatialfreq[3]
+    #print scaling
 
 
-        # for loop that goes through the fourier space matrix and adds noise according to the number of times the signal gets sampled
+    ####################################MEASURE##################################################
 
 
-        #using UV count - this now merges the UVcoverage and the Image
-
-        for i in range (size):
-            for j in range (size):
-                if UVcount[i][j] != 0:
-                    sigma3Dinverse[slice][i][j] = tsyst/(eps*np.sqrt(UVcount[i][j]*tint*B))       #saved seperately to calculate power spectrum seperately, error eqn according to NRAO course + Pritchard
-                    real=np.random.normal(np.real(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)     #sqrt(2) here as real and imag components share it
-                    imaginary = np.random.normal(np.imag(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)
-                    image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
+    # for loop that goes through the fourier space matrix and adds noise according to the number of times the signal gets sampled
 
 
-    #func.phasecomparison(twenty1inverse, image3Dinverse, size)
+    #using UV count - this now merges the UVcoverage and the Image
+
+    for i in range (size):
+        for j in range (size):
+            if UVcount[i][j] != 0:
+                sigma3Dinverse[slice][i][j] = tsyst/(eps*np.sqrt(UVcount[i][j]*tint*B))       #saved seperately to calculate power spectrum seperately, error eqn according to NRAO course + Pritchard
+                real=np.random.normal(np.real(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)     #sqrt(2) here as real and imag components share it
+                imaginary = np.random.normal(np.imag(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)
+                image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
+
+#now we have the actual image in k space but we want to add a k space window onto it.
+Windowedimage=image3Dinverse
+
+kmax = np.sqrt(3*(1/(2*float(dl)))**2) #finds kmax (from centre to outer corner) for a k space that is 1/2dx large
+rspacemaxradius=np.sqrt(3*(size/2)**2)
+ktorratio=kmax/rspacemaxradius #ratio between our indexes and kspace
+rmax = int(size/2.)
+
+perpkcutoff = 0.055/ktorratio    #this is at what point the wedge becomes important - note i've taken these initial estimates from wedge I paper
+parrkcutoff = 0.5 /ktorratio  #this is the size of contaminated kparrallels when not needing wedge
+#constant = perpkcutoff - parrkcutoff/gradient   #(this is just working out C for y = mx + C)
+print 'perpkcutoff is', perpkcutoff
+
+for i in range(size):
+    for j in range (size):
+        for k in range (size):
+
+            r = int(np.sqrt((i-rmax)**2 + (j-rmax)**2 + (k-rmax)**2))   #works out how far it is from the centre
+            kperp = np.sqrt((i-rmax)**2 + (j-rmax)**2)
+
+            #condition for < perpkcutoff is k < parrkcutoff
+            # if i=x,j=y,k=z, then x**2 + y**2 = perp**2
+            #so condition once past perpkcutoff is if k > gradient*sqrt(i**2 + j**2) + constant
+#TALK TO LUKE SEE IF THIS WORKS!!!!
+            if np.abs(k-rmax) < parrkcutoff:
+                if kperp < perpkcutoff:
+                    Windowedimage[i][j][k]=0
+            elif np.abs(k-rmax) < np.sqrt(kperp-perpkcutoff)+parrkcutoff:    #this neglects wedge elements, which is parabola when not in loglog, abs as kparrallel = abs(kz)
+                Windowedimage[i][j][k]=0
+
+#image3D = np.fft.ifftn(image3Dinverse)
+#image3D = np.abs(np.real(image3D))
+
+Windowedimage = np.fft.ifftn(Windowedimage)
+Windowedimage = np.abs(Windowedimage)
+
+func.visualizereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
+
+#func.phasecomparison(twenty1inverse, image3Dinverse, size)
 
 
-    '''
-    image3D = np.fft.ifftn(image3Dinverse)
-    image3D = np.abs(np.real(image3D))
+'''
+image3D = np.fft.ifftn(image3Dinverse)
+image3D = np.abs(np.real(image3D))
 
-    print '21cm neutral fraction is',box_info['nf'] #this is so we can compare to our bubbledist function - should get same fraction for 21cm
+print '21cm neutral fraction is',box_info['nf'] #this is so we can compare to our bubbledist function - should get same fraction for 21cm
 
-    #func.visualizereionizationagainstz(image3D, size, z, theta)
-    cutoff = 0.65
-    iterations = 10000
-    imagemeanpathx,imagemeanpathdist = func.secondbubbledistributioncalculator(image3D,size,cutoff,dl,iterations)
-    twenty1meanpathx,twenty1meanpathdist = func.secondbubbledistributioncalculator(twenty1inverse,size,cutoff,dl,iterations)
+#func.visualizereionizationagainstz(image3D, size, z, theta)
+cutoff = 0.65
+iterations = 10000
+imagemeanpathx,imagemeanpathdist = func.secondbubbledistributioncalculator(image3D,size,cutoff,dl,iterations)
+twenty1meanpathx,twenty1meanpathdist = func.secondbubbledistributioncalculator(twenty1inverse,size,cutoff,dl,iterations)
 
-    #twenty1meanpathdistweighted = twenty1meanpathdist/twenty1meanpathx  #this weights the average to take into account that large bubbles are sampled more often by dividing by volume
-    #twenty1meanpathdistweighted = twenty1meanpathdistweighted/sum(twenty1meanpathdistweighted)    #this normalises the probability
+#twenty1meanpathdistweighted = twenty1meanpathdist/twenty1meanpathx  #this weights the average to take into account that large bubbles are sampled more often by dividing by volume
+#twenty1meanpathdistweighted = twenty1meanpathdistweighted/sum(twenty1meanpathdistweighted)    #this normalises the probability
 
-    distimagex, distimagey= func.bubblesizedistribution(image3D, size,dl,cutoff,'image')
-    dist21x, dist21y= func.bubblesizedistribution(twenty1, size,dl,cutoff,'twenty1')
+distimagex, distimagey= func.bubblesizedistribution(image3D, size,dl,cutoff,'image')
+dist21x, dist21y= func.bubblesizedistribution(twenty1, size,dl,cutoff,'twenty1')
 
-    figure = plt.loglog(distimagex,distimagey)
-    plt.loglog(dist21x, dist21y)
-    plt.loglog(imagemeanpathx,imagemeanpathdist)
-    plt.loglog(twenty1meanpathx,twenty1meanpathdist)
+figure = plt.loglog(distimagex,distimagey)
+plt.loglog(dist21x, dist21y)
+plt.loglog(imagemeanpathx,imagemeanpathdist)
+plt.loglog(twenty1meanpathx,twenty1meanpathdist)
 
-    plt.xlabel('Ionised Volume (MPc$^{3}$)')
-    plt.ylabel('Probability')
-    plt.xlim(2,100000)
-    plt.ylim(0.000007,1)
-    plt.show()
-    '''
-    '''
+plt.xlabel('Ionised Volume (MPc$^{3}$)')
+plt.ylabel('Probability')
+plt.xlim(2,100000)
+plt.ylim(0.000007,1)
+plt.show()
+'''
+'''
+#THIS IS TO FIND THE PSF
+#func.psfcrosssection(dtheta, image3Dinverse[int(size/2.)],size)
+
+(kaxis,Powerspectrum) = func.powerspectrum3D(twenty1inverse,psdwidth,size,dtheta)
+plt.loglog(kaxis,Powerspectrum)#*(kaxis**3)/(2*np.pi**2))
+print 1
+(kaxis,Powerspectrum)=func.powerspectrum3D(image3Dinverse,psdwidth,size,dtheta)
+plt.loglog(kaxis,Powerspectrum)#*(kaxis**3)/(2*np.pi**2))
+print 2
+(kaxis,Powerspectrum)=func.powerspectrum3D(sigma3Dinverse,psdwidth,size,dtheta)
+plt.loglog(kaxis,Powerspectrum)#*(kaxis**3)/(2*np.pi**2))
+print 3
+plt.xlabel('k')
+plt.ylabel('P(k)')
+
+plt.show()
+'''
     #THIS IS TO FIND THE PSF
-    #func.psfcrosssection(dtheta, image3Dinverse[int(size/2.)],size)
-
-    (kaxis,Powerspectrum) = func.powerspectrum3D(twenty1inverse,psdwidth,size,dtheta)
-    plt.loglog(kaxis,Powerspectrum)#*(kaxis**3)/(2*np.pi**2))
-    print 1
-    (kaxis,Powerspectrum)=func.powerspectrum3D(image3Dinverse,psdwidth,size,dtheta)
-    plt.loglog(kaxis,Powerspectrum)#*(kaxis**3)/(2*np.pi**2))
-    print 2
-    (kaxis,Powerspectrum)=func.powerspectrum3D(sigma3Dinverse,psdwidth,size,dtheta)
-    plt.loglog(kaxis,Powerspectrum)#*(kaxis**3)/(2*np.pi**2))
-    print 3
-    plt.xlabel('k')
-    plt.ylabel('P(k)')
-
-    plt.show()
-    '''
-        #THIS IS TO FIND THE PSF
-        #func.psfcrosssection(dtheta, image,size)
+    #func.psfcrosssection(dtheta, image,size)
 
 
 
 
-    #image3D = np.fft.ifftn(image3Dinverse)
-    #dont think we need to shift -
-    #image3D = np.abs(image3D)
+#image3D = np.fft.ifftn(image3Dinverse)
+#dont think we need to shift -
+#image3D = np.abs(image3D)
 
-    #sigma3D = np.fft.ifftn(sigma3Dinverse)
-    #######do we need a shift here?###########
-    #sigma3D = np.abs(sigma3D)
+#sigma3D = np.fft.ifftn(sigma3Dinverse)
+#######do we need a shift here?###########
+#sigma3D = np.abs(sigma3D)
 
-    #func.visualizereionizationslicebyslice(image3D,twenty1, size, z, theta)
-
-
-
-    #np.save('image3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),image3D)
-    #np.save('sigma3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),sigma3D)
-
-    #np.save('image3Darraydim%s,%sMpc,z%s,time%s'%(size,box_info['BoxSize'],z,timestepsneeded),image3D)
-    #np.save('sigma3Darraydim%s,%sMpc,z%s,time&s'%(size,box_info['BoxSize'],z,timestepsneeded),sigma3D)
+#func.visualizereionizationslicebyslice(image3D,twenty1, size, z, theta)
 
 
-    ##############################POWER SPECTRUM##########################################
-    #download real power spectrum
-    #ARENT COMPARING TO THE 21cmfast OUTPUT because our stuff works as seen in always
-    #realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
 
-    imagek, imagepowerspectrum , imagedeldel= func.powerspectrum3Dwedge(image3Dinverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
-    print 'done imagepowerspectrum'
-    print len(imagek), len(imagepowerspectrum)
-    sigmak, sigmapowerspectrum , sigmadeldel= func.powerspectrum3Dwedge(sigma3Dinverse,psdwidth,size,dtheta, float(box_info['dim'])/float(box_info['BoxSize']), z)
-    print 'done sigmapowerspectrum'
-    twenty1k, twenty1powerspectrum, twenty1deldel= func.powerspectrum3D(twenty1inverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z)
-    print 'done twenty1powerspectrum'
+#np.save('image3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),image3D)
+#np.save('sigma3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),sigma3D)
+
+#np.save('image3Darraydim%s,%sMpc,z%s,time%s'%(size,box_info['BoxSize'],z,timestepsneeded),image3D)
+#np.save('sigma3Darraydim%s,%sMpc,z%s,time&s'%(size,box_info['BoxSize'],z,timestepsneeded),sigma3D)
 
 
-    #spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
-    #spatialfreq=spatialfreq[:int(size/(psdwidth*2))]    #this is used to give axis for power spectrum plots
-    plt.loglog(imagek,imagedeldel)
-    plt.loglog(sigmak,sigmadeldel)
-    plt.loglog(twenty1k,twenty1deldel)
-    #plt.loglog(realps[:,0],realps[:,1])
-    plt.ylim(0.00001,100)
-    plt.xlim(0.02,3)
-
-    plt.xlabel('k (MPc$^{-1}$)')
-    plt.ylabel('k$^3$ P(k)/2$\pi^2$')
-    plt.savefig('DELDEL POWERSPEC for z = %i' %z)
-    plt.clf()
+##############################POWER SPECTRUM##########################################
+#download real power spectrum
+#ARENT COMPARING TO THE 21cmfast OUTPUT because our stuff works as seen in always
+#realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
 
 
-    plt.loglog(imagek,imagepowerspectrum)
-    plt.loglog(sigmak,sigmapowerspectrum)
-    plt.loglog(twenty1k,twenty1powerspectrum)
-    #plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3))    #Important: here, as with other plot, we have no 2Pi**2 factor
-    plt.ylim(0.02,100000)
-    plt.xlim(0.02,3)
+'''
+imagek, imagepowerspectrum , imagedeldel= func.powerspectrum3Dwedge(image3Dinverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
+print 'done imagepowerspectrum'
+print len(imagek), len(imagepowerspectrum)
+sigmak, sigmapowerspectrum , sigmadeldel= func.powerspectrum3Dwedge(sigma3Dinverse,psdwidth,size,dtheta, float(box_info['dim'])/float(box_info['BoxSize']), z)
+print 'done sigmapowerspectrum'
+twenty1k, twenty1powerspectrum, twenty1deldel= func.powerspectrum3D(twenty1inverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z)
+print 'done twenty1powerspectrum'
 
-    plt.xlabel('k (MPc$^{-1}$)')
-    plt.ylabel('P(k)')
-    plt.savefig('POWERSPEC for z = %i' %z)
-    plt.clf()
+
+#spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
+#spatialfreq=spatialfreq[:int(size/(psdwidth*2))]    #this is used to give axis for power spectrum plots
+plt.loglog(imagek,imagedeldel)
+plt.loglog(sigmak,sigmadeldel)
+plt.loglog(twenty1k,twenty1deldel)
+#plt.loglog(realps[:,0],realps[:,1])
+plt.ylim(0.00001,100)
+plt.xlim(0.02,3)
+
+plt.xlabel('k (MPc$^{-1}$)')
+plt.ylabel('k$^3$ P(k)/2$\pi^2$')
+plt.savefig('DELDEL POWERSPEC for z = %i' %z)
+plt.clf()
+
+
+plt.loglog(imagek,imagepowerspectrum)
+plt.loglog(sigmak,sigmapowerspectrum)
+plt.loglog(twenty1k,twenty1powerspectrum)
+#plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3))    #Important: here, as with other plot, we have no 2Pi**2 factor
+plt.ylim(0.02,100000)
+plt.xlim(0.02,3)
+
+plt.xlabel('k (MPc$^{-1}$)')
+plt.ylabel('P(k)')
+plt.savefig('POWERSPEC for z = %i' %z)
+plt.clf()
+'''
