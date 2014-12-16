@@ -465,7 +465,7 @@ def visualizereionizationslicebyslice(image,twenty1, size, z, theta):
         plt.xlabel('X axis in $^\circ$s')
         a2.set_title('SKA Image')
 
-        plt.savefig('Image/image%i.png'%t)
+        plt.savefig('Image/z%iimage%i.png'%(z,t))
         plt.close(fig)
 
 
@@ -695,3 +695,52 @@ def secondbubbledistributioncalculator(image,size, thresholdfraction,dl,iteratio
     #this is a normalised weighted mean free path probability, so divided by r^3 to get relation to chance of sampling that size of bubble. divided by N to get probability
     #meanfreepathdistribution = meanfreepathdistribution/volume  #has to be done outside of return so that sum() function works
     return volume, meanfreepathdistribution/sum(meanfreepathdistribution)   #no need for 1/N factor as taken into account with sum
+
+def EORWINDOW(Windowedimage, size, dl,z,B): #in this function units of r are in terms of the index while k is the physical
+                                            #k space in terms of per Mpc
+
+    CosmoUnits=Cosmo.CosmoUnits()
+    #FROM The Epoch of Reionization Window I: Mathematical Formalism by A. Liu et al.
+    E = np.sqrt(CosmoUnits.omega_m*((1+z)**3)+CosmoUnits.omega_l)
+    Dz = CosmoUnits.Dcomovingrad(z)
+    H0 = CosmoUnits.H0 # in km / s /Mpc
+    c = CosmoUnits.C
+    theta0 = 0.001 #(conservative according to the paper)  #NEED TO TALK TO PRITCHARD ABOUT THIS!!! WHAT IS THE
+                                                        #CHARACTERISTIC BEAM THICKNESS!!!?
+
+    kmax = np.sqrt(3*(1/(2*float(dl)))**2) #finds kmax (from centre to outer corner) for a k space that is 1/2dx large
+    rspacemaxradius=np.sqrt(3*(size/2)**2)
+    ktorratio=kmax/rspacemaxradius #ratio between our indexes and kspace
+    rmax = int(size/2.)
+
+    parrkcutoff = (H0/(((1+z)**2)*B))/ktorratio#this is the size of contaminated kparrallels when not needing wedge
+    print (H0/(((1+z)**2)*B))
+
+    centre = Windowedimage[rmax-1:rmax+2,rmax-1:rmax+2,rmax-1:rmax+2]
+    print centre
+
+    for i in range(size):
+        for j in range (size):
+            for k in range (size):
+
+                r = int(np.sqrt((i-rmax)**2 + (j-rmax)**2 + (k-rmax)**2))   #works out how far it is from the centre
+                kperp = np.sqrt((i-rmax)**2 + (j-rmax)**2)
+
+                #condition for < perpkcutoff is k < parrkcutoff
+                # if i=x,j=y,k=z, then x**2 + y**2 = perp**2
+                #so condition once past perpkcutoff is if k > gradient*sqrt(i**2 + j**2) + constant
+    #TALK TO LUKE SEE IF THIS WORKS!!!!
+
+                if np.abs(k-rmax) < parrkcutoff:
+                    Windowedimage[i][j][k]=0
+                elif np.abs(k-rmax) < kperp*H0*Dz*E*theta0/(c*(1+z)*ktorratio):    # used to be (np.sqrt(kperp-perpkcutoff)+parrkcutoff) this neglects wedge elements, which is parabola when not in loglog, abs as kparrallel = abs(kz)
+                    Windowedimage[i][j][k]=0
+
+    print Windowedimage[rmax-1:rmax+2,rmax-1:rmax+2,rmax-1:rmax+2]
+    DC=np.zeros((size,size,size),dtype='c')
+    DC[rmax-1:rmax+2,rmax-1:rmax+2,rmax-1:rmax+2] = centre
+
+    Windowedimage=np.add(Windowedimage,DC)
+    print Windowedimage[rmax-1:rmax+2,rmax-1:rmax+2,rmax-1:rmax+2]
+
+    return Windowedimage

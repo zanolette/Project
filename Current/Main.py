@@ -112,40 +112,11 @@ for slice in range(size):   #iterates over all slices
                 image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
 
 #now we have the actual image in k space but we want to add a k space window onto it.
-Windowedimage=image3Dinverse
+Windowedimage=func.EORWINDOW(image3Dinverse, size, dl,z,B)
 
-kmax = np.sqrt(3*(1/(2*float(dl)))**2) #finds kmax (from centre to outer corner) for a k space that is 1/2dx large
-rspacemaxradius=np.sqrt(3*(size/2)**2)
-ktorratio=kmax/rspacemaxradius #ratio between our indexes and kspace
-rmax = int(size/2.)
-
-perpkcutoff = 0.055/ktorratio    #this is at what point the wedge becomes important - note i've taken these initial estimates from wedge I paper
-parrkcutoff = 0.5 /ktorratio  #this is the size of contaminated kparrallels when not needing wedge
-#constant = perpkcutoff - parrkcutoff/gradient   #(this is just working out C for y = mx + C)
-print 'perpkcutoff is', perpkcutoff
-
-for i in range(size):
-    for j in range (size):
-        for k in range (size):
-
-            r = int(np.sqrt((i-rmax)**2 + (j-rmax)**2 + (k-rmax)**2))   #works out how far it is from the centre
-            kperp = np.sqrt((i-rmax)**2 + (j-rmax)**2)
-
-            #condition for < perpkcutoff is k < parrkcutoff
-            # if i=x,j=y,k=z, then x**2 + y**2 = perp**2
-            #so condition once past perpkcutoff is if k > gradient*sqrt(i**2 + j**2) + constant
-#TALK TO LUKE SEE IF THIS WORKS!!!!
-            if np.abs(k-rmax) < parrkcutoff:
-                if kperp < perpkcutoff:
-                    Windowedimage[i][j][k]=0
-            elif np.abs(k-rmax) < np.sqrt(kperp-perpkcutoff)+parrkcutoff:    #this neglects wedge elements, which is parabola when not in loglog, abs as kparrallel = abs(kz)
-                Windowedimage[i][j][k]=0
-
-#image3D = np.fft.ifftn(image3Dinverse)
-#image3D = np.abs(np.real(image3D))
 
 Windowedimage = np.fft.ifftn(Windowedimage)
-Windowedimage = np.abs(Windowedimage)
+Windowedimage = np.real(Windowedimage)
 
 func.visualizereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
 
