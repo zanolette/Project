@@ -15,8 +15,7 @@ CosmoUnits=Cosmo.CosmoUnits()
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel,scalemin,scalemax)
 
 #getting 21cm box information
-fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#
-
+fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'  #
 #path = "BOXES/*"
 #for fname in glob.glob(path):
 
@@ -116,7 +115,8 @@ Windowedimage=func.EORWINDOW(image3Dinverse, size, dl,z,B)
 
 
 Windowedimage = np.fft.ifftn(Windowedimage)
-Windowedimage = np.real(Windowedimage)
+Windowedimage = np.abs(Windowedimage)   #we're not sure if abs or real, depending on if 200 or 400MPc gives flipped or not flipped image
+#(200Mpc is right way up in real and not in abs, 400MPc is other way around)
 
 func.visualizereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
 

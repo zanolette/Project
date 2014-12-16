@@ -705,7 +705,7 @@ def EORWINDOW(Windowedimage, size, dl,z,B): #in this function units of r are in 
     Dz = CosmoUnits.Dcomovingrad(z)
     H0 = CosmoUnits.H0 # in km / s /Mpc
     c = CosmoUnits.C
-    theta0 = 0.001 #(conservative according to the paper)  #NEED TO TALK TO PRITCHARD ABOUT THIS!!! WHAT IS THE
+    theta0 = 0.000070 #this is 4 degrees in radians (ther is a 'conservative' of 1 radian according to the paper which seems way too large)  #NEED TO TALK TO PRITCHARD ABOUT THIS!!! WHAT IS THE
                                                         #CHARACTERISTIC BEAM THICKNESS!!!?
 
     kmax = np.sqrt(3*(1/(2*float(dl)))**2) #finds kmax (from centre to outer corner) for a k space that is 1/2dx large
@@ -713,11 +713,23 @@ def EORWINDOW(Windowedimage, size, dl,z,B): #in this function units of r are in 
     ktorratio=kmax/rspacemaxradius #ratio between our indexes and kspace
     rmax = int(size/2.)
 
-    parrkcutoff = (H0/(((1+z)**2)*B))/ktorratio#this is the size of contaminated kparrallels when not needing wedge
-    print (H0/(((1+z)**2)*B))
 
-    centre = Windowedimage[rmax-1:rmax+2,rmax-1:rmax+2,rmax-1:rmax+2]
+    parrkcutoff = 0.3#/ktorratio #(H0/(((1+z)**2)*B))/ktorratio#this is the size of contaminated kparrallels when not needing wedge
+    print parrkcutoff
+
+
+    centre = np.zeros((125),dtype=complex)
+    counter = 0
+
+    #this is replacing the centre cube points back into Windowedimage
+    for i in range (rmax -2,rmax +3,1):
+        for j in range (rmax -2,rmax +3,1):
+            for k in range (rmax -2,rmax +3,1):
+                centre[counter] = Windowedimage[i][j][k]
+                print Windowedimage[i][j][k]
+                counter += 1
     print centre
+
 
     for i in range(size):
         for j in range (size):
@@ -732,15 +744,18 @@ def EORWINDOW(Windowedimage, size, dl,z,B): #in this function units of r are in 
     #TALK TO LUKE SEE IF THIS WORKS!!!!
 
                 if np.abs(k-rmax) < parrkcutoff:
-                    Windowedimage[i][j][k]=0
+                    Windowedimage[i][j][k]=0.+0.j
                 elif np.abs(k-rmax) < kperp*H0*Dz*E*theta0/(c*(1+z)*ktorratio):    # used to be (np.sqrt(kperp-perpkcutoff)+parrkcutoff) this neglects wedge elements, which is parabola when not in loglog, abs as kparrallel = abs(kz)
-                    Windowedimage[i][j][k]=0
+                    Windowedimage[i][j][k]=0.+0.j
 
-    print Windowedimage[rmax-1:rmax+2,rmax-1:rmax+2,rmax-1:rmax+2]
-    DC=np.zeros((size,size,size),dtype='c')
-    DC[rmax-1:rmax+2,rmax-1:rmax+2,rmax-1:rmax+2] = centre
 
-    Windowedimage=np.add(Windowedimage,DC)
-    print Windowedimage[rmax-1:rmax+2,rmax-1:rmax+2,rmax-1:rmax+2]
+    counter = 0
+    #this is replacing the centre cube points back into Windowedimage
+    for i in range (rmax -2,rmax +3,1):
+        for j in range (rmax -2,rmax +3,1):
+            for k in range (rmax -2,rmax +3,1):
+                Windowedimage[i][j][k] = centre[counter]
+                counter += 1
+
 
     return Windowedimage
