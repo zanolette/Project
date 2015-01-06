@@ -749,13 +749,49 @@ def EORWINDOW(Windowedimage, size, dl,z,B): #in this function units of r are in 
                     Windowedimage[i][j][k]=0.+0.j
 
 
-    counter = 0
-    #this is replacing the centre cube points back into Windowedimage
-    for i in range (rmax -2,rmax +3,1):
-        for j in range (rmax -2,rmax +3,1):
-            for k in range (rmax -2,rmax +3,1):
-                Windowedimage[i][j][k] = centre[counter]
-                counter += 1
+
 
 
     return Windowedimage
+
+
+##########################################printing function################################################
+
+# This function compares the powerspectra of the image, the twenty1cmsignal and the error
+# realps refers to the powerspectrum as provided by 21cmfast and can be uncommented to compare our results to this
+def printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse,psdwidth,size,dtheta, dx, z):
+
+    #realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
+
+    imagek, imagepowerspectrum , imagedeldel= powerspectrum3Dwedge(image3Dinverse,psdwidth,size,dtheta,dx, z) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
+    print 'done imagepowerspectrum'
+    sigmak, sigmapowerspectrum , sigmadeldel= powerspectrum3Dwedge(sigma3Dinverse,psdwidth,size,dtheta, dx, z)
+    print 'done sigmapowerspectrum'
+    twenty1k, twenty1powerspectrum, twenty1deldel= powerspectrum3D(twenty1inverse,psdwidth,size,dtheta,dx, z)
+    print 'done twenty1powerspectrum'
+
+    #plots the compared powerspectra
+    plt.loglog(imagek,imagedeldel)
+    plt.loglog(sigmak,sigmadeldel)
+    plt.loglog(twenty1k,twenty1deldel)
+    #plt.loglog(realps[:,0],realps[:,1])
+    plt.ylim(0.00001,100)
+    plt.xlim(0.02,3)
+
+    plt.xlabel('k (MPc$^{-1}$)')
+    plt.ylabel('k$^3$ P(k)/2$\pi^2$')
+    plt.savefig('DELDEL POWERSPEC for z = %i' %z)
+    plt.clf()
+
+    plt.loglog(imagek,imagepowerspectrum)
+    plt.loglog(sigmak,sigmapowerspectrum)
+    plt.loglog(twenty1k,twenty1powerspectrum)
+    #plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3)) #Important: here, as with other plot, we have no 2Pi**2 factor
+    plt.ylim(0.02,100000)
+    plt.xlim(0.02,3)
+
+    plt.xlabel('k (MPc$^{-1}$)')
+    plt.ylabel('P(k)')
+    plt.savefig('POWERSPEC for z = %i' %z)
+    plt.clf()
+

@@ -110,26 +110,33 @@ for slice in range(size):   #iterates over all slices
                 imaginary = np.random.normal(np.imag(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)
                 image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
 
+#How we get our image from the fourier transform
+image3D = np.fft.ifftn(image3Dinverse)
+image3D = np.abs(image3D)
+
 #now we have the actual image in k space but we want to add a k space window onto it.
-Windowedimage=func.EORWINDOW(image3Dinverse, size, dl,z,B)
+Windowedimageinverse=func.EORWINDOW(image3Dinverse, size, dl,z,B)
 
+Windowedimage = np.fft.ifftn(Windowedimageinverse)
+Windowedimage = np.abs(Windowedimage)   #abs or real?
 
-Windowedimage = np.fft.ifftn(Windowedimage)
-Windowedimage = np.abs(Windowedimage)   #we're not sure if abs or real, depending on if 200 or 400MPc gives flipped or not flipped image
-#(200Mpc is right way up in real and not in abs, 400MPc is other way around)
+func.printpowerspectrum(image3Dinverse, Windowedimageinverse, twenty1inverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z)
 
-func.visualizereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
-
-#func.phasecomparison(twenty1inverse, image3Dinverse, size)
-
-
+#The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
+cutoff = 0.65
 '''
+func.printbubblesizedist(image3D, twenty1, cutoff)
+
+
+
+func.printmeanfreepathdist
+
+
 image3D = np.fft.ifftn(image3Dinverse)
 image3D = np.abs(np.real(image3D))
 
 print '21cm neutral fraction is',box_info['nf'] #this is so we can compare to our bubbledist function - should get same fraction for 21cm
 
-#func.visualizereionizationagainstz(image3D, size, z, theta)
 cutoff = 0.65
 iterations = 10000
 imagemeanpathx,imagemeanpathdist = func.secondbubbledistributioncalculator(image3D,size,cutoff,dl,iterations)
@@ -152,89 +159,20 @@ plt.xlim(2,100000)
 plt.ylim(0.000007,1)
 plt.show()
 '''
-'''
-#THIS IS TO FIND THE PSF
-#func.psfcrosssection(dtheta, image3Dinverse[int(size/2.)],size)
-
-(kaxis,Powerspectrum) = func.powerspectrum3D(twenty1inverse,psdwidth,size,dtheta)
-plt.loglog(kaxis,Powerspectrum)#*(kaxis**3)/(2*np.pi**2))
-print 1
-(kaxis,Powerspectrum)=func.powerspectrum3D(image3Dinverse,psdwidth,size,dtheta)
-plt.loglog(kaxis,Powerspectrum)#*(kaxis**3)/(2*np.pi**2))
-print 2
-(kaxis,Powerspectrum)=func.powerspectrum3D(sigma3Dinverse,psdwidth,size,dtheta)
-plt.loglog(kaxis,Powerspectrum)#*(kaxis**3)/(2*np.pi**2))
-print 3
-plt.xlabel('k')
-plt.ylabel('P(k)')
-
-plt.show()
-'''
-    #THIS IS TO FIND THE PSF
-    #func.psfcrosssection(dtheta, image,size)
 
 
-
-
-#image3D = np.fft.ifftn(image3Dinverse)
-#dont think we need to shift -
-#image3D = np.abs(image3D)
-
-#sigma3D = np.fft.ifftn(sigma3Dinverse)
-#######do we need a shift here?###########
-#sigma3D = np.abs(sigma3D)
-
+#This function compares two different 21cmboxes (maybe change it so you can insert
 #func.visualizereionizationslicebyslice(image3D,twenty1, size, z, theta)
 
+# This function compares the powerspectra of the image, the twenty1cmsignal and the error
+# func.printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse)
 
+#This function compared the phases of the real and imaginary
+#func.phasecomparison(twenty1inverse, image3Dinverse, size)
 
+#IF YOU WANT TO SAVE BOXES FOR LATER ANALYSIS - USE THESE
 #np.save('image3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),image3D)
 #np.save('sigma3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),sigma3D)
 
 #np.save('image3Darraydim%s,%sMpc,z%s,time%s'%(size,box_info['BoxSize'],z,timestepsneeded),image3D)
 #np.save('sigma3Darraydim%s,%sMpc,z%s,time&s'%(size,box_info['BoxSize'],z,timestepsneeded),sigma3D)
-
-
-##############################POWER SPECTRUM##########################################
-#download real power spectrum
-#ARENT COMPARING TO THE 21cmfast OUTPUT because our stuff works as seen in always
-#realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
-
-
-'''
-imagek, imagepowerspectrum , imagedeldel= func.powerspectrum3Dwedge(image3Dinverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
-print 'done imagepowerspectrum'
-print len(imagek), len(imagepowerspectrum)
-sigmak, sigmapowerspectrum , sigmadeldel= func.powerspectrum3Dwedge(sigma3Dinverse,psdwidth,size,dtheta, float(box_info['dim'])/float(box_info['BoxSize']), z)
-print 'done sigmapowerspectrum'
-twenty1k, twenty1powerspectrum, twenty1deldel= func.powerspectrum3D(twenty1inverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z)
-print 'done twenty1powerspectrum'
-
-
-#spatialfreq=np.fft.fftfreq(int(size/psdwidth), dtheta)
-#spatialfreq=spatialfreq[:int(size/(psdwidth*2))]    #this is used to give axis for power spectrum plots
-plt.loglog(imagek,imagedeldel)
-plt.loglog(sigmak,sigmadeldel)
-plt.loglog(twenty1k,twenty1deldel)
-#plt.loglog(realps[:,0],realps[:,1])
-plt.ylim(0.00001,100)
-plt.xlim(0.02,3)
-
-plt.xlabel('k (MPc$^{-1}$)')
-plt.ylabel('k$^3$ P(k)/2$\pi^2$')
-plt.savefig('DELDEL POWERSPEC for z = %i' %z)
-plt.clf()
-
-
-plt.loglog(imagek,imagepowerspectrum)
-plt.loglog(sigmak,sigmapowerspectrum)
-plt.loglog(twenty1k,twenty1powerspectrum)
-#plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3))    #Important: here, as with other plot, we have no 2Pi**2 factor
-plt.ylim(0.02,100000)
-plt.xlim(0.02,3)
-
-plt.xlabel('k (MPc$^{-1}$)')
-plt.ylabel('P(k)')
-plt.savefig('POWERSPEC for z = %i' %z)
-plt.clf()
-'''
