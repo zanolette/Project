@@ -749,7 +749,13 @@ def EORWINDOW(Windowedimage, size, dl,z,B): #in this function units of r are in 
                     Windowedimage[i][j][k]=0.+0.j
 
 
-
+    counter = 0
+    #this is replacing the centre cube points back into Windowedimage
+    for i in range (rmax -2,rmax +3,1):
+        for j in range (rmax -2,rmax +3,1):
+            for k in range (rmax -2,rmax +3,1):
+                Windowedimage[i][j][k] = centre[counter]
+                counter += 1
 
 
     return Windowedimage
