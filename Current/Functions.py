@@ -637,8 +637,8 @@ def printbubblesizedist(image3D, twenty1, size, dl, cutoff):
 
 def printmeanfreepathdist(image3D, twenty1, size, dl, cutoff, iterations):
 
-    imagemeanpathx,imagemeanpathdist = func.secondbubbledistributioncalculator(image3D,size,cutoff,dl,iterations)
-    twenty1meanpathx,twenty1meanpathdist = func.secondbubbledistributioncalculator(twenty1inverse,size,cutoff,dl,iterations)
+    imagemeanpathx,imagemeanpathdist = secondbubbledistributioncalculator(image3D,size,cutoff,dl,iterations)
+    twenty1meanpathx,twenty1meanpathdist = secondbubbledistributioncalculator(twenty1,size,cutoff,dl,iterations)
 
 
     figure= plt.loglog(imagemeanpathx,imagemeanpathdist)
