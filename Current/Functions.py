@@ -22,7 +22,9 @@ def printgraph (image, xrange, yrange, xlabel, ylabel, scalemin,scalemax):   #ge
     plt.ylabel(ylabel)
     plt.show()
 
-
+#######
+#do we still need this?
+#######
 def twentyonecmmatrix(filename,theta):  #imports 21cm box and takes single z slice then FFT's
     box=boximport.readbox(filename)
 
@@ -143,8 +145,16 @@ def powerspectrum3D(image3Dinv,width,size,dtheta, dx, z): #here width means how 
                     countarray[0][r] += image3Dinv[i][j][k]
                     countarray[2][r] += (r*width*ktorratio)**3 * image3Dinv[i][j][k]  #/(2*np.pi**2)
 
+    print 'countarray 0'
+    print countarray[0]
+    print 'countarray 1'
+    print countarray[1]
+
     PowerSpectrum = countarray[0]/(countarray[1]*size**3)   # have to divide by V    # FUDGE (2*np.pi)**3/(2*np.pi**2)
     DelDel = countarray[2]/(countarray[1]*size**3)
+
+    print 'powerspectrum'
+    print PowerSpectrum
 
     #need an array that represents kmax (to the corner of the cube) = np.sqrt(3*(1/dtheta)**2)
     rsize = int(np.sqrt(3.*rmax**2)/width)
@@ -253,7 +263,7 @@ def rmscalc (twenty1cm,image3D,max):
     squaredcount = squaredcount/(max**3)    #divided by volume to get average
     return np.sqrt(squaredcount)
 
-
+'''
 ###################UNFINISHED FRED###############################
 #this function takes ONE image box and represents it as a 2d plot of horizontal average temperature against z
 def visualizereionizationagainstz(image, size, z, theta):
@@ -278,7 +288,7 @@ def visualizereionizationagainstz(image, size, z, theta):
     a2.set_title('SKA Image')
 
     plt.show()
-
+'''
 
 #Method: prints out all the slices of 2 boxes to be compared - creates gif on freds computer - "convert -delay 10 image*.png animated.gif"
 def visualizereionizationslicebyslice(image,twenty1, size, z, theta):
@@ -561,9 +571,9 @@ def EORWINDOW(Windowedimage, size, dl,z,B): #units of r are in terms of the inde
         for j in range (rmax -2,rmax +3,1):
             for k in range (rmax -2,rmax +3,1):
                 centre[counter] = Windowedimage[i][j][k]
-                print Windowedimage[i][j][k]
+                #print Windowedimage[i][j][k]
                 counter += 1
-    print centre
+    #print centre
 
 
     for i in range(size):
@@ -588,9 +598,9 @@ def printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse,psdwidth,s
 
     #realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
 
-    imagek, imagepowerspectrum , imagedeldel= powerspectrum3Dwedge(image3Dinverse,psdwidth,size,dtheta,dx, z) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
+    imagek, imagepowerspectrum , imagedeldel= powerspectrum3D(image3Dinverse,psdwidth,size,dtheta,dx, z) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
     print 'done imagepowerspectrum'
-    sigmak, sigmapowerspectrum , sigmadeldel= powerspectrum3Dwedge(sigma3Dinverse,psdwidth,size,dtheta, dx, z)
+    sigmak, sigmapowerspectrum , sigmadeldel= powerspectrum3D(sigma3Dinverse,psdwidth,size,dtheta, dx, z)
     print 'done sigmapowerspectrum'
     twenty1k, twenty1powerspectrum, twenty1deldel= powerspectrum3D(twenty1inverse,psdwidth,size,dtheta,dx, z)
     print 'done twenty1powerspectrum'

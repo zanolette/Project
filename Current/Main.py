@@ -111,14 +111,14 @@ for slice in range(size):   #iterates over all slices
                 image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
 
 #How we get our image from the fourier transform
-image3D = np.fft.ifftn(image3Dinverse)
-image3D = np.abs(image3D)
+#image3D = np.fft.ifftn(image3Dinverse)
+#image3D = np.abs(image3D)
 
 #now we have the actual image in k space but we want to add a k space window onto it.
 Windowedimageinverse=func.EORWINDOW(image3Dinverse, size, dl,z,B)
 
-Windowedimage = np.fft.ifftn(Windowedimageinverse)
-Windowedimage = np.abs(Windowedimage)   #abs or real?
+#Windowedimage = np.fft.ifftn(Windowedimageinverse)
+#Windowedimage = np.abs(Windowedimage)   #abs or real?
 
 func.printpowerspectrum(image3Dinverse, Windowedimageinverse, twenty1inverse,psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z)
 
