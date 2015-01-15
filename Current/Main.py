@@ -15,7 +15,7 @@ CosmoUnits=Cosmo.CosmoUnits()
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel,scalemin,scalemax)
 
 #getting 21cm box information
-fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'  #
+fname = 'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'  #'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#
 #path = "BOXES/*"
 #for fname in glob.glob(path):
 
@@ -26,6 +26,7 @@ z = box_info['z']
 theta = CosmoUnits.thetaboxsize(z,box_info['BoxSize'])
 print theta
 
+#so box_info['BoxSize'] is the Mpc of box length, whereas box_info['dim'] is index size of box length
 size = box_info['dim'] # box size - maybe write a code to get this out of the title of the 21cmfast files
 
 ci = int(size/2)
@@ -37,7 +38,7 @@ eps = 0.5    #this is instrument efficiency
 
 
 #DEPENDS ON Z! FIND THIS
-dl = box_info['BoxSize']/size
+dl = box_info['BoxSize']/size   #so this is how many Mpc per index of box
 psdwidth = 3    #can change this!
 
 
@@ -110,6 +111,8 @@ for slice in range(size):   #iterates over all slices
                 imaginary = np.random.normal(np.imag(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)
                 image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
 
+#Could have psf stuff here
+
 #How we get our image from the fourier transform
 image3D = np.fft.ifftn(image3Dinverse)
 image3D = np.abs(image3D)
@@ -122,7 +125,7 @@ Windowedimage = np.abs(Windowedimage)   #abs or real?
 
 func.visualizereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
 
-func.printpowerspectrum(Windowedimage, twenty1inverse, sigma3Dinverse, psdwidth,size,dtheta,float(box_info['dim'])/float(box_info['BoxSize']), z)
+func.printpowerspectrum(Windowedimage, twenty1inverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z)
 
 #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
 cutoff = 0.65
@@ -136,7 +139,7 @@ iterations = 10000
 #func.visualizereionizationslicebyslice(image3D,twenty1, size, z, theta)
 
 # This function compares the powerspectra of the image, the twenty1cmsignal and the error
-# func.printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse)
+# func.printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse, psdwidth,size,dtheta,dl, z)
 
 #This function compared the phases of the real and imaginary
 #func.phasecomparison(twenty1inverse, image3Dinverse, size)

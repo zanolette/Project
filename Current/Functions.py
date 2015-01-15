@@ -113,15 +113,15 @@ def powerspectrum2D(data,width,size): #here width means how many pixels wide eac
 
 ##3D PS Calculation##
 #IF YOU WANT WEDGE MASKED, CALL func.EORWINDOW BEFORE SENDING IMAGE INTO THIS FUNCTION
-def powerspectrum3D(image3Dinv,width,size,dtheta, dx, z): #here width means how many pixels wide each band is
+def powerspectrum3D(image3Dinv,width,size,dtheta, dl, z): #here width means how many pixels wide each band is
 
     # RECAP - WE GET A BOX THAT HAS REAL SPACE SMALL UNITS OF DX (MPC), HENCE K SPACE LARGEST SIZE IS 1/DX (MPC^-1) - HENCE THE FOLLOWING FOR KMAX:
-    kmax = np.sqrt(3*(1/(2*float(dx)))**2) #finds kmax (from centre to outer corner) for a k space that is 1/2dx large
+    kmax = np.sqrt(3*(1/(2*float(dl)))**2) #finds kmax (from centre to outer corner) for a k space that is 1/2dl large
 
     rspacemaxradius=np.sqrt(3*(size/2)**2)
     ktorratio=kmax/rspacemaxradius
 
-    rmax = int(size/2.)  #also same as centre
+    ci = int(size/2.)  #centre point
 
     '''
     plt.imshow(image3D[50],  interpolation='nearest',cmap='jet')
@@ -131,13 +131,13 @@ def powerspectrum3D(image3Dinv,width,size,dtheta, dx, z): #here width means how 
 
     image3Dinv = np.abs(image3Dinv)**2  #giving us |P(k)|**2
 
-    countarray = np.zeros((3,1+int(np.sqrt(3.*rmax**2)/width))) #storing k wedges of averaged |P(k)|**2
+    countarray = np.zeros((3,1+int(np.sqrt(3.*ci**2)/width))) #storing k wedges of averaged |P(k)|**2
 
     for i in range(size):
         for j in range (size):
             for k in range (size):
 
-                r = int(np.sqrt((i-rmax)**2 + (j-rmax)**2 + (k-rmax)**2)/width)   #works out how far it is from the centre
+                r = int(np.sqrt((i-ci)**2 + (j-ci)**2 + (k-ci)**2)/width)   #works out how far it is from the centre
 
                 #saving both |P(k)|**2 and k**3 |P(k)|**2 (/2pi**2)
                 if image3Dinv[i][j][k] > 0:    #this is as masked points are set to -1. No original points can be < 0
@@ -145,19 +145,12 @@ def powerspectrum3D(image3Dinv,width,size,dtheta, dx, z): #here width means how 
                     countarray[0][r] += image3Dinv[i][j][k]
                     countarray[2][r] += (r*width*ktorratio)**3 * image3Dinv[i][j][k]  #/(2*np.pi**2)
 
-    print 'countarray 0'
-    print countarray[0]
-    print 'countarray 1'
-    print countarray[1]
 
     PowerSpectrum = countarray[0]/(countarray[1]*size**3)   # have to divide by V    # FUDGE (2*np.pi)**3/(2*np.pi**2)
     DelDel = countarray[2]/(countarray[1]*size**3)
 
-    print 'powerspectrum'
-    print PowerSpectrum
-
     #need an array that represents kmax (to the corner of the cube) = np.sqrt(3*(1/dtheta)**2)
-    rsize = int(np.sqrt(3.*rmax**2)/width)
+    rsize = int(np.sqrt(3.*ci**2)/width)    #rsize is number of integer steps to get to kmax (ie if width isn't 1)
 
     #print 'the smallest steps are equal to '
     #print dtheta*kscalefactor
@@ -553,12 +546,13 @@ def EORWINDOW(Windowedimage, size, dl,z,B): #units of r are in terms of the inde
     #NEED TO TALK TO PRITCHARD ABOUT THIS!!! WHAT IS THE CHARACTERISTIC BEAM THICKNESS!!!?
 
 
-    kmax = np.sqrt(3*(1/(2*float(dl)))**2) #finds kmax (from centre to outer corner) for a k space that is 1/2dx large
+    kmax = np.sqrt(3*(1/(2*float(dl)))**2) #finds kmax (from centre to outer corner) for a k space that is 1/2dl large
     rspacemaxradius=np.sqrt(3*(size/2)**2)
     ktorratio=kmax/rspacemaxradius #ratio between our indexes and kspace
-    rmax = int(size/2.)
+    print 'ktorratio', ktorratio
+    ci = int(size/2.)
 
-
+    #CUTOFF SHOULD BE IN INDEX UNITS AS THIS IS HOW THE CONDITIONAL IS USED LATER
     parrkcutoff = 0.3#/ktorratio #(H0/(((1+z)**2)*B))/ktorratio #the size of contaminated kparrallels with no wedge
     print parrkcutoff
 
@@ -567,9 +561,9 @@ def EORWINDOW(Windowedimage, size, dl,z,B): #units of r are in terms of the inde
     counter = 0
 
     #this is saving the centre cube, so it is safe from masking
-    for i in range (rmax -2,rmax +3,1):
-        for j in range (rmax -2,rmax +3,1):
-            for k in range (rmax -2,rmax +3,1):
+    for i in range (ci -2,ci +3,1):
+        for j in range (ci -2,ci +3,1):
+            for k in range (ci -2,ci +3,1):
                 centre[counter] = Windowedimage[i][j][k]
                 #print Windowedimage[i][j][k]
                 counter += 1
@@ -580,12 +574,11 @@ def EORWINDOW(Windowedimage, size, dl,z,B): #units of r are in terms of the inde
         for j in range (size):
             for k in range (size):
 
-                r = int(np.sqrt((i-rmax)**2 + (j-rmax)**2 + (k-rmax)**2))   #works out how far it is from the centre
-                kperp = np.sqrt((i-rmax)**2 + (j-rmax)**2)
+                kperp = np.sqrt((i-ci)**2 + (j-ci)**2)
 
-                if np.abs(k-rmax) < parrkcutoff:
+                if np.abs(k-ci) < parrkcutoff:
                     Windowedimage[i][j][k]=0.+0.j
-                elif np.abs(k-rmax) < kperp*H0*Dz*E*theta0/(c*(1+z)*ktorratio):    #abs as kparrallel = abs(kz)
+                elif np.abs(k-ci) < kperp*H0*Dz*E*theta0/(c*(1+z)*ktorratio):    #abs as kparrallel = abs(kz)
                     Windowedimage[i][j][k]=0.+0.j
 
     return Windowedimage
@@ -594,24 +587,24 @@ def EORWINDOW(Windowedimage, size, dl,z,B): #units of r are in terms of the inde
 
 # This function compares the powerspectra of the image, the twenty1cmsignal and the error
 # realps refers to the powerspectrum as provided by 21cmfast and can be uncommented to compare our results to this
-def printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse,psdwidth,size,dtheta, dx, z):
+def printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse,psdwidth,size,dtheta, dl, z):
 
-    #realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
+    realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
 
-    imagek, imagepowerspectrum , imagedeldel= powerspectrum3D(image3Dinverse,psdwidth,size,dtheta,dx, z) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
+    imagek, imagepowerspectrum , imagedeldel= powerspectrum3D(image3Dinverse,psdwidth,size,dtheta,dl, z) # this is the size of steps in real space dl=float(box_info['dim'])/float(box_info['BoxSize'])
     print 'done imagepowerspectrum'
-    sigmak, sigmapowerspectrum , sigmadeldel= powerspectrum3D(sigma3Dinverse,psdwidth,size,dtheta, dx, z)
+    sigmak, sigmapowerspectrum , sigmadeldel= powerspectrum3D(sigma3Dinverse,psdwidth,size,dtheta, dl, z)
     print 'done sigmapowerspectrum'
-    twenty1k, twenty1powerspectrum, twenty1deldel= powerspectrum3D(twenty1inverse,psdwidth,size,dtheta,dx, z)
+    twenty1k, twenty1powerspectrum, twenty1deldel= powerspectrum3D(twenty1inverse,psdwidth,size,dtheta,dl, z)
     print 'done twenty1powerspectrum'
 
     #plots the compared powerspectra
     plt.loglog(imagek,imagedeldel)
     plt.loglog(sigmak,sigmadeldel)
     plt.loglog(twenty1k,twenty1deldel)
-    #plt.loglog(realps[:,0],realps[:,1])
-    plt.ylim(0.00001,100)
-    plt.xlim(0.02,3)
+    plt.loglog(realps[:,0],realps[:,1])
+    #plt.ylim(0.00001,100)
+    #plt.xlim(0.02,3)
 
     plt.xlabel('k (MPc$^{-1}$)')
     plt.ylabel('k$^3$ P(k)/2$\pi^2$')
@@ -621,9 +614,9 @@ def printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse,psdwidth,s
     plt.loglog(imagek,imagepowerspectrum)
     plt.loglog(sigmak,sigmapowerspectrum)
     plt.loglog(twenty1k,twenty1powerspectrum)
-    #plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3)) #Important: here, as with other plot, we have no 2Pi**2 factor
-    plt.ylim(0.02,100000)
-    plt.xlim(0.02,3)
+    plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3)) #Important: here, as with other plot, we have no 2Pi**2 factor
+    #plt.ylim(0.02,100000)
+    #plt.xlim(0.02,3)
 
     plt.xlabel('k (MPc$^{-1}$)')
     plt.ylabel('P(k)')
@@ -648,7 +641,9 @@ def printbubblesizedist(image3D, twenty1, size, dl, cutoff):
 def printmeanfreepathdist(image3D, twenty1, size, dl, cutoff, iterations):
 
     imagemeanpathx,imagemeanpathdist = secondbubbledistributioncalculator(image3D,size,cutoff,dl,iterations)
+    #imagemeanpathdist = imagemeanpathdist/imagemeanpathx  #has to be done outside of return so that sum() function worksa
     twenty1meanpathx,twenty1meanpathdist = secondbubbledistributioncalculator(twenty1,size,cutoff,dl,iterations)
+    #twenty1meanpathdist = twenty1meanpathdist/twenty1meanpathx  #has to be done outside of return so that sum() function worksa
 
 
     figure= plt.loglog(imagemeanpathx,imagemeanpathdist)
