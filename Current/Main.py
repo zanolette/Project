@@ -123,9 +123,9 @@ Windowedimageinverse=func.EORWINDOW(image3Dinverse, size, dl,z,B)
 Windowedimage = np.fft.ifftn(Windowedimageinverse)
 Windowedimage = np.abs(Windowedimage)   #abs or real?
 
-func.visualizereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
+#func.visualizereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
 
-func.printpowerspectrum(Windowedimage, twenty1inverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z)
+func.printpowerspectrum(Windowedimage, twenty1inverse, sigma3Dinverse, psdwidth,size,dtheta,float(1./dl), z)    #?????float(1./dl) this should be dl???????
 
 #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
 cutoff = 0.65
