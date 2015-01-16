@@ -127,6 +127,7 @@ Windowedimage = np.abs(Windowedimage)   #abs or real?
 
 func.printpowerspectrum(Windowedimage, twenty1inverse, sigma3Dinverse, psdwidth,size,dtheta,float(1./dl), z)    #?????float(1./dl) this should be dl???????
 
+
 #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
 cutoff = 0.65
 iterations = 10000

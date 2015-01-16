@@ -149,6 +149,7 @@ def powerspectrum3D(image3Dinv,width,size,dtheta, dl, z): #here width means how 
     PowerSpectrum = countarray[0]/(countarray[1]*size**3)   # have to divide by V    # FUDGE (2*np.pi)**3/(2*np.pi**2)
     DelDel = countarray[2]/(countarray[1]*size**3)
 
+
     #need an array that represents kmax (to the corner of the cube) = np.sqrt(3*(1/dtheta)**2)
     rsize = int(np.sqrt(3.*ci**2)/width)    #rsize is number of integer steps to get to kmax (ie if width isn't 1)
 
@@ -534,8 +535,9 @@ def secondbubbledistributioncalculator(image,size, thresholdfraction,dl,iteratio
     return volume, meanfreepathdistribution/sum(meanfreepathdistribution)   #no need for 1/N factor as taken into account with sum
 
 #Method: Takes image and returns masked window image, including replacing centre after masking to avoid flipped image
-def EORWINDOW(Windowedimage, size, dl,z,B): #units of r are in terms of the index while k is per Mpc
+def EORWINDOW(image3Dinverse, size, dl,z,B): #units of r are in terms of the index while k is per Mpc
 
+    Windowedimageinv = image3Dinverse
     CosmoUnits=Cosmo.CosmoUnits()
     #FROM The Epoch of Reionization Window I: Mathematical Formalism by A. Liu et al.
     E = np.sqrt(CosmoUnits.omega_m*((1+z)**3)+CosmoUnits.omega_l)
@@ -552,22 +554,25 @@ def EORWINDOW(Windowedimage, size, dl,z,B): #units of r are in terms of the inde
     print 'ktorratio', ktorratio
     ci = int(size/2.)
 
+
     #CUTOFF SHOULD BE IN INDEX UNITS AS THIS IS HOW THE CONDITIONAL IS USED LATER
     parrkcutoff = 0.3#/ktorratio #(H0/(((1+z)**2)*B))/ktorratio #the size of contaminated kparrallels with no wedge
+
     print parrkcutoff
 
 
-    centre = np.zeros((125),dtype=complex)
+    centre = np.zeros((27),dtype=complex)
     counter = 0
 
     #this is saving the centre cube, so it is safe from masking
-    for i in range (ci -2,ci +3,1):
-        for j in range (ci -2,ci +3,1):
-            for k in range (ci -2,ci +3,1):
-                centre[counter] = Windowedimage[i][j][k]
-                #print Windowedimage[i][j][k]
+
+    for i in range (ci -1,ci +2,1):
+        for j in range (ci -1,ci +2,1):
+            for k in range (ci -1,ci +2,1):
+                centre[counter] = Windowedimageinv[i][j][k]
+                #print Windowedimageinv[i][j][k]
+
                 counter += 1
-    #print centre
 
 
     for i in range(size):
@@ -576,33 +581,45 @@ def EORWINDOW(Windowedimage, size, dl,z,B): #units of r are in terms of the inde
 
                 kperp = np.sqrt((i-ci)**2 + (j-ci)**2)
 
-                if np.abs(k-ci) < parrkcutoff:
-                    Windowedimage[i][j][k]=0.+0.j
-                elif np.abs(k-ci) < kperp*H0*Dz*E*theta0/(c*(1+z)*ktorratio):    #abs as kparrallel = abs(kz)
-                    Windowedimage[i][j][k]=0.+0.j
 
-    return Windowedimage
+                if np.abs(k-ci) < parrkcutoff:
+                    Windowedimageinv[i][j][k]=0.+0.j
+                elif np.abs(k-ci) < kperp*H0*Dz*E*theta0/(c*(1+z)*ktorratio):    #abs as kparrallel = abs(kz)
+                    Windowedimageinv[i][j][k]=0.+0.j
+
+    #replaces the central DC cube
+    counter=0
+    for i in range (ci -1,ci +2,1):
+        for j in range (ci -1,ci +2,1):
+            for k in range (ci -1,ci +2,1):
+                Windowedimageinv[i][j][k] = centre[counter]
+                counter += 1
+
+    return Windowedimageinv
 
 ##########################################printing function################################################
 
 # This function compares the powerspectra of the image, the twenty1cmsignal and the error
 # realps refers to the powerspectrum as provided by 21cmfast and can be uncommented to compare our results to this
-def printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse,psdwidth,size,dtheta, dl, z):
+
+def printpowerspectrum(oneinverse, twoinverse, threeinverse,psdwidth,size,dtheta, dx, z):
+
 
     realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
 
-    imagek, imagepowerspectrum , imagedeldel= powerspectrum3D(image3Dinverse,psdwidth,size,dtheta,dl, z) # this is the size of steps in real space dl=float(box_info['dim'])/float(box_info['BoxSize'])
+    onek, onepowerspectrum , onedeldel= powerspectrum3D(oneinverse,psdwidth,size,dtheta,dx, z) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
     print 'done imagepowerspectrum'
-    sigmak, sigmapowerspectrum , sigmadeldel= powerspectrum3D(sigma3Dinverse,psdwidth,size,dtheta, dl, z)
+    twok, twopowerspectrum , twodeldel= powerspectrum3D(twoinverse,psdwidth,size,dtheta, dx, z)
     print 'done sigmapowerspectrum'
-    twenty1k, twenty1powerspectrum, twenty1deldel= powerspectrum3D(twenty1inverse,psdwidth,size,dtheta,dl, z)
+    threek, threepowerspectrum, threedeldel= powerspectrum3D(threeinverse,psdwidth,size,dtheta,dx, z)
     print 'done twenty1powerspectrum'
 
     #plots the compared powerspectra
-    plt.loglog(imagek,imagedeldel)
-    plt.loglog(sigmak,sigmadeldel)
-    plt.loglog(twenty1k,twenty1deldel)
+    plt.loglog(onek,onedeldel)
+    plt.loglog(twok,twodeldel)
+    plt.loglog(threek,threedeldel)
     plt.loglog(realps[:,0],realps[:,1])
+
     #plt.ylim(0.00001,100)
     #plt.xlim(0.02,3)
 
@@ -611,10 +628,12 @@ def printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse,psdwidth,s
     plt.savefig('DELDEL POWERSPEC for z = %i' %z)
     plt.clf()
 
-    plt.loglog(imagek,imagepowerspectrum)
-    plt.loglog(sigmak,sigmapowerspectrum)
-    plt.loglog(twenty1k,twenty1powerspectrum)
+
+    plt.loglog(onek,onepowerspectrum)
+    plt.loglog(twok,twopowerspectrum)
+    plt.loglog(threek,threepowerspectrum)
     plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3)) #Important: here, as with other plot, we have no 2Pi**2 factor
+
     #plt.ylim(0.02,100000)
     #plt.xlim(0.02,3)
 
