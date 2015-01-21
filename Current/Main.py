@@ -15,7 +15,7 @@ CosmoUnits=Cosmo.CosmoUnits()
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel,scalemin,scalemax)
 
 #getting 21cm box information
-fname = 'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'  #'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#
+fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'  #
 #path = "BOXES/*"
 #for fname in glob.glob(path):
 
@@ -39,7 +39,7 @@ eps = 0.5    #this is instrument efficiency
 
 #DEPENDS ON Z! FIND THIS
 dl = box_info['BoxSize']/size   #so this is how many Mpc per index of box
-psdwidth = 3    #can change this!
+psdwidth = 5    #can change this!
 
 
 #DEFINE EXPERIMENT PARAMETERS
@@ -49,8 +49,12 @@ dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time
 totalintegrationtime = 1    #total time in hours
 timestepsneeded= 1 #int(totalintegrationtime * 60 * 24 / tint) # unitlessmeasurement of number of steps needed
 delta = 90./180. * np.pi    #declination angle
-scaling = 1./(size*dtheta)
+scaling = 1./(size*dtheta) #the length of one interval in inverse space
 
+#CODE THAT CAN BE USED TO CHECK OUR SPATIAL FREQUENCY IS IN THE RIGHT UNITS
+#spatialfreq=np.fft.fftfreq(size, dtheta)
+#print spatialfreq[1] - spatialfreq[0]
+#print scaling
 
 #Define Wavelength - find this out from z!!
 lda=0.21106*(1+z)
@@ -89,10 +93,7 @@ for slice in range(size):   #iterates over all slices
     zhat = twenty1inverse[slice]    #takes a 2D slice of 21cm in fourier space
 
 
-    #CODE THAT CAN BE USED TO CHECK OUR SPATIAL FREQUENCY IS IN THE RIGHT UNITS
-    #spatialfreq=np.fft.fftfreq(size, dtheta)
-    #print spatialfreq[4] - spatialfreq[3]
-    #print scaling
+
 
 
     ####################################MEASURE##################################################
@@ -118,14 +119,15 @@ image3D = np.fft.ifftn(image3Dinverse)
 image3D = np.abs(image3D)
 
 #now we have the actual image in k space but we want to add a k space window onto it.
-Windowedimageinverse=func.EORWINDOW(image3Dinverse, size, dl,z,B)
+Windowedimageinverse=np.copy(image3Dinverse) # create new variable early, function was changing original variable
+Windowedimageinverse=func.EORWINDOW(Windowedimageinverse, size, dl,z,B)
 
 Windowedimage = np.fft.ifftn(Windowedimageinverse)
 Windowedimage = np.abs(Windowedimage)   #abs or real?
 
 #func.visualizereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
 
-func.printpowerspectrum(Windowedimage, twenty1inverse, sigma3Dinverse, psdwidth,size,dtheta,float(1./dl), z)    #?????float(1./dl) this should be dl???????
+#func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z)    #?????float(1./dl) this should be dl???????
 
 
 #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
@@ -133,8 +135,12 @@ cutoff = 0.65
 iterations = 10000
 
 #These functions print the different size distribution analysis methods which we have worked on
+#THIS FUNCTION SHOWS THE PLOT RATHER THAN SAVING - NEED TO CHANGE BEFORE AUTOMATION
 #func.printmeanfreepathdist(image3D, twenty1, size, dl, cutoff, iterations)
 #func.printbubblesizedist(image3D, twenty1, size, dl, cutoff)
+
+#func.printmeanfreepathdist(Windowedimage, twenty1, size, dl, cutoff, iterations)
+func.printbubblesizedist(Windowedimage, twenty1, size, dl, cutoff)
 
 #This function compares two different 21cmboxes (maybe change it so you can insert
 #func.visualizereionizationslicebyslice(image3D,twenty1, size, z, theta)

@@ -113,13 +113,13 @@ def powerspectrum2D(data,width,size): #here width means how many pixels wide eac
 
 ##3D PS Calculation##
 #IF YOU WANT WEDGE MASKED, CALL func.EORWINDOW BEFORE SENDING IMAGE INTO THIS FUNCTION
-def powerspectrum3D(image3Dinv,width,size,dtheta, dl, z): #here width means how many pixels wide each band is
+def powerspectrum3D(fourier3Dbox,width,size,dtheta, dl, z): #here width means how many pixels wide each band is
 
     # RECAP - WE GET A BOX THAT HAS REAL SPACE SMALL UNITS OF DX (MPC), HENCE K SPACE LARGEST SIZE IS 1/DX (MPC^-1) - HENCE THE FOLLOWING FOR KMAX:
-    kmax = np.sqrt(3*(1/(2*float(dl)))**2) #finds kmax (from centre to outer corner) for a k space that is 1/2dl large
+    kmax = np.sqrt(3*((1./(2*float(dl)))**2)) #finds kmax (from centre to outer corner) for a k space that is 1/2dl large
 
-    rspacemaxradius=np.sqrt(3*(size/2)**2)
-    ktorratio=kmax/rspacemaxradius
+    ktorratio=1./(dl*size) # ratio between k space and indexes (r space in our minds) in per mega parsecs
+    print 'ktorratio', ktorratio
 
     ci = int(size/2.)  #centre point
 
@@ -129,9 +129,11 @@ def powerspectrum3D(image3Dinv,width,size,dtheta, dl, z): #here width means how 
     plt.show()
     '''
 
-    image3Dinv = np.abs(image3Dinv)**2  #giving us |P(k)|**2
+    absimage3Dinv = np.abs(fourier3Dbox)**2  #giving us |d(k)|**2
 
-    countarray = np.zeros((3,1+int(np.sqrt(3.*ci**2)/width))) #storing k wedges of averaged |P(k)|**2
+    #need an array that represents kmax (to the corner of the cube) = np.sqrt(3*(1/dtheta)**2)
+    rsize = int(np.sqrt(3.*ci**2)/width)    #rsize is number of integer steps to get to kmax (ie if width isn't 1)
+    countarray = np.zeros((3,1+rsize)) #storing k wedges of averaged |d(k)|**2
 
     for i in range(size):
         for j in range (size):
@@ -140,18 +142,17 @@ def powerspectrum3D(image3Dinv,width,size,dtheta, dl, z): #here width means how 
                 r = int(np.sqrt((i-ci)**2 + (j-ci)**2 + (k-ci)**2)/width)   #works out how far it is from the centre
 
                 #saving both |P(k)|**2 and k**3 |P(k)|**2 (/2pi**2)
-                if image3Dinv[i][j][k] > 0:    #this is as masked points are set to -1. No original points can be < 0
-                    countarray[1][r] += 1   #adds 1 to count, r/width so can save larger wedges
-                    countarray[0][r] += image3Dinv[i][j][k]
-                    countarray[2][r] += (r*width*ktorratio)**3 * image3Dinv[i][j][k]  #/(2*np.pi**2)
+                #if absimage3Dinv[i][j][k] != 0:    #this is as masked points are set to -1. No original points can be < 0 Jonathan mentioned disagreement
+                countarray[1][r] += 1   #adds 1 to count, r/width so can save larger wedges
+                countarray[0][r] += absimage3Dinv[i][j][k]
+                countarray[2][r] += (r*width*ktorratio)**3 * absimage3Dinv[i][j][k]
 
 
-    PowerSpectrum = countarray[0]/(countarray[1]*size**3)   # have to divide by V    # FUDGE (2*np.pi)**3/(2*np.pi**2)
+    PowerSpectrum = countarray[0]/(countarray[1]*size**3)   # have to divide by V    #  (2*np.pi)**3/(2*np.pi**2)
     DelDel = countarray[2]/(countarray[1]*size**3)
 
 
-    #need an array that represents kmax (to the corner of the cube) = np.sqrt(3*(1/dtheta)**2)
-    rsize = int(np.sqrt(3.*ci**2)/width)    #rsize is number of integer steps to get to kmax (ie if width isn't 1)
+
 
     #print 'the smallest steps are equal to '
     #print dtheta*kscalefactor
@@ -535,9 +536,8 @@ def secondbubbledistributioncalculator(image,size, thresholdfraction,dl,iteratio
     return volume, meanfreepathdistribution/sum(meanfreepathdistribution)   #no need for 1/N factor as taken into account with sum
 
 #Method: Takes image and returns masked window image, including replacing centre after masking to avoid flipped image
-def EORWINDOW(image3Dinverse, size, dl,z,B): #units of r are in terms of the index while k is per Mpc
+def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the index while k is per Mpc
 
-    Windowedimageinv = image3Dinverse
     CosmoUnits=Cosmo.CosmoUnits()
     #FROM The Epoch of Reionization Window I: Mathematical Formalism by A. Liu et al.
     E = np.sqrt(CosmoUnits.omega_m*((1+z)**3)+CosmoUnits.omega_l)
@@ -545,6 +545,8 @@ def EORWINDOW(image3Dinverse, size, dl,z,B): #units of r are in terms of the ind
     H0 = CosmoUnits.H0 # in km / s /Mpc
     c = CosmoUnits.C
     theta0 = 0.000070 #this is 4 degrees in radians (ther is a 'conservative' of 1 radian according to the paper which seems way too large)
+    nu21 = 1420000000 # Hz
+    Bband = 8000000 # Hz
     #NEED TO TALK TO PRITCHARD ABOUT THIS!!! WHAT IS THE CHARACTERISTIC BEAM THICKNESS!!!?
 
 
@@ -556,9 +558,9 @@ def EORWINDOW(image3Dinverse, size, dl,z,B): #units of r are in terms of the ind
 
 
     #CUTOFF SHOULD BE IN INDEX UNITS AS THIS IS HOW THE CONDITIONAL IS USED LATER
-    parrkcutoff = 0.3#/ktorratio #(H0/(((1+z)**2)*B))/ktorratio #the size of contaminated kparrallels with no wedge
+    parrkcutoff = (H0*2*np.pi*E*nu21/(((1+z)**2)*Bband*c))/ktorratio #the size of contaminated kparrallels with no wedge
 
-    print parrkcutoff
+    print 'parkis', parrkcutoff
 
 
     centre = np.zeros((27),dtype=complex)
@@ -602,7 +604,7 @@ def EORWINDOW(image3Dinverse, size, dl,z,B): #units of r are in terms of the ind
 # This function compares the powerspectra of the image, the twenty1cmsignal and the error
 # realps refers to the powerspectrum as provided by 21cmfast and can be uncommented to compare our results to this
 
-def printpowerspectrum(oneinverse, twoinverse, threeinverse,psdwidth,size,dtheta, dx, z):
+def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwidth,size,dtheta, dx, z):
 
 
     realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
@@ -613,12 +615,15 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse,psdwidth,size,dtheta
     print 'done sigmapowerspectrum'
     threek, threepowerspectrum, threedeldel= powerspectrum3D(threeinverse,psdwidth,size,dtheta,dx, z)
     print 'done twenty1powerspectrum'
+    #fourk, fourpowerspectrum, fourdeldel= powerspectrum3D(fourinverse,psdwidth,size,dtheta,dx, z)
+    #print 'done twenty1powerspectrum'
 
     #plots the compared powerspectra
     plt.loglog(onek,onedeldel)
     plt.loglog(twok,twodeldel)
     plt.loglog(threek,threedeldel)
-    plt.loglog(realps[:,0],realps[:,1])
+    #plt.loglog(fourk,fourdeldel)
+    #plt.loglog(realps[:,0],realps[:,1])
 
     #plt.ylim(0.00001,100)
     #plt.xlim(0.02,3)
@@ -632,7 +637,8 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse,psdwidth,size,dtheta
     plt.loglog(onek,onepowerspectrum)
     plt.loglog(twok,twopowerspectrum)
     plt.loglog(threek,threepowerspectrum)
-    plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3)) #Important: here, as with other plot, we have no 2Pi**2 factor
+    #plt.loglog(fourk,fourpowerspectrum)
+    #plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3)) #Important: here, as with other plot, we have no 2Pi**2 factor
 
     #plt.ylim(0.02,100000)
     #plt.xlim(0.02,3)
