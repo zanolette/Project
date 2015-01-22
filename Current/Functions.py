@@ -313,9 +313,9 @@ def phasecomparison(twenty1, image, size):
     for i in range(size):
         for j in range(size):
             for k in range(size):
-                twenty1phase=int(100*(np.angle(twenty1[i][j][k])+np.pi)) #turns phase onto grid
+                twenty1phase=int(100*(np.angle(twenty1[i][j][k]))) #turns phase onto grid
 
-                imagephase = int(100*(np.angle(image[i][j][k])+np.pi))
+                imagephase = int(100*(np.angle(image[i][j][k])))
 
                 phasearray[twenty1phase][imagephase]+=1
 
@@ -599,12 +599,42 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
 
     return Windowedimageinv
 
+#IMPORTANT: this only calcuates the rms between
+def PSrmscalc(onex,oney,twox,twoy):
+    print onex
+    print twox
+
+    xaxis = np.zeros(1) #just to start with, remember that first point is empty
+
+    #this concaterates onex and oney, just not in a nice way
+    for i in range(len(onex)):
+        for j in range(len(onex)):
+            if twox[j] == onex[i]:
+                np.append(xaxis,twox[j])
+                #order won't matter as both are ordered lists without repeated numbers
+
+    #xaxis = onex & twox #this makes xaxis a list with only shared kvalues
+    xaxis = np.trim_zeros(xaxis, 'b')   #safety measure to cut any trailing zeros
+
+    print 'number of values compared = ', len(xaxis)
+
+    counter = 0 #this will save (y-y')**2 values to be averaged
+
+    #we now want to go to each shared kvalue, find the relevant index, then compare the values at that index
+    for i in range (len(xaxis)-1):  #this is -1 as first point in xaxis is empty
+        indexone = onex.index(xaxis[i+1]) #this finds the index where the shared k value is in both arrays
+        indextwo = twox.index(xaxis[i+1])
+        counter += (oney[indexone]-twoy[indextwo])**2
+
+    counter = counter/(len(xaxis)-1)  #this averages the values
+    return np.sqrt(counter)  #this is rms value
+
 ##########################################printing function################################################
 
 # This function compares the powerspectra of the image, the twenty1cmsignal and the error
 # realps refers to the powerspectrum as provided by 21cmfast and can be uncommented to compare our results to this
 
-def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwidth,size,dtheta, dx, z):
+def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwidth,size,dtheta, dx, z,rmsornot):
 
 
     realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
@@ -617,6 +647,10 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
     print 'done twenty1powerspectrum'
     #fourk, fourpowerspectrum, fourdeldel= powerspectrum3D(fourinverse,psdwidth,size,dtheta,dx, z)
     #print 'done twenty1powerspectrum'
+
+    if rmsornot == 1:   #will pass in either 1 or 0 as to wether we want to calculate this
+        rmsvalue = PSrmscalc(twok,twopowerspectrum,threek,threepowerspectrum)   #sends in 21cm then windowed image
+        print rmsvalue
 
     #plots the compared powerspectra
     plt.loglog(onek,onedeldel)

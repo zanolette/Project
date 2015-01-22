@@ -15,7 +15,7 @@ CosmoUnits=Cosmo.CosmoUnits()
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel,scalemin,scalemax)
 
 #getting 21cm box information
-fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'  #
+fname = 'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'  #'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#
 #path = "BOXES/*"
 #for fname in glob.glob(path):
 
@@ -127,8 +127,10 @@ Windowedimage = np.abs(Windowedimage)   #abs or real?
 
 #func.visualizereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
 
-#func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z)    #?????float(1./dl) this should be dl???????
+#This function compared the phases of the real and imaginary
+func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
 
+func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##will pass in either 1 or 0 as to whether we want to calculate this
 
 #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
 cutoff = 0.65
@@ -148,8 +150,7 @@ func.printbubblesizedist(Windowedimage, twenty1, size, dl, cutoff)
 # This function compares the powerspectra of the image, the twenty1cmsignal and the error
 # func.printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse, psdwidth,size,dtheta,dl, z)
 
-#This function compared the phases of the real and imaginary
-#func.phasecomparison(twenty1inverse, image3Dinverse, size)
+
 
 #IF YOU WANT TO SAVE BOXES FOR LATER ANALYSIS - USE THESE
 #np.save('image3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),image3D)
