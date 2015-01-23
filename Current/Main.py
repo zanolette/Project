@@ -125,16 +125,16 @@ Windowedimageinverse=func.EORWINDOW(Windowedimageinverse, size, dl,z,B)
 Windowedimage = np.fft.ifftn(Windowedimageinverse)
 Windowedimage = np.abs(Windowedimage)   #abs or real?
 
-#func.visualizereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
+func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
 
 #This function compared the phases of the real and imaginary
-func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
+#func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
 
-func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##will pass in either 1 or 0 as to whether we want to calculate this
+#func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##will pass in either 1 or 0 as to whether we want to calculate this
 
 #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
-cutoff = 0.65
-iterations = 10000
+#cutoff = 0.65
+#iterations = 10000
 
 #These functions print the different size distribution analysis methods which we have worked on
 #THIS FUNCTION SHOWS THE PLOT RATHER THAN SAVING - NEED TO CHANGE BEFORE AUTOMATION
@@ -142,10 +142,10 @@ iterations = 10000
 #func.printbubblesizedist(image3D, twenty1, size, dl, cutoff)
 
 #func.printmeanfreepathdist(Windowedimage, twenty1, size, dl, cutoff, iterations)
-func.printbubblesizedist(Windowedimage, twenty1, size, dl, cutoff)
+#func.printbubblesizedist(Windowedimage, twenty1, size, dl, cutoff)
 
 #This function compares two different 21cmboxes (maybe change it so you can insert
-#func.visualizereionizationslicebyslice(image3D,twenty1, size, z, theta)
+#func.visualisereionizationslicebyslice(image3D,twenty1, size, z, theta)
 
 # This function compares the powerspectra of the image, the twenty1cmsignal and the error
 # func.printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse, psdwidth,size,dtheta,dl, z)
