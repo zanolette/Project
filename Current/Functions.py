@@ -286,18 +286,18 @@ def visualizereionizationagainstz(image, size, z, theta):
 '''
 
 #Method: prints out all the slices of 2 boxes to be compared - creates gif on freds computer - "convert -delay 10 image*.png animated.gif"
-def visualizereionizationslicebyslice(image,twenty1, size, z, theta):
+def visualisereionizationslicebyslice(image,twenty1, size, z, theta):
 
     for t in range(size):
         fig = plt.figure()
         a1=fig.add_subplot(1,2,1)
-        imgplot = plt.imshow(twenty1[t],extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet')#,vmin=0,vmax=70)
+        imgplot = plt.imshow(twenty1[t],extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet',vmin=0,vmax=70)
         a1.set_title('21cmfast')
         plt.xlabel('X axis in $^\circ$s')
         plt.ylabel('Y axis in $^\circ$s')
         a2=fig.add_subplot(1,2,2)
         plt.setp( a2.get_yticklabels(), visible=False)
-        imgplot = plt.imshow(image[t],extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet')#,vmin=0,vmax=70)
+        imgplot = plt.imshow(image[t],extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet',vmin=0,vmax=70)
         plt.xlabel('X axis in $^\circ$s')
         a2.set_title('SKA Image')
 
