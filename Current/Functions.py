@@ -4,6 +4,7 @@ from matplotlib import ticker
 import matplotlib.pyplot as plt
 import boxio as boximport
 import Cosmo as Cosmo
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 def printgraph (image, xrange, yrange, xlabel, ylabel, scalemin,scalemax):   #generic print function with ranges and labels
     if scalemin == 'None':
@@ -143,6 +144,8 @@ def powerspectrum3D(fourier3Dbox,width,size,dtheta, dl, z): #here width means ho
 
                 #saving both |P(k)|**2 and k**3 |P(k)|**2 (/2pi**2)
                 #if absimage3Dinv[i][j][k] != 0:    #this is as masked points are set to -1. No original points can be < 0 Jonathan mentioned disagreement
+                ###############NANANANANANANANANANAN#############
+                #if np.isnan(absimage3Dinv[i][j][k])=='false':
                 countarray[1][r] += 1   #adds 1 to count, r/width so can save larger wedges
                 countarray[0][r] += absimage3Dinv[i][j][k]
                 countarray[2][r] += (r*width*ktorratio)**3 * absimage3Dinv[i][j][k]
@@ -301,7 +304,20 @@ def visualisereionizationslicebyslice(image,twenty1, size, z, theta):
         plt.xlabel('X axis in $^\circ$s')
         a2.set_title('SKA Image')
 
-        plt.savefig('Image/z%iimage%i.png'%(z,t))
+        fig.subplots_adjust(right=0.8)
+        cbar_ax = fig.add_axes([0.85, 0.3, 0.03, 0.4])
+        cbar=plt.colorbar(imgplot, orientation='vertical',cax=cbar_ax)# shrink=0.6)
+
+        #divider = make_axes_locatable(ax)
+        #cax = divider.append_axes("right", size="5%", pad=0.05)
+
+        #cbar=plt.colorbar(imgplot, cax=cax, orientation='vertical')
+        #cbar=plt.colorbar(orientation='vertical', shrink=0.6)
+        #cbar.make_axis(shrink=0.6)
+        cbar.set_label('Temperature (mK)', size = 13)
+
+
+        plt.savefig('Image/z%iimage%03i.png'%(z,t))
         plt.close(fig)
 
 
@@ -583,11 +599,13 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
 
                 kperp = np.sqrt((i-ci)**2 + (j-ci)**2)
 
-
+#####################NAN###############NAN#############NAN##############NAN#############NAN##############
+                #NAN WHEN WE CUT OUT FOREGROUND NOISE???????
+                #foreground cutouts are replaced with np.nan
                 if np.abs(k-ci) < parrkcutoff:
-                    Windowedimageinv[i][j][k]=0.+0.j
+                    Windowedimageinv[i][j][k]=0.+0.j#np.nan
                 elif np.abs(k-ci) < kperp*H0*Dz*E*theta0/(c*(1+z)*ktorratio):    #abs as kparrallel = abs(kz)
-                    Windowedimageinv[i][j][k]=0.+0.j
+                    Windowedimageinv[i][j][k]=0.+0.j#np.nan
 
     #replaces the central DC cube
     counter=0

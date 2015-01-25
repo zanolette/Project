@@ -15,7 +15,7 @@ CosmoUnits=Cosmo.CosmoUnits()
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel,scalemin,scalemax)
 
 #getting 21cm box information
-fname = 'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'  #'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#
+fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'  #
 #path = "BOXES/*"
 #for fname in glob.glob(path):
 
@@ -92,15 +92,9 @@ for slice in range(size):   #iterates over all slices
 
     zhat = twenty1inverse[slice]    #takes a 2D slice of 21cm in fourier space
 
-
-
-
-
     ####################################MEASURE##################################################
 
-
     # for loop that goes through the fourier space matrix and adds noise according to the number of times the signal gets sampled
-
 
     #using UV count - this now merges the UVcoverage and the Image
 
@@ -111,6 +105,9 @@ for slice in range(size):   #iterates over all slices
                 real=np.random.normal(np.real(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)     #sqrt(2) here as real and imag components share it
                 imaginary = np.random.normal(np.imag(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)
                 image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
+##################NAN IF WE DONT MEASURE THIS BASELINE????????????????????????????????????????????????
+#            else:
+#                image3Dinverse[slice][i][j]=np.nan
 
 #Could have psf stuff here
 
