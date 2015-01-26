@@ -120,7 +120,7 @@ def powerspectrum3D(fourier3Dbox,width,size,dtheta, dl, z): #here width means ho
     kmax = np.sqrt(3*((1./(2*float(dl)))**2)) #finds kmax (from centre to outer corner) for a k space that is 1/2dl large
 
     ktorratio=1./(dl*size) # ratio between k space and indexes (r space in our minds) in per mega parsecs
-    print 'ktorratio', ktorratio
+    #print 'ktorratio', ktorratio
 
     ci = int(size/2.)  #centre point
 
@@ -143,12 +143,10 @@ def powerspectrum3D(fourier3Dbox,width,size,dtheta, dl, z): #here width means ho
                 r = int(np.sqrt((i-ci)**2 + (j-ci)**2 + (k-ci)**2)/width)   #works out how far it is from the centre
 
                 #saving both |P(k)|**2 and k**3 |P(k)|**2 (/2pi**2)
-                #if absimage3Dinv[i][j][k] != 0:    #this is as masked points are set to -1. No original points can be < 0 Jonathan mentioned disagreement
-                ###############NANANANANANANANANANAN#############
-                #if np.isnan(absimage3Dinv[i][j][k])=='false':
-                countarray[1][r] += 1   #adds 1 to count, r/width so can save larger wedges
-                countarray[0][r] += absimage3Dinv[i][j][k]
-                countarray[2][r] += (r*width*ktorratio)**3 * absimage3Dinv[i][j][k]
+                if absimage3Dinv[i][j][k] != 0:    #Do no measure deleted or unsampled points.
+                    countarray[1][r] += 1   #adds 1 to count, r/width so can save larger wedges
+                    countarray[0][r] += absimage3Dinv[i][j][k]
+                    countarray[2][r] += (r*width*ktorratio)**3 * absimage3Dinv[i][j][k]
 
 
     PowerSpectrum = countarray[0]/(countarray[1]*size**3)   # have to divide by V    #  (2*np.pi)**3/(2*np.pi**2)
@@ -308,16 +306,9 @@ def visualisereionizationslicebyslice(image,twenty1, size, z, theta):
         cbar_ax = fig.add_axes([0.85, 0.3, 0.03, 0.4])
         cbar=plt.colorbar(imgplot, orientation='vertical',cax=cbar_ax)# shrink=0.6)
 
-        #divider = make_axes_locatable(ax)
-        #cax = divider.append_axes("right", size="5%", pad=0.05)
-
-        #cbar=plt.colorbar(imgplot, cax=cax, orientation='vertical')
-        #cbar=plt.colorbar(orientation='vertical', shrink=0.6)
-        #cbar.make_axis(shrink=0.6)
         cbar.set_label('Temperature (mK)', size = 13)
 
-
-        plt.savefig('Image/z%iimage%03i.png'%(z,t))
+        plt.savefig('Image/z%fimage%03i.png'%(z,t))
         plt.close(fig)
 
 
@@ -576,7 +567,7 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
     #CUTOFF SHOULD BE IN INDEX UNITS AS THIS IS HOW THE CONDITIONAL IS USED LATER
     parrkcutoff = (H0*2*np.pi*E*nu21/(((1+z)**2)*Bband*c))/ktorratio #the size of contaminated kparrallels with no wedge
 
-    print 'parkis', parrkcutoff
+    #print 'parkis', parrkcutoff
 
 
     centre = np.zeros((27),dtype=complex)
@@ -599,9 +590,6 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
 
                 kperp = np.sqrt((i-ci)**2 + (j-ci)**2)
 
-#####################NAN###############NAN#############NAN##############NAN#############NAN##############
-                #NAN WHEN WE CUT OUT FOREGROUND NOISE???????
-                #foreground cutouts are replaced with np.nan
                 if np.abs(k-ci) < parrkcutoff:
                     Windowedimageinv[i][j][k]=0.+0.j#np.nan
                 elif np.abs(k-ci) < kperp*H0*Dz*E*theta0/(c*(1+z)*ktorratio):    #abs as kparrallel = abs(kz)

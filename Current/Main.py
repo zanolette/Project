@@ -15,143 +15,148 @@ CosmoUnits=Cosmo.CosmoUnits()
 #remember generic print function - func.printgraph (image, xrange, yrange, xlabel, ylabel,scalemin,scalemax)
 
 #getting 21cm box information
-fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'  #
-#path = "BOXES/*"
-#for fname in glob.glob(path):
+#fname = 'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'  #
+path = "LARGEBOXES/*"
+for fname in glob.glob(path):
 
-box_info = boximport.parse_filename(fname)
+    box_info = boximport.parse_filename(fname)
 
-#Define size of view and resolution
-z = box_info['z']
-theta = CosmoUnits.thetaboxsize(z,box_info['BoxSize'])
-print theta
+    #Define size of view and resolution
+    z = box_info['z']
+    theta = CosmoUnits.thetaboxsize(z,box_info['BoxSize'])
+    print theta
 
-#so box_info['BoxSize'] is the Mpc of box length, whereas box_info['dim'] is index size of box length
-size = box_info['dim'] # box size - maybe write a code to get this out of the title of the 21cmfast files
+    #so box_info['BoxSize'] is the Mpc of box length, whereas box_info['dim'] is index size of box length
+    size = box_info['dim'] # box size - maybe write a code to get this out of the title of the 21cmfast files
 
-ci = int(size/2)
+    ci = int(size/2)
 
-dtheta = float(theta/size)
-print dtheta
+    dtheta = float(theta/size)
+    print dtheta
 
-eps = 0.5    #this is instrument efficiency
-
-
-#DEPENDS ON Z! FIND THIS
-dl = box_info['BoxSize']/size   #so this is how many Mpc per index of box
-psdwidth = 5    #can change this!
+    eps = 0.5    #this is instrument efficiency
 
 
-#DEFINE EXPERIMENT PARAMETERS
-H = 0.
-tint = 60.      #interval in seconds
-dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
-totalintegrationtime = 1    #total time in hours
-timestepsneeded= 1 #int(totalintegrationtime * 60 * 24 / tint) # unitlessmeasurement of number of steps needed
-delta = 90./180. * np.pi    #declination angle
-scaling = 1./(size*dtheta) #the length of one interval in inverse space
-
-#CODE THAT CAN BE USED TO CHECK OUR SPATIAL FREQUENCY IS IN THE RIGHT UNITS
-#spatialfreq=np.fft.fftfreq(size, dtheta)
-#print spatialfreq[1] - spatialfreq[0]
-#print scaling
-
-#Define Wavelength - find this out from z!!
-lda=0.21106*(1+z)
+    #DEPENDS ON Z! FIND THIS
+    dl = box_info['BoxSize']/size   #so this is how many Mpc per index of box
+    psdwidth = 5    #can change this!
 
 
-# Now we import array positions
-(dx,dy,dz)=func.importarray('MWAhalved.txt',lda) #this assumes lda doesn't change too much over slices!!! 'MWAcoordinate.txt''vla.a.cfg' 'MWAhalved.txt'
+    #DEFINE EXPERIMENT PARAMETERS
+    H = 0.
+    tint = 60.      #interval in seconds
+    dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
+    totalintegrationtime = 1    #total time in hours
+    timestepsneeded= 1 #int(totalintegrationtime * 60 * 24 / tint) # unitlessmeasurement of number of steps needed
+    delta = 90./180. * np.pi    #declination angle
+    scaling = 1./(size*dtheta) #the length of one interval in inverse space
+
+    #CODE THAT CAN BE USED TO CHECK OUR SPATIAL FREQUENCY IS IN THE RIGHT UNITS
+    #spatialfreq=np.fft.fftfreq(size, dtheta)
+    #print spatialfreq[1] - spatialfreq[0]
+    #print scaling
+
+    #Define Wavelength - find this out from z!!
+    lda=0.21106*(1+z)
 
 
-#Apply rotation matrix onto baseline vector and maps onto fourier plane.
-UVcount = func.rotationmatrix(dx, dy, dz, scaling, H, dH, timestepsneeded, delta, size)
+    # Now we import array positions
+    (dx,dy,dz)=func.importarray('MWA128.txt',lda) #this assumes lda doesn't change too much over slices!!! 'MWAcoordinate.txt''vla.a.cfg' 'MWAhalved.txt''MWA128.txt'
 
 
-# need to make sure this is correct according to pritchard - noise on complex thing
-tsyst = 50000 + 60000*((1+z)/4.73)**2.55  #(mK) this is from "Probing . . . with the SKA" MG Santos
-B = 1420.41e6*dl/((1+z)*CosmoUnits.Dcomovingrad(z))        #Bandwidth (Hz) - this is given by frequency inteval. DeltaF = f1-f2, seperated by deltaz = z* deltaL/Dcomovingrad
-
-#imports 21cm box and takes single z slice
-#zhat,twenty1 = func.twentyonecmmatrix(fname,theta/2)    #z will be used later to compute rms of image and measured sky
-box=boximport.readbox(fname)
-twenty1 = box.box_data  #so we have it seperate - this is 3D!
+    #Apply rotation matrix onto baseline vector and maps onto fourier plane.
+    UVcount = func.rotationmatrix(dx, dy, dz, scaling, H, dH, timestepsneeded, delta, size)
 
 
-twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
-twenty1inverse = np.fft.fftshift(twenty1inverse)
+    # need to make sure this is correct according to pritchard - noise on complex thing
+    tsyst = 50000 + 60000*((1+z)/4.73)**2.55  #(mK) this is from "Probing . . . with the SKA" MG Santos
+    B = 1420.41e6*dl/((1+z)*CosmoUnits.Dcomovingrad(z))        #Bandwidth (Hz) - this is given by frequency inteval. DeltaF = f1-f2, seperated by deltaz = z* deltaL/Dcomovingrad
 
-image3Dinverse = np.zeros((size,size,size),'complex')   #so we can save into a 3D box in fourier space
-sigma3Dinverse = np.zeros((size,size,size))
+    #imports 21cm box and takes single z slice
+    #zhat,twenty1 = func.twentyonecmmatrix(fname,theta/2)    #z will be used later to compute rms of image and measured sky
+    box=boximport.readbox(fname)
+    twenty1 = box.box_data  #so we have it seperate - this is 3D!
 
-##########################This is where we introduce a slice################################
 
-for slice in range(size):   #iterates over all slices
+    twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
+    twenty1inverse = np.fft.fftshift(twenty1inverse)
 
-    print slice
+    image3Dinverse = np.zeros((size,size,size),'complex')   #so we can save into a 3D box in fourier space
+    sigma3Dinverse = np.zeros((size,size,size))
 
-    zhat = twenty1inverse[slice]    #takes a 2D slice of 21cm in fourier space
+    ##########################This is where we introduce a slice################################
 
-    ####################################MEASURE##################################################
+    for slice in range(size):   #iterates over all slices
 
-    # for loop that goes through the fourier space matrix and adds noise according to the number of times the signal gets sampled
+        print 'z', z, ' Slice: ', slice
 
-    #using UV count - this now merges the UVcoverage and the Image
+        zhat = twenty1inverse[slice]    #takes a 2D slice of 21cm in fourier space
 
-    for i in range (size):
-        for j in range (size):
-            if UVcount[i][j] != 0:
-                sigma3Dinverse[slice][i][j] = tsyst/(eps*np.sqrt(UVcount[i][j]*tint*B))       #saved seperately to calculate power spectrum seperately, error eqn according to NRAO course + Pritchard
-                real=np.random.normal(np.real(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)     #sqrt(2) here as real and imag components share it
-                imaginary = np.random.normal(np.imag(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)
-                image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
-##################NAN IF WE DONT MEASURE THIS BASELINE????????????????????????????????????????????????
-#            else:
-#                image3Dinverse[slice][i][j]=np.nan
+        ####################################MEASURE##################################################
 
-#Could have psf stuff here
+        # for loop that goes through the fourier space matrix and adds noise according to the number of times the signal gets sampled
 
-#How we get our image from the fourier transform
-image3D = np.fft.ifftn(image3Dinverse)
-image3D = np.abs(image3D)
+        #using UV count - this now merges the UVcoverage and the Image
 
-#now we have the actual image in k space but we want to add a k space window onto it.
-Windowedimageinverse=np.copy(image3Dinverse) # create new variable early, function was changing original variable
-Windowedimageinverse=func.EORWINDOW(Windowedimageinverse, size, dl,z,B)
+        for i in range (size):
+            for j in range (size):
+                if UVcount[i][j] != 0:
+                    sigma3Dinverse[slice][i][j] = tsyst/(eps*np.sqrt(UVcount[i][j]*tint*B))       #saved seperately to calculate power spectrum seperately, error eqn according to NRAO course + Pritchard
+                    real=np.random.normal(np.real(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)     #sqrt(2) here as real and imag components share it
+                    imaginary = np.random.normal(np.imag(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)
+                    image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
 
-Windowedimage = np.fft.ifftn(Windowedimageinverse)
-Windowedimage = np.abs(Windowedimage)   #abs or real?
+    #Could have psf stuff here
 
-func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
+    #How we get our image from the fourier transform
+    image3D = np.fft.ifftn(image3Dinverse)
+    image3D = np.abs(image3D)
 
-#This function compared the phases of the real and imaginary
-#func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
+    #now we have the actual image in k space but we want to add a k space window onto it.
+    Windowedimageinverse=np.copy(image3Dinverse) # create new variable early, function was changing original variable
+    Windowedimageinverse=func.EORWINDOW(Windowedimageinverse, size, dl,z,B)
 
-#func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##will pass in either 1 or 0 as to whether we want to calculate this
+    Windowedimage = np.fft.ifftn(Windowedimageinverse)
+    Windowedimage = np.abs(Windowedimage)   #abs or real?
 
-#The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
-#cutoff = 0.65
-#iterations = 10000
+    func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
 
-#These functions print the different size distribution analysis methods which we have worked on
-#THIS FUNCTION SHOWS THE PLOT RATHER THAN SAVING - NEED TO CHANGE BEFORE AUTOMATION
-#func.printmeanfreepathdist(image3D, twenty1, size, dl, cutoff, iterations)
-#func.printbubblesizedist(image3D, twenty1, size, dl, cutoff)
+    #This function compared the phases of the real and imaginary
+    #func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
 
-#func.printmeanfreepathdist(Windowedimage, twenty1, size, dl, cutoff, iterations)
-#func.printbubblesizedist(Windowedimage, twenty1, size, dl, cutoff)
+    #func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##will pass in either 1 or 0 as to whether we want to calculate this
 
-#This function compares two different 21cmboxes (maybe change it so you can insert
-#func.visualisereionizationslicebyslice(image3D,twenty1, size, z, theta)
+    #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
+    #cutoff = 0.65
+    #iterations = 10000
 
-# This function compares the powerspectra of the image, the twenty1cmsignal and the error
-# func.printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse, psdwidth,size,dtheta,dl, z)
+    #These functions print the different size distribution analysis methods which we have worked on
+    #THIS FUNCTION SHOWS THE PLOT RATHER THAN SAVING - NEED TO CHANGE BEFORE AUTOMATION
+    #func.printmeanfreepathdist(image3D, twenty1, size, dl, cutoff, iterations)
+    #func.printbubblesizedist(image3D, twenty1, size, dl, cutoff)
+
+    #func.printmeanfreepathdist(Windowedimage, twenty1, size, dl, cutoff, iterations)
+    #func.printbubblesizedist(Windowedimage, twenty1, size, dl, cutoff)
+
+    #This function compares two different 21cmboxes (maybe change it so you can insert
+    #func.visualisereionizationslicebyslice(image3D,twenty1, size, z, theta)
+
+    # This function compares the powerspectra of the image, the twenty1cmsignal and the error
+    # func.printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse, psdwidth,size,dtheta,dl, z)
 
 
 
-#IF YOU WANT TO SAVE BOXES FOR LATER ANALYSIS - USE THESE
-#np.save('image3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),image3D)
-#np.save('sigma3Darraydim%s,%sMpc,z%s,test'%(size,box_info['BoxSize'],z),sigma3D)
+    #IF YOU WANT TO SAVE BOXES FOR LATER ANALYSIS - USE THESE
+    np.save('Experiment/image3D_z%s'%(z),image3D)
+    np.delete(image3D)
+    np.save('Experiment/image3Dinv_z%s'%(z),image3Dinverse)
+    np.delete(image3Dinverse)
+    np.save('Experiment/sigma3Dinv_z%s'%(z),sigma3Dinverse)
+    np.delete(sigma3Dinverse)
+    np.save('Experiment/windowedinv_z%s'%(z),Windowedimageinverse)
+    np.delete(Windowedimageinverse)
+    np.save('Experiment/finalrealimage_z%s'%(z),Windowedimage)
+    np.delete(Windowedimage)
 
-#np.save('image3Darraydim%s,%sMpc,z%s,time%s'%(size,box_info['BoxSize'],z,timestepsneeded),image3D)
-#np.save('sigma3Darraydim%s,%sMpc,z%s,time&s'%(size,box_info['BoxSize'],z,timestepsneeded),sigma3D)
+    #np.save('image3Darraydim%s,%sMpc,z%s,time%s'%(size,box_info['BoxSize'],z,timestepsneeded),image3D)
+    #np.save('sigma3Darraydim%s,%sMpc,z%s,time&s'%(size,box_info['BoxSize'],z,timestepsneeded),sigma3D)
