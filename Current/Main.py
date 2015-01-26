@@ -148,15 +148,15 @@ for fname in glob.glob(path):
 
     #IF YOU WANT TO SAVE BOXES FOR LATER ANALYSIS - USE THESE
     np.save('Experiment/image3D_z%s'%(z),image3D)
-    np.delete(image3D)
+    del image3D
     np.save('Experiment/image3Dinv_z%s'%(z),image3Dinverse)
-    np.delete(image3Dinverse)
+    del image3Dinverse
     np.save('Experiment/sigma3Dinv_z%s'%(z),sigma3Dinverse)
-    np.delete(sigma3Dinverse)
+    del sigma3Dinverse
     np.save('Experiment/windowedinv_z%s'%(z),Windowedimageinverse)
-    np.delete(Windowedimageinverse)
+    del Windowedimageinverse
     np.save('Experiment/finalrealimage_z%s'%(z),Windowedimage)
-    np.delete(Windowedimage)
+    del Windowedimage
 
     #np.save('image3Darraydim%s,%sMpc,z%s,time%s'%(size,box_info['BoxSize'],z,timestepsneeded),image3D)
     #np.save('sigma3Darraydim%s,%sMpc,z%s,time&s'%(size,box_info['BoxSize'],z,timestepsneeded),sigma3D)

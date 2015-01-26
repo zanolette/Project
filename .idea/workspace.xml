@@ -4,7 +4,6 @@
     <list default="true" id="343c117a-242a-4430-a162-2878237c46b0" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Current/Functions.py" afterPath="$PROJECT_DIR$/Current/Functions.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Current/Main.py" afterPath="$PROJECT_DIR$/Current/Main.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="MSciProject.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -27,11 +26,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Main.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Main.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Current/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-2.5472972" vertical-offset="2076" max-vertical-offset="2520">
-              <caret line="63" column="165" selection-start-line="63" selection-start-column="165" selection-end-line="63" selection-end-column="165" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="2076" max-vertical-offset="2520">
+              <caret line="158" column="21" selection-start-line="158" selection-start-column="21" selection-end-line="158" selection-end-column="21" />
               <folding>
                 <element signature="e#2#20#0" expanded="true" />
               </folding>
@@ -99,10 +98,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Functions.py" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="Functions.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Current/Functions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-22.5" vertical-offset="3975" max-vertical-offset="10830">
+            <state vertical-scroll-proportion="0.7894737" vertical-offset="4230" max-vertical-offset="10830">
               <caret line="310" column="30" selection-start-line="310" selection-start-column="30" selection-end-line="310" selection-end-column="30" />
               <folding />
             </state>
@@ -135,8 +134,8 @@
         <option value="$PROJECT_DIR$/Current/test/MeanFreePathStats.py" />
         <option value="$PROJECT_DIR$/Current/MeanFreePathStats.py" />
         <option value="$PROJECT_DIR$/Current/21cmtester" />
-        <option value="$PROJECT_DIR$/Current/Functions.py" />
         <option value="$PROJECT_DIR$/Current/Main.py" />
+        <option value="$PROJECT_DIR$/Current/Functions.py" />
       </list>
     </option>
   </component>
@@ -896,14 +895,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Current/Cosmo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="60" max-vertical-offset="1245">
-          <caret line="16" column="67" selection-start-line="16" selection-start-column="45" selection-end-line="16" selection-end-column="67" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Current/21cmtester">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1170">
@@ -920,21 +911,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Current/Functions.py">
+    <entry file="file://$PROJECT_DIR$/Current/Cosmo.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-22.5" vertical-offset="3975" max-vertical-offset="10830">
-          <caret line="310" column="30" selection-start-line="310" selection-start-column="30" selection-end-line="310" selection-end-column="30" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="60" max-vertical-offset="1245">
+          <caret line="16" column="67" selection-start-line="16" selection-start-column="45" selection-end-line="16" selection-end-column="67" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Current/Main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.5472972" vertical-offset="2076" max-vertical-offset="2520">
-          <caret line="63" column="165" selection-start-line="63" selection-start-column="165" selection-end-line="63" selection-end-column="165" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="2076" max-vertical-offset="2520">
+          <caret line="158" column="21" selection-start-line="158" selection-start-column="21" selection-end-line="158" selection-end-column="21" />
           <folding>
             <element signature="e#2#20#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Current/Functions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7894737" vertical-offset="4230" max-vertical-offset="10830">
+          <caret line="310" column="30" selection-start-line="310" selection-start-column="30" selection-end-line="310" selection-end-column="30" />
+          <folding />
         </state>
       </provider>
     </entry>

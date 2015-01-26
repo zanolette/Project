@@ -308,7 +308,7 @@ def visualisereionizationslicebyslice(image,twenty1, size, z, theta):
 
         cbar.set_label('Temperature (mK)', size = 13)
 
-        plt.savefig('Image/z%fimage%03i.png'%(z,t))
+        plt.savefig('Image/z%simage%03i.png'%(z,t))
         plt.close(fig)
 
 
