@@ -126,3 +126,4 @@ ax2.set_xlabel("Neutral Fraction of the Universe")
 
 plt.savefig('Statisticalvaluesvsz/averagetemperaturecomparisson')   #this saves the graph using the string labelname
 plt.clf()
+
