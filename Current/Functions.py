@@ -656,7 +656,7 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
 
     if rmsornot == 1:   #will pass in either 1 or 0 as to wether we want to calculate this
         rmsvalue = PSrmscalc(twok,twopowerspectrum,threek,threepowerspectrum)   #sends in 21cm then windowed image
-        print rmsvalue
+
 
     #plots the compared powerspectra
     plt.loglog(onek,onedeldel)
@@ -670,7 +670,7 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
 
     plt.xlabel('k (MPc$^{-1}$)')
     plt.ylabel('k$^3$ P(k)/2$\pi^2$')
-    plt.savefig('DELDEL POWERSPEC for z = %i' %z)
+    plt.savefig('ComparingEorforPS/DELDEL_POWERSPEC_z%i' %z)
     plt.clf()
 
 
@@ -685,7 +685,38 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
 
     plt.xlabel('k (MPc$^{-1}$)')
     plt.ylabel('P(k)')
-    plt.savefig('POWERSPEC for z = %i' %z)
+    plt.savefig('ComparingEorforPS/POWERSPEC_z%i' %z)
+    plt.clf()
+
+    #saves the windowed image deldelpowerspectrum seperately, so we can choose which ones to plot together against z
+    plt.loglog(threek,threedeldel)
+    plt.xlabel('k (MPc$^{-1}$)')
+    plt.ylabel('k$^3$ P(k)/2$\pi^2$')
+    plt.savefig('Powerspectrums/DELDEL_POWERSPEC_z%i' %z)
+    plt.clf()
+
+    return rmsvalue #this can then be saved in an array to compare rms error changing with z
+
+def printvaluesvsz(YVALUE,redshift,neutralfractions,labelname):
+
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(111) # x (z) and y axis
+    ax2 = ax1.twiny() # further x axis corresponding to the same y axis
+
+    ax1.plot(redshift,YVALUE)
+    ax1.set_xlabel("Redshift")
+    ax1.set_ylabel("Y QUANTITY")
+
+    nf_axis_ticklocations = np.array([7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]) # in terms of z
+
+    nfindexes=np.searchsorted(redshift, nf_axis_ticklocations) # finds corresponding indices
+
+    ax2.set_xticks(nf_axis_ticklocations) # ticks at desires z locations.
+    ax2.set_xticklabels(neutralfractions[nfindexes]) # prints nf for each z location
+    ax2.set_xlabel("Neutral Fraction of the Universe")
+
+    plt.savefig('Statisticalvaluesvsz/%s_vsz' %labelname)   #this saves the graph using the string labelname
     plt.clf()
 
 def printbubblesizedist(image3D, twenty1, size, dl, cutoff):
