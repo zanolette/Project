@@ -119,7 +119,7 @@ for fname in glob.glob(path):
     Windowedimage = np.fft.ifftn(Windowedimageinverse)
     Windowedimage = np.abs(Windowedimage)   #abs or real?
 
-    func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
+    #func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
 
     #This function compared the phases of the real and imaginary
     #func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
