@@ -44,10 +44,10 @@ for fname in glob.glob(path):
 
     #DEFINE EXPERIMENT PARAMETERS
     H = 0.
-    tint = 60.      #interval in seconds
+    tint = 300.      #interval in seconds
     dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
-    totalintegrationtime = 1    #total time in hours
-    timestepsneeded= 1 #int(totalintegrationtime * 60 * 24 / tint) # unitlessmeasurement of number of steps needed
+    totalintegrationtime = 24    #total time in hours
+    timestepsneeded= int(totalintegrationtime * 60 * 60 / tint) # unitlessmeasurement of number of steps needed
     delta = 90./180. * np.pi    #declination angle
     scaling = 1./(size*dtheta) #the length of one interval in inverse space
 
