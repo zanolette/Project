@@ -50,7 +50,7 @@ for fname in glob.glob(path):
     #############Load in Files for this z########################################################
 
     image3Dinverse = np.load('Experiment/image3Dinv_z%s.npy' %z)
-    #sigma3Dinverse = np.load('Experiment/sigma3Dinv_z%s.npy' %z)
+    sigma3Dinverse = np.load('Experiment/sigma3Dinv_z%s.npy' %z)
     Windowedimageinverse = np.load('Experiment/windowedinv_z%s.npy' %z)
 
     ###############Calculating fft's################################
@@ -79,7 +79,7 @@ for fname in glob.glob(path):
     #func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
 
     #!!printpowerspectrum is for comparing the windowed,non-windowed and 21cm powerspectrums on one graph, but also saves deldelPS's seperately for comparison!!
-    PSrmsarray[counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
+    #PSrmsarray[counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
 
     #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
     #cutoff = 0.65
@@ -105,7 +105,7 @@ for fname in glob.glob(path):
 #printing z and neutral fraction on two x axes
 #ASSUMES - 3 numpy arrays - z, neutrlfractions and YVALUE
 
-func.printvaluesvsz(PSrmsarray,redshift,neutralfractions,'rmserrorforPS')   #error in powerspectrum vs z
+#func.printvaluesvsz(PSrmsarray,redshift,neutralfractions,'rmserrorforPS')   #error in powerspectrum vs z
 func.printvaluesvsz(rmserrorintemp,redshift,neutralfractions,'rmserrorinTemp')  #error in temp vs z
 
 

@@ -642,7 +642,7 @@ def PSrmscalc(onex,oney,twox,twoy):
 def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwidth,size,dtheta, dx, z,rmsornot):
 
 
-    #realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
+    realps = np.loadtxt('PowerSpectrumFiles/PS%s'%z, delimiter='\t')
 
     onek, onepowerspectrum , onedeldel= powerspectrum3D(oneinverse,psdwidth,size,dtheta,dx, z) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
     print 'done imagepowerspectrum'
@@ -662,7 +662,7 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
     plt.loglog(twok,twodeldel)
     plt.loglog(threek,threedeldel)
     #plt.loglog(fourk,fourdeldel)
-    #plt.loglog(realps[:,0],realps[:,1])
+    plt.loglog(realps[:,0],realps[:,1])
 
     #plt.ylim(0.00001,100)
     #plt.xlim(0.02,3)
@@ -677,7 +677,7 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
     plt.loglog(twok,twopowerspectrum)
     plt.loglog(threek,threepowerspectrum)
     #plt.loglog(fourk,fourpowerspectrum)
-    #plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3)) #Important: here, as with other plot, we have no 2Pi**2 factor
+    plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3)) #Important: here, as with other plot, we have no 2Pi**2 factor
 
     #plt.ylim(0.02,100000)
     #plt.xlim(0.02,3)
@@ -694,7 +694,10 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
     plt.savefig('Powerspectrums/DELDEL_POWERSPEC_z%s.png' %z)
     plt.clf()
 
-    return rmsvalue #this can then be saved in an array to compare rms error changing with z
+    if rmsornot == 1:
+        return rmsvalue #this can then be saved in an array to compare rms error changing with z
+    else:
+        return 0
 
 def printvaluesvsz(YVALUE,redshift,neutralfractions,labelname):
 
