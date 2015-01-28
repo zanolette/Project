@@ -609,29 +609,28 @@ def PSrmscalc(onex,oney,twox,twoy):
     print onex
     print twox
 
-    xaxis = np.zeros(1) #just to start with, remember that first point is empty
+    xaxis = np.zeros((1)) #just to start with, remember that first point is empty
 
     #this concaterates onex and oney, just not in a nice way
     for i in range(len(onex)):
-        for j in range(len(onex)):
+        for j in range(len(twox)):
             if twox[j] == onex[i]:
-                np.append(xaxis,twox[j])
+                xaxis = np.append(xaxis,twox[j])
                 #order won't matter as both are ordered lists without repeated numbers
 
-    #xaxis = onex & twox #this makes xaxis a list with only shared kvalues
-    xaxis = np.trim_zeros(xaxis, 'b')   #safety measure to cut any trailing zeros
+    xaxis = np.trim_zeros(xaxis)   #safety measure to cut any trailing zeros on either side, so removes the first 0
 
-    print 'number of values compared = ', len(xaxis)
+    print 'fraction of values compared = ', float(len(xaxis))/len(onex)
 
     counter = 0 #this will save (y-y')**2 values to be averaged
 
     #we now want to go to each shared kvalue, find the relevant index, then compare the values at that index
-    for i in range (len(xaxis)-1):  #this is -1 as first point in xaxis is empty
-        indexone = onex.index(xaxis[i+1]) #this finds the index where the shared k value is in both arrays
-        indextwo = twox.index(xaxis[i+1])
+    for i in range (len(xaxis)):  #this is -1 as first point in xaxis is empty
+        indexone = onex.index(xaxis[i]) #this finds the index where the shared k value is in both arrays
+        indextwo = twox.index(xaxis[i])
         counter += (oney[indexone]-twoy[indextwo])**2
 
-    counter = counter/(len(xaxis)-1)  #this averages the values
+    counter =float(counter)/len(xaxis)  #this averages the values
     return np.sqrt(counter)  #this is rms value
 
 ##########################################printing function################################################
