@@ -48,8 +48,8 @@ for fname in glob.glob(path):
     tint = 300.      #interval in seconds
     dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
     totalintegrationtime = 24    #total time in hours
-    daysofscanning = 25
-    timestepsneeded= int(totalintegrationtime * 60 * 60 / tint) # unitlessmeasurement of number of steps needed
+    daysofscanning = 1 # keep as 1 unless you want more than one day.
+    timestepsneeded= 1#int(totalintegrationtime * 60 * 60 / tint) # unitlessmeasurement of number of steps needed
     delta = 90./180. * np.pi    #declination angle
     scaling = 1./(size*dtheta) #the length of one interval in inverse space
 
@@ -63,7 +63,7 @@ for fname in glob.glob(path):
 
 
     # Now we import array positions
-    (dx,dy,dz)=func.importarray('MWA128.txt',lda) #this assumes lda doesn't change too much over slices!!! 'MWAcoordinate.txt''vla.a.cfg' 'MWAhalved.txt''MWA128.txt'
+    (dx,dy,dz)=func.importarray('MWAhalved.txt',lda) #this assumes lda doesn't change too much over slices!!! 'MWAcoordinate.txt''vla.a.cfg' 'MWAhalved.txt''MWA128.txt'
 
 
     #Apply rotation matrix onto baseline vector and maps onto fourier plane.
@@ -151,11 +151,11 @@ for fname in glob.glob(path):
     #IF YOU WANT TO SAVE BOXES FOR LATER ANALYSIS - USE THESE
     #np.save('Experiment/image3D_z%s'%(z),image3D)
     #del image3D
-    np.save('Experiment/image3Dinv_z%s'%(z),image3Dinverse)
+    np.save('Experiment2/image3Dinv_z%s'%(z),image3Dinverse)
     del image3Dinverse
-    np.save('Experiment/sigma3Dinv_z%s'%(z),sigma3Dinverse)
+    np.save('Experiment2/sigma3Dinv_z%s'%(z),sigma3Dinverse)
     del sigma3Dinverse
-    np.save('Experiment/windowedinv_z%s'%(z),Windowedimageinverse)
+    np.save('Experiment2/windowedinv_z%s'%(z),Windowedimageinverse)
     del Windowedimageinverse
     #np.save('Experiment/finalrealimage_z%s'%(z),Windowedimage)
     #del Windowedimage

@@ -79,7 +79,7 @@ for fname in glob.glob(path):
     #func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
 
     #!!printpowerspectrum is for comparing the windowed,non-windowed and 21cm powerspectrums on one graph, but also saves deldelPS's seperately for comparison!!
-    #PSrmsarray[counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
+    PSrmsarray[counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,0)    ##,saves rms error between windowed and 21cm.
 
     #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
     #cutoff = 0.65
@@ -118,7 +118,7 @@ ax1.plot(redshift,averagewindowedimagetemp,redshift,average21cmtemp)
 ax1.set_xlabel("Redshift")
 ax1.set_ylabel("Y QUANTITY")
 
-nf_axis_ticklocations = np.array([1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23]) # in terms of z
+nf_axis_ticklocations = np.array([1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]) # in terms of z
 nfindexes=np.searchsorted(redshift, nf_axis_ticklocations) # finds corresponding indices
 
 ax2 = ax1.twiny() # further x axis corresponding to the same y axis
