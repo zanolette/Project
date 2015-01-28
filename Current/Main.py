@@ -20,6 +20,7 @@ path = "LARGEBOXES/*"
 for fname in glob.glob(path):
 
     box_info = boximport.parse_filename(fname)
+    box = boximport.readbox(fname)
 
     #Define size of view and resolution
     z = box_info['z']
@@ -47,6 +48,7 @@ for fname in glob.glob(path):
     tint = 300.      #interval in seconds
     dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
     totalintegrationtime = 24    #total time in hours
+    daysofscanning = 25
     timestepsneeded= int(totalintegrationtime * 60 * 60 / tint) # unitlessmeasurement of number of steps needed
     delta = 90./180. * np.pi    #declination angle
     scaling = 1./(size*dtheta) #the length of one interval in inverse space
@@ -101,7 +103,7 @@ for fname in glob.glob(path):
         for i in range (size):
             for j in range (size):
                 if UVcount[i][j] != 0:
-                    sigma3Dinverse[slice][i][j] = tsyst/(eps*np.sqrt(UVcount[i][j]*tint*B))       #saved seperately to calculate power spectrum seperately, error eqn according to NRAO course + Pritchard
+                    sigma3Dinverse[slice][i][j] = tsyst/(eps*np.sqrt(UVcount[i][j]*tint*daysofscanning*B))       #saved seperately to calculate power spectrum seperately, error eqn according to NRAO course + Pritchard
                     real=np.random.normal(np.real(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)     #sqrt(2) here as real and imag components share it
                     imaginary = np.random.normal(np.imag(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)
                     image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
@@ -147,16 +149,16 @@ for fname in glob.glob(path):
 
 
     #IF YOU WANT TO SAVE BOXES FOR LATER ANALYSIS - USE THESE
-    np.save('Experiment/image3D_z%s'%(z),image3D)
-    del image3D
+    #np.save('Experiment/image3D_z%s'%(z),image3D)
+    #del image3D
     np.save('Experiment/image3Dinv_z%s'%(z),image3Dinverse)
     del image3Dinverse
     np.save('Experiment/sigma3Dinv_z%s'%(z),sigma3Dinverse)
     del sigma3Dinverse
     np.save('Experiment/windowedinv_z%s'%(z),Windowedimageinverse)
     del Windowedimageinverse
-    np.save('Experiment/finalrealimage_z%s'%(z),Windowedimage)
-    del Windowedimage
+    #np.save('Experiment/finalrealimage_z%s'%(z),Windowedimage)
+    #del Windowedimage
 
     #np.save('image3Darraydim%s,%sMpc,z%s,time%s'%(size,box_info['BoxSize'],z,timestepsneeded),image3D)
     #np.save('sigma3Darraydim%s,%sMpc,z%s,time&s'%(size,box_info['BoxSize'],z,timestepsneeded),sigma3D)

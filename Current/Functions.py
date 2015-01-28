@@ -4,7 +4,6 @@ from matplotlib import ticker
 import matplotlib.pyplot as plt
 import boxio as boximport
 import Cosmo as Cosmo
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 def printgraph (image, xrange, yrange, xlabel, ylabel, scalemin,scalemax):   #generic print function with ranges and labels
     if scalemin == 'None':
@@ -643,7 +642,7 @@ def PSrmscalc(onex,oney,twox,twoy):
 def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwidth,size,dtheta, dx, z,rmsornot):
 
 
-    realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
+    #realps = np.loadtxt('ps_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_100_200Mpc_v2.txt', delimiter='\t')
 
     onek, onepowerspectrum , onedeldel= powerspectrum3D(oneinverse,psdwidth,size,dtheta,dx, z) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
     print 'done imagepowerspectrum'
@@ -670,7 +669,7 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
 
     plt.xlabel('k (MPc$^{-1}$)')
     plt.ylabel('k$^3$ P(k)/2$\pi^2$')
-    plt.savefig('ComparingEorforPS/DELDEL_POWERSPEC_z%i' %z)
+    plt.savefig('ComparingEorforPS/DELDEL_POWERSPEC_z%s.png' %z)
     plt.clf()
 
 
@@ -685,14 +684,14 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
 
     plt.xlabel('k (MPc$^{-1}$)')
     plt.ylabel('P(k)')
-    plt.savefig('ComparingEorforPS/POWERSPEC_z%i' %z)
+    plt.savefig('ComparingEorforPS/POWERSPEC_z%s.png' %z)
     plt.clf()
 
     #saves the windowed image deldelpowerspectrum seperately, so we can choose which ones to plot together against z
     plt.loglog(threek,threedeldel)
     plt.xlabel('k (MPc$^{-1}$)')
     plt.ylabel('k$^3$ P(k)/2$\pi^2$')
-    plt.savefig('Powerspectrums/DELDEL_POWERSPEC_z%i' %z)
+    plt.savefig('Powerspectrums/DELDEL_POWERSPEC_z%s.png' %z)
     plt.clf()
 
     return rmsvalue #this can then be saved in an array to compare rms error changing with z
@@ -706,15 +705,15 @@ def printvaluesvsz(YVALUE,redshift,neutralfractions,labelname):
 
     ax1.plot(redshift,YVALUE)
     ax1.set_xlabel("Redshift")
-    ax1.set_ylabel("Y QUANTITY")
 
     nf_axis_ticklocations = np.array([7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]) # in terms of z
 
     nfindexes=np.searchsorted(redshift, nf_axis_ticklocations) # finds corresponding indices
 
+    ax1.set_ylabel(labelname)
     ax2.set_xticks(nf_axis_ticklocations) # ticks at desires z locations.
     ax2.set_xticklabels(neutralfractions[nfindexes]) # prints nf for each z location
-    ax2.set_xlabel("Neutral Fraction of the Universe")
+    ax2.set_xlabel("Un-ionized Fraction")
 
     plt.savefig('Statisticalvaluesvsz/%s_vsz' %labelname)   #this saves the graph using the string labelname
     plt.clf()

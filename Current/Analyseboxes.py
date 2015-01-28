@@ -11,9 +11,6 @@ import glob
 
 psdwidth = 2
 
-fname = 'delta_T_v2_no_halos_nf0.926446_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.68_100_200Mpc'#'delta_T_v2_no_halos_nf0.932181_z14.00_useTs0_zetaX-1.0e+00_alphaX-1.0_TvirminX-1.0e+00_aveTb30.80_200_400Mpc'#
-box_info = boximport.parse_filename(fname)
-
 #Define size of view and resolution
 # defines our universe
 CosmoUnits=Cosmo.CosmoUnits()
@@ -33,14 +30,19 @@ counter=0   #this is just to help allocate saved values into the arrays
 
 path = "LARGEBOXES/*"
 for fname in glob.glob(path):
-    box=boximport.readbox(fname)
+
+    box_info = boximport.parse_filename(fname)
+    box = boximport.readbox(fname)
+
     twenty1 = box.box_data  #so we have it seperate - this is 3D!
 
-    dx=float(box_info['dim'])/float(box_info['BoxSize'])
+    dl=float(box_info['dim'])/float(box_info['BoxSize'])
     z = box_info['z']
     theta = CosmoUnits.thetaboxsize(z,box_info['BoxSize'])
     size = box_info['dim'] # box size - maybe write a code to get this out of the title of the 21cmfast files
     dtheta = float(theta/size)
+
+    print z
 
     redshift[counter] = z   #saved for later to put labels on axes
     neutralfractions[counter] = box_info['nf']  #saves neutral fraction of this z
@@ -48,7 +50,7 @@ for fname in glob.glob(path):
     #############Load in Files for this z########################################################
 
     image3Dinverse = np.load('Experiment/image3Dinv_z%s.npy' %z)
-    sigma3Dinverse = np.load('Experiment/sigma3Dinv_z%s.npy' %z)
+    #sigma3Dinverse = np.load('Experiment/sigma3Dinv_z%s.npy' %z)
     Windowedimageinverse = np.load('Experiment/windowedinv_z%s.npy' %z)
 
     ###############Calculating fft's################################
@@ -68,6 +70,7 @@ for fname in glob.glob(path):
 
     average21cmtemp[counter] = np.average(twenty1)  #this saves the average 21cm temperature
     averagewindowedimagetemp[counter]=np.average(image3D)   #this saves the average image temperature
+
     rmserrorintemp[counter] = func.rmscalc(twenty1,image3D,size)
 
     #func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
@@ -79,8 +82,8 @@ for fname in glob.glob(path):
     PSrmsarray[counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
 
     #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
-    cutoff = 0.65
-    iterations = 10000
+    #cutoff = 0.65
+    #iterations = 10000
 
     #These functions print the different size distribution analysis methods which we have worked on
     #THIS FUNCTION SHOWS THE PLOT RATHER THAN SAVING - NEED TO CHANGE BEFORE AUTOMATION
@@ -110,19 +113,18 @@ func.printvaluesvsz(rmserrorintemp,redshift,neutralfractions,'rmserrorinTemp')  
 fig = plt.figure()
 
 ax1 = fig.add_subplot(111) # x (z) and y axis
-ax2 = ax1.twiny() # further x axis corresponding to the same y axis
 
 ax1.plot(redshift,averagewindowedimagetemp,redshift,average21cmtemp)
 ax1.set_xlabel("Redshift")
 ax1.set_ylabel("Y QUANTITY")
 
-nf_axis_ticklocations = np.array([7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]) # in terms of z
-
+nf_axis_ticklocations = np.array([1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23]) # in terms of z
 nfindexes=np.searchsorted(redshift, nf_axis_ticklocations) # finds corresponding indices
 
+ax2 = ax1.twiny() # further x axis corresponding to the same y axis
 ax2.set_xticks(nf_axis_ticklocations) # ticks at desires z locations.
 ax2.set_xticklabels(neutralfractions[nfindexes]) # prints nf for each z location
-ax2.set_xlabel("Neutral Fraction of the Universe")
+ax2.set_xlabel("Un-ionized Fraction")
 
 plt.savefig('Statisticalvaluesvsz/averagetemperaturecomparisson')   #this saves the graph using the string labelname
 plt.clf()
