@@ -162,6 +162,43 @@ def powerspectrum3D(fourier3Dbox,width,size,dtheta, dl, z): #here width means ho
     return kaxis, PowerSpectrum, DelDel # delta(k-ko) gives a factor of V - assuming no (2pi)**3 factor - depends on the three dimensional fourier convention -
 
 
+def logbinningforPowerspectrum(K, PofK, DelDel, dl, powerfactor=1.2):
+
+    binlimit = 0.01
+    kbinssize = np.array(binlimit) # first bin limit in k space
+
+    numberofbins = 0
+
+    while binlimit < np.amax(K):
+        binlimit = binlimit**powerfactor # change bin limit
+        kbinssize = np.append(binlimit)
+        numberofbins+=1
+
+    PofKBins = np.zeros(numberofbins-1)
+    DelDelBins = np.zeros(numberofbins -1)
+
+    i=0
+    for j in range(len(kbinssize)-1):
+        if K[i]>binlimit[j] and K[i]<binlimit[j+1]:
+            PofKBins[j]+=PofK[i]
+            DelDelBins[j]+=DelDel[i]
+            i += 1
+            j -= 1
+        else:
+            binlimit[j] = np.sqrt(binlimit[j]*binlimit[j+1])
+
+    k=0
+    while k < (len(PofK)):
+        if PofK[k] == 0.:
+            np.delete(binlimit, k)
+            np.delete(PofK, k)
+            np.delete(DelDel, k)
+        else:
+            k += 1
+    return K, PofK, DelDel  # factor of dl**3 as in volume (element^3) but need MPc^3
+
+
+
 #Method: takes all of the locations and maps out the UV plane completely together with a count
 #We will have to mask it onto the image later.
 def rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size):
@@ -612,9 +649,10 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
 
 #IMPORTANT: this only calcuates the rms between
 def PSrmscalc(onex,oney,twox,twoy):
-    print onex
-    print twox
+    print oney
+    print twoy
 
+    ''' #This is commented as it concatenated the two x axis' but now don't need to as terns out both axis are the same
     xaxis = np.zeros((1)) #just to start with, remember that first point is empty
 
     #this concaterates onex and oney, just not in a nice way
@@ -628,16 +666,22 @@ def PSrmscalc(onex,oney,twox,twoy):
 
 
     print 'fraction of values compared = ', float(len(xaxis))/len(onex)
+    '''
+
+    nanbool = np.isnan(twoy)   #makes an array where all nan index's are True, not is False
+    nanbool[0] = True  #manually set the first element, which is wrong to true so it#ll be ignored by rmscalc
 
     counter = 0 #this will save (y-y')**2 values to be averaged
-
+    Falsecounter = 0    #this gives the number of averaged points, for rms calculation
     #we now want to go to each shared kvalue, find the relevant index, then compare the values at that index
-    for i in range (len(xaxis)):  #this is -1 as first point in xaxis is empty
-        indexone = np.nonzero(onex == xaxis[i])[0][0] #onex.index(xaxis[i]) #this finds the index where the shared k value is in both arrays
-        indextwo = np.nonzero(twox == xaxis[i])[0][0] #twox.index(xaxis[i])
-        counter += (oney[indexone]-twoy[indextwo])**2
+    for i in range (len(twoy)):  #this is -1 as first point in xaxis is empty
+        #indexone = np.nonzero(onex == xaxis[i])[0][0] #onex.index(xaxis[i]) #this finds the index where the shared k value is in both arrays
+        #indextwo = np.nonzero(twox == xaxis[i])[0][0] #twox.index(xaxis[i])
+        if nanbool[i] == False:
+            counter += (oney[i]-twoy[i])**2
+            Falsecounter += 1
 
-    counter =float(counter)/len(xaxis)  #this averages the values
+    counter =float(counter)/Falsecounter  #this averages the values
     return np.sqrt(counter)  #this is rms value
 
 ##########################################printing function################################################
@@ -712,16 +756,15 @@ def printvaluesvsz(YVALUE,redshift,neutralfractions,labelname):
     fig = plt.figure()
 
     ax1 = fig.add_subplot(111) # x (z) and y axis
-    ax2 = ax1.twiny() # further x axis corresponding to the same y axis
 
-    ax1.plot(redshift,YVALUE)
+    ax1.plot(redshift,YVLAUE)
     ax1.set_xlabel("Redshift")
+    ax1.set_ylabel(labelname)
 
-    nf_axis_ticklocations = np.array([7, 9, 11, 13, 15, 17]) # in terms of z
-
+    nf_axis_ticklocations = np.array([1, 5, 9, 13, 17]) # in terms of z
     nfindexes=np.searchsorted(redshift, nf_axis_ticklocations) # finds corresponding indices
 
-    ax1.set_ylabel(labelname)
+    ax2 = ax1.twiny() # further x axis corresponding to the same y axis
     ax2.set_xticks(nf_axis_ticklocations) # ticks at desires z locations.
     ax2.set_xticklabels(neutralfractions[nfindexes]) # prints nf for each z location
     ax2.set_xlabel("Un-ionized Fraction")
