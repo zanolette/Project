@@ -195,9 +195,15 @@ def rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size):
         #plt.show()
 
         H += dH
+    tempcounter = 0 #to get percentage of UV coverage
+    for i in range(size):
+        for j in range(size):
+            if UVcount[i][j] != 0:
+                tempcounter += 1
+    tempcounter = tempcounter/(size**3) #gives percentage
 
     print ("UV Plane Scan Complete, percentage of baselines ignored", (100*countvar/(integrationtime*lenbase)))
-    return (UVcount)
+    return (UVcount), tempcounter
 
 #Method: takes uvplane and takes all non-zero values to 1 to give simple psf
 def psf(dtheta,image,size):
@@ -618,7 +624,8 @@ def PSrmscalc(onex,oney,twox,twoy):
                 xaxis = np.append(xaxis,twox[j])
                 #order won't matter as both are ordered lists without repeated numbers
 
-    xaxis = np.trim_zeros(xaxis)   #safety measure to cut any trailing zeros on either side, so removes the first 0
+    xaxis = np.delete(xaxis,0) # delete intitial 0
+
 
     print 'fraction of values compared = ', float(len(xaxis))/len(onex)
 
@@ -626,8 +633,8 @@ def PSrmscalc(onex,oney,twox,twoy):
 
     #we now want to go to each shared kvalue, find the relevant index, then compare the values at that index
     for i in range (len(xaxis)):  #this is -1 as first point in xaxis is empty
-        indexone = onex.index(xaxis[i]) #this finds the index where the shared k value is in both arrays
-        indextwo = twox.index(xaxis[i])
+        indexone = np.nonzero(onex == xaxis[i])[0][0] #onex.index(xaxis[i]) #this finds the index where the shared k value is in both arrays
+        indextwo = np.nonzero(twox == xaxis[i])[0][0] #twox.index(xaxis[i])
         counter += (oney[indexone]-twoy[indextwo])**2
 
     counter =float(counter)/len(xaxis)  #this averages the values
@@ -663,11 +670,11 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
     #plt.loglog(fourk,fourdeldel)
     plt.loglog(realps[:,0],realps[:,1])
 
-    #plt.ylim(0.00001,100)
-    #plt.xlim(0.02,3)
+    plt.ylim(0.00009,300)
+    plt.xlim(0.01,3)
 
     plt.xlabel('k (MPc$^{-1}$)')
-    plt.ylabel('k$^3$ P(k)/2$\pi^2$')
+    plt.ylabel('k$^3$ P(k)/2$\pi^2$ (mK Mpc$^{-3}$)')
     plt.savefig('ComparingEorforPS/DELDEL_POWERSPEC_z%s.png' %z)
     plt.clf()
 
@@ -678,18 +685,20 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
     #plt.loglog(fourk,fourpowerspectrum)
     plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3)) #Important: here, as with other plot, we have no 2Pi**2 factor
 
-    #plt.ylim(0.02,100000)
-    #plt.xlim(0.02,3)
+    plt.ylim(0.003,450000)
+    plt.xlim(0.01,3)
 
     plt.xlabel('k (MPc$^{-1}$)')
-    plt.ylabel('P(k)')
+    plt.ylabel('P(k) (mK)')
     plt.savefig('ComparingEorforPS/POWERSPEC_z%s.png' %z)
     plt.clf()
 
     #saves the windowed image deldelpowerspectrum seperately, so we can choose which ones to plot together against z
     plt.loglog(threek,threedeldel)
+    plt.ylim(0.003,450000)
+    plt.xlim(0.01,3)
     plt.xlabel('k (MPc$^{-1}$)')
-    plt.ylabel('k$^3$ P(k)/2$\pi^2$')
+    plt.ylabel('k$^3$ P(k)/2$\pi^2$ (mK Mpc$^{-3}$)')
     plt.savefig('Powerspectrums/DELDEL_POWERSPEC_z%s.png' %z)
     plt.clf()
 
@@ -708,7 +717,7 @@ def printvaluesvsz(YVALUE,redshift,neutralfractions,labelname):
     ax1.plot(redshift,YVALUE)
     ax1.set_xlabel("Redshift")
 
-    nf_axis_ticklocations = np.array([7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]) # in terms of z
+    nf_axis_ticklocations = np.array([7, 9, 11, 13, 15, 17]) # in terms of z
 
     nfindexes=np.searchsorted(redshift, nf_axis_ticklocations) # finds corresponding indices
 

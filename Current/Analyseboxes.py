@@ -59,19 +59,19 @@ for fname in glob.glob(path):
     twenty1inverse = np.fft.fftshift(twenty1inverse)
 
     #How we get our image from the fourier transform
-    image3D = np.fft.ifftn(image3Dinverse)
-    image3D = np.abs(image3D)
+    #image3D = np.fft.ifftn(image3Dinverse)
+    #image3D = np.abs(image3D)
 
-    Windowedimage = np.fft.ifftn(Windowedimageinverse)
-    Windowedimage = np.abs(Windowedimage)   #abs or real?
+    #Windowedimage = np.fft.ifftn(Windowedimageinverse)
+    #Windowedimage = np.abs(Windowedimage)   #abs or real?
 
 
     ##################Calculating and saving statistical values############################
 
-    average21cmtemp[counter] = np.average(twenty1)  #this saves the average 21cm temperature
-    averagewindowedimagetemp[counter]=np.average(image3D)   #this saves the average image temperature
+    #average21cmtemp[counter] = np.average(twenty1)  #this saves the average 21cm temperature
+    #averagewindowedimagetemp[counter]=np.average(Windowedimage)   #this saves the average image temperature
 
-    rmserrorintemp[counter] = func.rmscalc(twenty1,image3D,size)
+    #rmserrorintemp[counter] = func.rmscalc(twenty1,Windowedimage,size)
 
     #func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
 
@@ -79,7 +79,7 @@ for fname in glob.glob(path):
     #func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
 
     #!!printpowerspectrum is for comparing the windowed,non-windowed and 21cm powerspectrums on one graph, but also saves deldelPS's seperately for comparison!!
-    PSrmsarray[counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,0)    ##,saves rms error between windowed and 21cm.
+    PSrmsarray[counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
 
     #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
     #cutoff = 0.65
@@ -105,7 +105,8 @@ for fname in glob.glob(path):
 #printing z and neutral fraction on two x axes
 #ASSUMES - 3 numpy arrays - z, neutrlfractions and YVALUE
 
-#func.printvaluesvsz(PSrmsarray,redshift,neutralfractions,'rmserrorforPS')   #error in powerspectrum vs z
+func.printvaluesvsz(PSrmsarray,redshift,neutralfractions,'rmserrorforPS')   #error in powerspectrum vs z
+'''
 func.printvaluesvsz(rmserrorintemp,redshift,neutralfractions,'rmserrorinTemp')  #error in temp vs z
 
 
@@ -118,7 +119,7 @@ ax1.plot(redshift,averagewindowedimagetemp,redshift,average21cmtemp)
 ax1.set_xlabel("Redshift")
 ax1.set_ylabel("Y QUANTITY")
 
-nf_axis_ticklocations = np.array([1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]) # in terms of z
+nf_axis_ticklocations = np.array([7, 9, 11, 13, 15, 17]) # in terms of z
 nfindexes=np.searchsorted(redshift, nf_axis_ticklocations) # finds corresponding indices
 
 ax2 = ax1.twiny() # further x axis corresponding to the same y axis
@@ -129,3 +130,4 @@ ax2.set_xlabel("Un-ionized Fraction")
 plt.savefig('Statisticalvaluesvsz/averagetemperaturecomparisson')   #this saves the graph using the string labelname
 plt.clf()
 
+'''

@@ -67,8 +67,8 @@ for fname in glob.glob(path):
 
 
     #Apply rotation matrix onto baseline vector and maps onto fourier plane.
-    UVcount = func.rotationmatrix(dx, dy, dz, scaling, H, dH, timestepsneeded, delta, size)
-
+    UVcount,uvcoveragepercentage = func.rotationmatrix(dx, dy, dz, scaling, H, dH, timestepsneeded, delta, size)
+    print 'UV coverage percentage at z = %s is' %z, uvcoveragepercentage
 
     # need to make sure this is correct according to pritchard - noise on complex thing
     tsyst = 50000 + 60000*((1+z)/4.73)**2.55  #(mK) this is from "Probing . . . with the SKA" MG Santos
@@ -121,7 +121,7 @@ for fname in glob.glob(path):
     Windowedimage = np.fft.ifftn(Windowedimageinverse)
     Windowedimage = np.abs(Windowedimage)   #abs or real?
 
-    #func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
+    func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
 
     #This function compared the phases of the real and imaginary
     #func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
