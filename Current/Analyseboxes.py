@@ -107,12 +107,13 @@ for fname in glob.glob(path):
 #printing z and neutral fraction on two x axes
 #ASSUMES - 3 numpy arrays - z, neutrlfractions and YVALUE
 
-#func.printvaluesvsz(PSrmsarray,redshift,neutralfractions,'rmserrorforPS')   #error in powerspectrum vs z
+#func.printvaluesvsz(PSrmsarray,redshift,neutralfractions,'PowerSpectrum (mK)')   #error in powerspectrum vs z
+#################is this P(k) or DelDel??????? if so then need to change units to mK Mpc^-3########################
 
 
 
 
-func.printvaluesvsz(rmserrorintemp,redshift,neutralfractions,'rmserrorinTemp')  #error in temp vs z
+func.printvaluesvsz(rmserrorintemp,redshift,neutralfractions,'Temperature (mK)')  #error in temp vs z
 
 
 ###############This shows both 21cm and windowed image average temperatures varying with time

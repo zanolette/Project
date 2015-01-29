@@ -164,37 +164,37 @@ def powerspectrum3D(fourier3Dbox,width,size,dtheta, dl, z): #here width means ho
 
 def logbinningforPowerspectrum(K, PofK, DelDel, dl, powerfactor=1.2):
 
-    binlimit = 0.01
-    kbinssize = np.array(binlimit) # first bin limit in k space
+    binlimit = 0.01 #this is first bin limit in k space
+    kbinssize = np.array(binlimit) #this will hold the bin edges
 
     numberofbins = 0
 
     while binlimit < np.amax(K):
-        binlimit = binlimit**powerfactor # change bin limit
-        kbinssize = np.append(binlimit)
+        binlimit = binlimit**powerfactor # change bin limit logrithmically
+        kbinssize = np.append(binlimit) #saves new bin limit
         numberofbins+=1
 
-    PofKBins = np.zeros(numberofbins-1)
-    DelDelBins = np.zeros(numberofbins -1)
+    PofKBins = np.zeros(numberofbins-1) #stores new summed P(k)
+    DelDelBins = np.zeros(numberofbins -1)  ##stores new summed DelDel
 
-    i=0
-    for j in range(len(kbinssize)-1):
-        if K[i]>binlimit[j] and K[i]<binlimit[j+1]:
+    i=0 #this is the index for K
+    for j in range(len(kbinssize)-1):   #goes over each bin
+        if K[i]>binlimit[j] and K[i]<binlimit[j+1]: #if K[i] is in bin, put it in
             PofKBins[j]+=PofK[i]
             DelDelBins[j]+=DelDel[i]
-            i += 1
-            j -= 1
+            i += 1  #advance i so that we can look at next k
+            j -= 1  #reduce j so that we can look at the next k in the same bin
         else:
-            binlimit[j] = np.sqrt(binlimit[j]*binlimit[j+1])
+            binlimit[j] = np.sqrt(binlimit[j]*binlimit[j+1])    #when we move onto the next bin, defines new intermediate k value
 
-    k=0
+    k=0 #k is the integer counter
     while k < (len(PofK)):
         if PofK[k] == 0.:
-            np.delete(binlimit, k)
+            np.delete(binlimit, k)  #if PofK[k] is zero then want to delete all 3 elements, leaving only non-0 values
             np.delete(PofK, k)
             np.delete(DelDel, k)
         else:
-            k += 1
+            k += 1  #if not 0 then looks at the next PofK[k]
     return K, PofK, DelDel  # factor of dl**3 as in volume (element^3) but need MPc^3
 
 
@@ -757,9 +757,9 @@ def printvaluesvsz(YVALUE,redshift,neutralfractions,labelname):
 
     ax1 = fig.add_subplot(111) # x (z) and y axis
 
-    ax1.plot(redshift,YVLAUE)
+    ax1.plot(redshift,YVALUE)
     ax1.set_xlabel("Redshift")
-    ax1.set_ylabel(labelname)
+    ax1.set_ylabel('RMS Error in', labelname)
 
     nf_axis_ticklocations = np.array([1, 5, 9, 13, 17]) # in terms of z
     nfindexes=np.searchsorted(redshift, nf_axis_ticklocations) # finds corresponding indices
