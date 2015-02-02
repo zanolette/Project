@@ -159,10 +159,12 @@ def powerspectrum3D(fourier3Dbox,width,size,dtheta, dl, z): #here width means ho
 
     kaxis = np.arange(0,kmax+(kmax)/rsize,(kmax)/rsize) # rmax steps on the kaxis - ranging from 0 to kmax
 
-    return kaxis, PowerSpectrum, DelDel # delta(k-ko) gives a factor of V - assuming no (2pi)**3 factor - depends on the three dimensional fourier convention -
+    return logbinningforPowerspectrum(kaxis, PowerSpectrum, DelDel, dl, 1.2) # delta(k-ko) gives a factor of V - assuming no (2pi)**3 factor - depends on the three dimensional fourier convention -
 
 
 def logbinningforPowerspectrum(K, PofK, DelDel, dl, powerfactor=1.2):
+
+    print 'started the log binning'
 
     binlimit = 0.01 #this is first bin limit in k space
     kbinssize = np.array(binlimit) #this will hold the bin edges
@@ -170,32 +172,51 @@ def logbinningforPowerspectrum(K, PofK, DelDel, dl, powerfactor=1.2):
     numberofbins = 0
 
     while binlimit < np.amax(K):
-        binlimit = binlimit**powerfactor # change bin limit logrithmically
-        kbinssize = np.append(binlimit) #saves new bin limit
-        numberofbins+=1
+        if binlimit < 0.99:
+            binlimit = binlimit**(1/powerfactor) # change bin limit logrithmically
+            kbinssize = np.append(kbinssize, binlimit) #saves new bin limit
+            numberofbins+=1
+        elif binlimit <= 1:
+            print "JUMMMP"
+            binlimit = 1.01
+            kbinssize = np.append(kbinssize, binlimit) #saves new bin limit
+            numberofbins+=1
+        else:
+            binlimit = binlimit**(powerfactor) # change bin limit logrithmically
+            kbinssize = np.append(kbinssize, binlimit) #saves new bin limit
+            numberofbins+=1
+    print 'made all the k bin limits'
 
-    PofKBins = np.zeros(numberofbins-1) #stores new summed P(k)
-    DelDelBins = np.zeros(numberofbins -1)  ##stores new summed DelDel
+    PofKBins = np.zeros(numberofbins) #stores new summed P(k)
+    DelDelBins = np.zeros(numberofbins)  ##stores new summed DelDel
 
     i=0 #this is the index for K
+
     for j in range(len(kbinssize)-1):   #goes over each bin
-        if K[i]>binlimit[j] and K[i]<binlimit[j+1]: #if K[i] is in bin, put it in
+        if K[i]>=kbinssize[j] and K[i]<kbinssize[j+1]: #if K[i] is in bin, put it in
+            #its never here!!!
             PofKBins[j]+=PofK[i]
+            print PofKBins[j]
             DelDelBins[j]+=DelDel[i]
             i += 1  #advance i so that we can look at next k
             j -= 1  #reduce j so that we can look at the next k in the same bin
         else:
-            binlimit[j] = np.sqrt(binlimit[j]*binlimit[j+1])    #when we move onto the next bin, defines new intermediate k value
+            kbinssize[j] = np.sqrt(kbinssize[j]*kbinssize[j+1])    #when we move onto the next bin, defines new intermediate k value
+    print 'Binning complete'
 
     k=0 #k is the integer counter
+
     while k < (len(PofK)):
         if PofK[k] == 0.:
-            np.delete(binlimit, k)  #if PofK[k] is zero then want to delete all 3 elements, leaving only non-0 values
-            np.delete(PofK, k)
-            np.delete(DelDel, k)
+            kbinssize=np.delete(kbinssize, k)  #if PofK[k] is zero then want to delete all 3 elements, leaving only non-0 values
+            PofKBins=np.delete(PofKBins, k)
+            DelDelBins=np.delete(DelDelBins, k)
         else:
             k += 1  #if not 0 then looks at the next PofK[k]
-    return K, PofK, DelDel  # factor of dl**3 as in volume (element^3) but need MPc^3
+
+    kbinssize=np.delete(kbinssize, (np.size(kbinssize)-1)) # delete the top box which doesnt refer to anything
+    print kbinssize, PofKBins, DelDelBins
+    return kbinssize, PofKBins, DelDelBins  # factor of dl**3 as in volume (element^3) but need MPc^3
 
 
 

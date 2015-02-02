@@ -63,7 +63,7 @@ for fname in glob.glob(path):
 
 
     # Now we import array positions
-    (dx,dy,dz)=func.importarray('MWAhalved.txt',lda) #this assumes lda doesn't change too much over slices!!! 'MWAcoordinate.txt''vla.a.cfg' 'MWAhalved.txt''MWA128.txt'
+    (dx,dy,dz)=func.importarray('LOFAR23CoreLB.txt',lda) #this assumes lda doesn't change too much over slices!!! 'MWAcoordinate.txt''vla.a.cfg' 'MWAhalved.txt''MWA128.txt'
 
 
     #Apply rotation matrix onto baseline vector and maps onto fourier plane.
@@ -151,11 +151,11 @@ for fname in glob.glob(path):
     #IF YOU WANT TO SAVE BOXES FOR LATER ANALYSIS - USE THESE
     #np.save('Experiment/image3D_z%s'%(z),image3D)
     #del image3D
-    np.save('Experiment2/image3Dinv_z%s'%(z),image3Dinverse)
+    np.save('Experiment/image3Dinv_z%s'%(z),image3Dinverse)
     del image3Dinverse
-    np.save('Experiment2/sigma3Dinv_z%s'%(z),sigma3Dinverse)
+    np.save('Experiment/sigma3Dinv_z%s'%(z),sigma3Dinverse)
     del sigma3Dinverse
-    np.save('Experiment2/windowedinv_z%s'%(z),Windowedimageinverse)
+    np.save('Experiment/windowedinv_z%s'%(z),Windowedimageinverse)
     del Windowedimageinverse
     #np.save('Experiment/finalrealimage_z%s'%(z),Windowedimage)
     #del Windowedimage

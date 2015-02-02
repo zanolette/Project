@@ -4,10 +4,11 @@
 import numpy as np
 
 class CosmoUnits:   #all except thetaboxsize are ratio's or in MPc, but for angles need to remember rad - degrees
+    #Fitted to same values as 21cmfast Cosmology.h
     def __init__(self,
-                 H0=69.6,           # Hubble Constant
-                 omega_m=0.286,     # Mass Density
-                 omega_l=0.714):    # Dark energy Density
+                 H0=70.0,           # Hubble Constant
+                 omega_m=0.28,     # Mass Density
+                 omega_l=0.72):    # Dark energy Density
 
         self.H0 = float(H0)
         self.omega_m = float(omega_m)
