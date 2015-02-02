@@ -47,9 +47,9 @@ for fname in glob.glob(path):
 
     #############Load in Files for this z########################################################
 
-    image3Dinverse = np.load('Experiment/image3Dinv_z%s.npy' %z)
+    #image3Dinverse = np.load('Experiment/image3Dinv_z%s.npy' %z)
     #sigma3Dinverse = np.load('Experiment/sigma3Dinv_z%s.npy' %z)
-    #Windowedimageinverse = np.load('Experiment/windowedinv_z%s.npy' %z)
+    Windowedimageinverse = np.load('Experiment/windowedinv_z%s.npy' %z)
 
     ###############Calculating fft's################################
 
@@ -57,19 +57,19 @@ for fname in glob.glob(path):
     #twenty1inverse = np.fft.fftshift(twenty1inverse)
 
     #How we get our image from the fourier transform
-    image3D = np.fft.ifftn(image3Dinverse)
-    image3D = np.abs(image3D)
+    #image3D = np.fft.ifftn(image3Dinverse)
+    #image3D = np.abs(image3D)
 
-    #Windowedimage = np.fft.ifftn(Windowedimageinverse)
-    #Windowedimage = np.abs(Windowedimage)   #abs or real?
+    Windowedimage = np.fft.ifftn(Windowedimageinverse)
+    Windowedimage = np.abs(Windowedimage)   #abs or real?
 
 
     ##################Calculating and saving statistical values############################
 
     average21cmtemp[counter] = np.average(twenty1)  #this saves the average 21cm temperature
-    averagewindowedimagetemp[counter]=np.average(image3D)   #this saves the average image temperature
+    averagewindowedimagetemp[counter]=np.average(Windowedimage)   #this saves the average image temperature
 
-    rmserrorintemp[counter] = func.rmscalc(twenty1,image3D,size)
+    rmserrorintemp[counter] = func.rmscalc(twenty1,Windowedimage,size)
 
     print 'z', z, 'temp',average21cmtemp[counter],averagewindowedimagetemp[counter], 'rms', rmserrorintemp[counter]
 
