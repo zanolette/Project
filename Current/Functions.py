@@ -288,15 +288,19 @@ def psfcrosssection(dtheta, image,size):
     plt.xlabel('theta')
     plt.show()
 
-#calcuates the rms difference between image and 21cmFAST file
+#calcuates the rms  between each pixel away from average value image and 21cmFAST file - dimensionless
 def rmscalc (twenty1cm,image3D,max):
 
     squaredcount = 0    #counts x**2 + y**2
+    twenty1average = np.average(twenty1cm)  #these are our average values
+    twenty1var = np.var(twenty1cm)
+    imagevar = np.var(image3D)
+    imageaverage = np.average(image3D)
 
     for i in range(max):
         for j in range(max):
             for k in range(max):
-                squaredcount += (np.real(image3D[i][j][k]) - twenty1cm[i][j][k])**2
+                squaredcount += ((image3D[i][j][k]-imageaverage)/imagevar - (twenty1cm[i][j][k]-twenty1average)/twenty1var)**2
 
     squaredcount = squaredcount/(max**3)    #divided by volume to get average
     return np.sqrt(squaredcount)
@@ -647,8 +651,9 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
 
     return Windowedimageinv
 
-#IMPORTANT: this only calcuates the rms between
+#IMPORTANT: calcuates the rms between the two PS,  divided by 21cm PS to get unitless ratio of rms to real value
 def PSrmscalc(onex,oney,twox,twoy):
+    #currently (2.2.15) one is 21cm, two is windowed image
     print oney
     print twoy
 
@@ -678,7 +683,7 @@ def PSrmscalc(onex,oney,twox,twoy):
         #indexone = np.nonzero(onex == xaxis[i])[0][0] #onex.index(xaxis[i]) #this finds the index where the shared k value is in both arrays
         #indextwo = np.nonzero(twox == xaxis[i])[0][0] #twox.index(xaxis[i])
         if nanbool[i] == False:
-            counter += (oney[i]-twoy[i])**2
+            counter += (1.- twoy[i]/oney[i])**2 #this is rms difference divided by 21cm value to give dimensionless
             Falsecounter += 1
 
     counter =float(counter)/Falsecounter  #this averages the values
@@ -718,7 +723,7 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
     plt.xlim(0.01,3)
 
     plt.xlabel('k (MPc$^{-1}$)')
-    plt.ylabel('k$^3$ P(k)/2$\pi^2$ (mK Mpc$^{-3}$)')
+    plt.ylabel('k$^3$ P(k)/2$\pi^2$ (mK$^2$)')
     plt.savefig('ComparingEorforPS/DELDEL_POWERSPEC_z%s.png' %z)
     plt.clf()
 
@@ -733,7 +738,7 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
     plt.xlim(0.01,3)
 
     plt.xlabel('k (MPc$^{-1}$)')
-    plt.ylabel('P(k) (mK)')
+    plt.ylabel('P(k) (mK$^2$ Mpc$^3$)')
     plt.savefig('ComparingEorforPS/POWERSPEC_z%s.png' %z)
     plt.clf()
 
