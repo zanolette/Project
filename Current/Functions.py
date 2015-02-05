@@ -92,6 +92,54 @@ def powerspectrumevolution(data,width,size,dtheta):
 
         print i
 
+#this takes a 3D fourier space, plots k parrallel vs k perpendicular (remember kperp = sqrt(kx**2 + ky**2),kparr = kz)
+def kperpvskparrgraph(data,width,size,dl):
+
+    length = 1 + int(np.sqrt(.5*size**2/width))
+    dataarray = np.zeros((length,size))  #creates our kperp vs kparr values, value at element is the average PS at that point
+
+    for i in range (size):
+        dataarray[:][i] = powerspectrum2D(data[:][:][i], width, size)   #this returns the 1D array of averaged k perpendicular values, for that kparr
+
+    #want axis not in element steps, but in k steps (both axis), but both axis different lengths
+    rparrsize = size    #or could be size/2. if we want abs(kparr) . . .
+    kparrmax = 1./dl
+    kparraxis = np.arange(0,kparrmax+kparrmax/rparrsize,kparrmax/rparrsize) # rmax steps on the kparrallelaxis
+
+    rperpsize = int(np.sqrt(.5*size**2/width))  #or + 1??
+    kperpmax = np.sqrt(2*((1./(2*float(dl)))**2))
+    kperpaxis = np.arange(0,kperpmax+kperpmax/rperpsize,kperpmax/rperpsize) # rmax steps on the kperpendicularaxis
+
+
+
+
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(111) # x (z) and y axis
+
+    ax1.imshow(dataarray,cmap='jet',interpolation='nearest')    #is this right?
+    ax1.set_xlabel('k Parrallel (MPc$^{-1}$)')
+    ax1.set_ylabel('k Perpendicular (MPc$^{-1}$)')
+    #resize axis how?
+
+    #########This commented section is the print NF thing from below copied to help maybe
+    '''
+    nf_axis_ticklocations = np.array([1, 5, 9, 13, 17]) # in terms of z
+    nfindexes=np.searchsorted(redshift, nf_axis_ticklocations) # finds corresponding indices
+
+    ax2 = ax1.twiny() # further x axis corresponding to the same y axis
+    ax2.set_xticks(nf_axis_ticklocations) # ticks at desires z locations.
+    ax2.set_xticklabels(neutralfractions[nfindexes]) # prints nf for each z location
+    ax2.set_xlabel("Un-ionized Fraction")
+    '''
+
+
+
+
+    plt.savefig('KperpvsKparr')
+    plt.clf()
+
+
 ##2D PS Calculation##
 #starts at rmax, adds all pixel counts for sqrt(x^2 + y^2) < r and number of pixels counted
 def powerspectrum2D(data,width,size): #here width means how many pixels wide each band is
@@ -108,7 +156,7 @@ def powerspectrum2D(data,width,size): #here width means how many pixels wide eac
 
             countarray[1][r] += 1   #adds 1 to count, used to average
             countarray[0][r] += data[i][j]
-
+            #do we want deldel??
     return countarray[0]/countarray[1]
 
 ##3D PS Calculation##
