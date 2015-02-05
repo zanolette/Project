@@ -113,7 +113,10 @@ def powerspectrum2D(data,width,size): #here width means how many pixels wide eac
 
 ##3D PS Calculation##
 #IF YOU WANT WEDGE MASKED, CALL func.EORWINDOW BEFORE SENDING IMAGE INTO THIS FUNCTION
-def powerspectrum3D(fourier3Dbox,width,size,dtheta, dl, z): #here width means how many pixels wide each band is
+def powerspectrum3D(fourier3Dbox,width,size,dtheta, dl, z,cornercorrection): #here width means how many pixels wide each band is
+
+    #cornercorretion == 1 means that we do not count the outermost corners of k space to our powerspectrum
+    # this is because there a very few points and statistics are poor.
 
     # RECAP - WE GET A BOX THAT HAS REAL SPACE SMALL UNITS OF DX (MPC), HENCE K SPACE LARGEST SIZE IS 1/DX (MPC^-1) - HENCE THE FOLLOWING FOR KMAX:
     kmax = np.sqrt(3*((1./(2*float(dl)))**2)) #finds kmax (from centre to outer corner) for a k space that is 1/2dl large
@@ -151,20 +154,22 @@ def powerspectrum3D(fourier3Dbox,width,size,dtheta, dl, z): #here width means ho
     PowerSpectrum = countarray[0]/(countarray[1]*size**3)   # have to divide by V    #  (2*np.pi)**3/(2*np.pi**2)
     DelDel = countarray[2]/(countarray[1]*size**3)
 
-
-
-
     #print 'the smallest steps are equal to '
     #print dtheta*kscalefactor
 
     kaxis = np.arange(0,kmax+(kmax)/rsize,(kmax)/rsize) # rmax steps on the kaxis - ranging from 0 to kmax
 
-    return logbinningforPowerspectrum(kaxis, PowerSpectrum, DelDel, dl, 1.2) # delta(k-ko) gives a factor of V - assuming no (2pi)**3 factor - depends on the three dimensional fourier convention -
+    # removes the highest k points from powerspectrum if cornercorrection == 1, this is due to their statistical inaccuracy
+
+    if cornercorrection == 1:
+        kaxis = np.delete(kaxis, (len(kaxis)-1))
+        PowerSpectrum = np.delete(PowerSpectrum, (len(PowerSpectrum)-1))
+        DelDel = np.delete(DelDel, (len(DelDel)-1))
+
+    return logbinningforPowerspectrum(kaxis, PowerSpectrum, DelDel, dl, 1.5) # delta(k-ko) gives a factor of V - assuming no (2pi)**3 factor - depends on the three dimensional fourier convention -
 
 
 def logbinningforPowerspectrum(K, PofK, DelDel, dl, powerfactor=1.2):
-
-    print 'started the log binning'
 
     binlimit = 0.01 #this is first bin limit in k space
     kbinssize = np.array(binlimit) #this will hold the bin edges
@@ -173,11 +178,10 @@ def logbinningforPowerspectrum(K, PofK, DelDel, dl, powerfactor=1.2):
 
     while binlimit < np.amax(K):
         if binlimit < 0.99:
-            binlimit = binlimit**(1/powerfactor) # change bin limit logrithmically
+            binlimit = binlimit**(1/(1.1)) # change bin limit logrithmically
             kbinssize = np.append(kbinssize, binlimit) #saves new bin limit
             numberofbins+=1
-        elif binlimit <= 1:
-            print "JUMMMP"
+        elif binlimit <= 1: # jumps accross 1 for log asymptote
             binlimit = 1.01
             kbinssize = np.append(kbinssize, binlimit) #saves new bin limit
             numberofbins+=1
@@ -185,29 +189,33 @@ def logbinningforPowerspectrum(K, PofK, DelDel, dl, powerfactor=1.2):
             binlimit = binlimit**(powerfactor) # change bin limit logrithmically
             kbinssize = np.append(kbinssize, binlimit) #saves new bin limit
             numberofbins+=1
-    print 'made all the k bin limits'
 
-    PofKBins = np.zeros(numberofbins) #stores new summed P(k)
-    DelDelBins = np.zeros(numberofbins)  ##stores new summed DelDel
+    kbinssize= np.insert(kbinssize, 0, 0.) # insert 0 point.
+
+    PofKBins = np.zeros(numberofbins+1) #stores new summed P(k) # needs one more as we have inserted 0.
+    DelDelBins = np.zeros(numberofbins+1)  ##stores new summed DelDel
 
     i=0 #this is the index for K
-
-    for j in range(len(kbinssize)-1):   #goes over each bin
+    j=0
+    countsperbin=0
+    while j < len(kbinssize)-1 and i < len(K):   #goes over each bin
         if K[i]>=kbinssize[j] and K[i]<kbinssize[j+1]: #if K[i] is in bin, put it in
             #its never here!!!
             PofKBins[j]+=PofK[i]
-            print PofKBins[j]
             DelDelBins[j]+=DelDel[i]
             i += 1  #advance i so that we can look at next k
-            j -= 1  #reduce j so that we can look at the next k in the same bin
+            countsperbin+=1
         else:
             kbinssize[j] = np.sqrt(kbinssize[j]*kbinssize[j+1])    #when we move onto the next bin, defines new intermediate k value
-    print 'Binning complete'
+            if countsperbin != 0:
+                PofKBins[j] = PofKBins[j]/countsperbin # find average value in a bin once finished adding to that bin.
+                DelDelBins[j] = DelDelBins[j]/countsperbin
+                countsperbin=0 #reset the number of counts for an added bin.
+            j += 1 # move to next bin
 
     k=0 #k is the integer counter
-
-    while k < (len(PofK)):
-        if PofK[k] == 0.:
+    while k < (len(PofKBins)):
+        if PofKBins[k] == 0.:
             kbinssize=np.delete(kbinssize, k)  #if PofK[k] is zero then want to delete all 3 elements, leaving only non-0 values
             PofKBins=np.delete(PofKBins, k)
             DelDelBins=np.delete(DelDelBins, k)
@@ -215,7 +223,6 @@ def logbinningforPowerspectrum(K, PofK, DelDel, dl, powerfactor=1.2):
             k += 1  #if not 0 then looks at the next PofK[k]
 
     kbinssize=np.delete(kbinssize, (np.size(kbinssize)-1)) # delete the top box which doesnt refer to anything
-    print kbinssize, PofKBins, DelDelBins
     return kbinssize, PofKBins, DelDelBins  # factor of dl**3 as in volume (element^3) but need MPc^3
 
 
@@ -551,7 +558,7 @@ def secondbubbledistributioncalculator(image,size, thresholdfraction,dl,iteratio
 
     cutoff = thresholdfraction*np.average(image)     #this is cutoff threshold based on average temp
 
-    print 'temperature cutoff is', cutoff
+    #print 'temperature cutoff is', cutoff
 
     rmax = np.sqrt(3*size**2)
     meanfreepathdistribution = np.zeros(rmax)   #this is rmax long as that is largest possible bubble size
@@ -592,6 +599,8 @@ def secondbubbledistributioncalculator(image,size, thresholdfraction,dl,iteratio
             #this is adding 1 to the element who's index corresponds to the free path radius
             meanfreepathdistribution[freepath] += 1
             counter += 1
+            #if counter%1000==0:
+             #   print counter
 
 
 
@@ -636,7 +645,8 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
 
     #print 'parkis', parrkcutoff
 
-
+    Niquist = Windowedimageinv[ci][ci][ci]
+    '''
     centre = np.zeros((27),dtype=complex)
     counter = 0
 
@@ -649,7 +659,7 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
                 #print Windowedimageinv[i][j][k]
 
                 counter += 1
-
+    '''
 
     for i in range(size):
         for j in range (size):
@@ -661,7 +671,7 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
                     Windowedimageinv[i][j][k]=0.+0.j#np.nan
                 elif np.abs(k-ci) < kperp*H0*Dz*E*theta0/(c*(1+z)*ktorratio):    #abs as kparrallel = abs(kz)
                     Windowedimageinv[i][j][k]=0.+0.j#np.nan
-
+    '''
     #replaces the central DC cube
     counter=0
     for i in range (ci -1,ci +2,1):
@@ -669,14 +679,15 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
             for k in range (ci -1,ci +2,1):
                 Windowedimageinv[i][j][k] = centre[counter]
                 counter += 1
-
+    '''
+    Windowedimageinv[ci][ci][ci]=Niquist
     return Windowedimageinv
 
 #IMPORTANT: calcuates the rms between the two PS,  divided by 21cm PS to get unitless ratio of rms to real value
 def PSrmscalc(onex,oney,twox,twoy):
     #currently (2.2.15) one is 21cm, two is windowed image
-    print oney
-    print twoy
+    #print oney
+    #print twoy
 
     ''' #This is commented as it concatenated the two x axis' but now don't need to as terns out both axis are the same
     xaxis = np.zeros((1)) #just to start with, remember that first point is empty
@@ -720,13 +731,13 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
 
     realps = np.loadtxt('PowerSpectrumFiles/PS%s'%z, delimiter='\t')
 
-    onek, onepowerspectrum , onedeldel= powerspectrum3D(oneinverse,psdwidth,size,dtheta,dx, z) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
+    onek, onepowerspectrum , onedeldel= powerspectrum3D(oneinverse,psdwidth,size,dtheta,dx, z,0) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
     print 'done imagepowerspectrum'
-    twok, twopowerspectrum , twodeldel= powerspectrum3D(twoinverse,psdwidth,size,dtheta, dx, z)
+    twok, twopowerspectrum , twodeldel= powerspectrum3D(twoinverse,psdwidth,size,dtheta, dx, z,1)
     print 'done sigmapowerspectrum'
-    threek, threepowerspectrum, threedeldel= powerspectrum3D(threeinverse,psdwidth,size,dtheta,dx, z)
+    threek, threepowerspectrum, threedeldel= powerspectrum3D(threeinverse,psdwidth,size,dtheta,dx, z,0)
     print 'done twenty1powerspectrum'
-    #fourk, fourpowerspectrum, fourdeldel= powerspectrum3D(fourinverse,psdwidth,size,dtheta,dx, z)
+    #fourk, fourpowerspectrum, fourdeldel= powerspectrum3D(fourinverse,psdwidth,size,dtheta,dx, z,0)
     #print 'done twenty1powerspectrum'
 
     if rmsornot == 1:   #will pass in either 1 or 0 as to wether we want to calculate this
@@ -824,9 +835,43 @@ def printmeanfreepathdist(image3D, twenty1, size, dl, cutoff, iterations):
     figure= plt.loglog(imagemeanpathx,imagemeanpathdist)
     plt.loglog(twenty1meanpathx,twenty1meanpathdist)
 
+    '''
     plt.xlabel('Ionised Volume (MPc$^{3}$)')
     plt.ylabel('Probability')
     plt.xlim(2,100000)
     plt.ylim(0.000007,1)
     plt.show()
+    '''
+    #mean21,median21,uqmean21 = meanfreepathstatistics(twenty1meanpathx,twenty1meanpathdist)  #this sends the bubble distribution yaxis to be averaged
+    #meanimage, medianimage,uqmeanimage = meanfreepathstatistics(imagemeanpathx,imagemeanpathdist)
+    #returned below in the form seen above
 
+    return meanfreepathstatistics(twenty1meanpathx,twenty1meanpathdist),meanfreepathstatistics(imagemeanpathx,imagemeanpathdist)     #this gives us back the mean for this z
+
+def meanfreepathstatistics(xdata,ydata): #data is just the bubble size x values
+
+    length = len(xdata)
+
+    medianfound=False
+    mean = 0
+    weightedmean = 0 #walleymean is a weighted average again. i.e. a walleymean
+    upperquartilemean = 0.
+    upperquartilecounter = 0.
+    distributioncounter=0.
+
+    for i in range (length):
+        mean += xdata[i]*ydata[i] #this is usual mean - y data is the distribution so weighting
+        weightedmean += xdata[i]*xdata[i]*ydata[i]
+        distributioncounter += ydata[i]
+        if distributioncounter > 0.75: # start finding mean once we are in the upper quartile
+            upperquartilemean += xdata[i]*ydata[i]
+            upperquartilecounter += ydata[i]
+        if distributioncounter >= 0.5 and medianfound == False:
+        # define median as first time distribution counter is above 0.5 // not quite correct but should be fine.
+            median = xdata[i]
+            medianfound = True
+            print 'at distribution', distributioncounter, 'our medianish is ', median
+
+    upperquartilemean = upperquartilemean/upperquartilecounter
+
+    return mean, median, upperquartilemean, weightedmean/mean

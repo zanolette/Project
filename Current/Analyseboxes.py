@@ -9,7 +9,7 @@ import glob
 
 ###############################Taken from Main#################################
 
-psdwidth = 2
+psdwidth = 1
 
 #Define size of view and resolution
 # defines our universe
@@ -47,31 +47,31 @@ for fname in glob.glob(path):
 
     #############Load in Files for this z########################################################
 
-    image3Dinverse = np.load('ExperimentMWA128-24Hours/image3Dinv_z%s.npy' %z)
-    sigma3Dinverse = np.load('ExperimentMWA128-24Hours/sigma3Dinv_z%s.npy' %z)
-    Windowedimageinverse = np.load('ExperimentMWA128-24Hours/windowedinv_z%s.npy' %z)
+    #image3Dinverse = np.load('ExperimentLOFAR23-24Hours/image3Dinv_z%s.npy' %z)
+    #sigma3Dinverse = np.load('ExperimentMWA128-24Hours/sigma3Dinv_z%s.npy' %z)
+    Windowedimageinverse = np.load('ExperimentLOFAR23-24Hours/windowedinv_z%s.npy' %z)
 
     ###############Calculating fft's################################
 
-    twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
-    twenty1inverse = np.fft.fftshift(twenty1inverse)
+    #twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
+    #twenty1inverse = np.fft.fftshift(twenty1inverse)
 
     #How we get our image from the fourier transform
     #image3D = np.fft.ifftn(image3Dinverse)
     #image3D = np.abs(image3D)
 
-    #Windowedimage = np.fft.ifftn(Windowedimageinverse)
-    #Windowedimage = np.abs(Windowedimage)   #abs or real?
+    Windowedimage = np.fft.ifftn(Windowedimageinverse)
+    Windowedimage = np.abs(Windowedimage)   #abs or real?
 
 
     ##################Calculating and saving statistical values############################
 
-    #average21cmtemp[counter] = np.average(twenty1)  #this saves the average 21cm temperature
-    #averagewindowedimagetemp[counter]=np.average(Windowedimage)   #this saves the average image temperature
+    average21cmtemp[counter] = np.average(twenty1)  #this saves the average 21cm temperature
+    averagewindowedimagetemp[counter]=np.average(Windowedimage)   #this saves the average image temperature
 
-    #rmserrorintemp[counter] = func.rmscalc(twenty1,Windowedimage,size)
+    rmserrorintemp[counter] = func.rmscalc(twenty1,Windowedimage,size)
 
-    #print 'z', z, 'temp',average21cmtemp[counter],averagewindowedimagetemp[counter], 'rms', rmserrorintemp[counter]
+    print 'z', z,'nf',box_info['nf'],  'temp',average21cmtemp[counter],averagewindowedimagetemp[counter], 'rms', rmserrorintemp[counter]
 
     #func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
 
@@ -79,20 +79,23 @@ for fname in glob.glob(path):
     #func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
 
     #!!printpowerspectrum is for comparing the windowed,non-windowed and 21cm powerspectrums on one graph, but also saves deldelPS's seperately for comparison!!
-    PSrmsarray[counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
+    #PSrmsarray[counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,0)    ##,saves rms error between windowed and 21cm.
 
-    print 'z', z, 'PSrms', PSrmsarray[counter]
+    #print 'z', z, 'PSrms', PSrmsarray[counter]
 
     #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
     #cutoff = 0.65
-    #iterations = 10000
+    #iterations = 100000
 
     #These functions print the different size distribution analysis methods which we have worked on
     #THIS FUNCTION SHOWS THE PLOT RATHER THAN SAVING - NEED TO CHANGE BEFORE AUTOMATION
     #func.printmeanfreepathdist(image3D, twenty1, size, dl, cutoff, iterations)
     #func.printbubblesizedist(image3D, twenty1, size, dl, cutoff)
 
-    #func.printmeanfreepathdist(Windowedimage, twenty1, size, dl, cutoff, iterations)
+    #print 'stats for bubble sizes for z = ', z
+
+    #print func.printmeanfreepathdist(Windowedimage, twenty1, size, dl, cutoff, iterations)
+
     #func.printbubblesizedist(Windowedimage, twenty1, size, dl, cutoff)
 
     #This function compares two different 21cmboxes (maybe change it so you can insert

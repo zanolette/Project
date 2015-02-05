@@ -88,6 +88,8 @@ for fname in glob.glob(path):
 
     ##########################This is where we introduce a slice################################
 
+    image3Dinverse = np.copy(twenty1inverse)
+    '''
     for slice in range(size):   #iterates over all slices
 
         print 'z', z, ' Slice: ', slice
@@ -107,7 +109,7 @@ for fname in glob.glob(path):
                     real=np.random.normal(np.real(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)     #sqrt(2) here as real and imag components share it
                     imaginary = np.random.normal(np.imag(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)
                     image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
-
+    '''
     #Could have psf stuff here
 
     #How we get our image from the fourier transform
