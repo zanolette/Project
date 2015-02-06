@@ -47,10 +47,12 @@ for fname in glob.glob(path):
 
     #############Load in Files for this z########################################################
 
-    #image3Dinverse = np.load('ExperimentLOFAR23-24Hours/image3Dinv_z%s.npy' %z)
+    image3Dinverse = np.load('ExperimentMWA128-600Hours/image3Dinv_z%s.npy' %z)
     #sigma3Dinverse = np.load('ExperimentMWA128-24Hours/sigma3Dinv_z%s.npy' %z)
-    Windowedimageinverse = np.load('ExperimentLOFAR23-24Hours/windowedinv_z%s.npy' %z)
+    Windowedimageinverse = np.load('ExperimentMWA128-600Hours/windowedinv_z%s.npy' %z)
 
+    func.kperpvskparrgraph(image3Dinverse,1,size,dl)
+    func.kperpvskparrgraph(Windowedimageinverse,1,size,dl)
     ###############Calculating fft's################################
 
     #twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
@@ -60,19 +62,19 @@ for fname in glob.glob(path):
     #image3D = np.fft.ifftn(image3Dinverse)
     #image3D = np.abs(image3D)
 
-    Windowedimage = np.fft.ifftn(Windowedimageinverse)
-    Windowedimage = np.abs(Windowedimage)   #abs or real?
+    #Windowedimage = np.fft.ifftn(Windowedimageinverse)
+    #Windowedimage = np.abs(Windowedimage)   #abs or real?
 
 
     ##################Calculating and saving statistical values############################
-
+    '''
     average21cmtemp[counter] = np.average(twenty1)  #this saves the average 21cm temperature
     averagewindowedimagetemp[counter]=np.average(Windowedimage)   #this saves the average image temperature
 
     rmserrorintemp[counter] = func.rmscalc(twenty1,Windowedimage,size)
 
     print 'z', z,'nf',box_info['nf'],  'temp',average21cmtemp[counter],averagewindowedimagetemp[counter], 'rms', rmserrorintemp[counter]
-
+    '''
     #func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
 
     #This function compared the phases of the real and imaginary

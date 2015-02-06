@@ -96,28 +96,28 @@ def powerspectrumevolution(data,width,size,dtheta):
 def kperpvskparrgraph(data,width,size,dl):
 
     length = 1 + int(np.sqrt(.5*size**2/width))
+    print length
     dataarray = np.zeros((length,size))  #creates our kperp vs kparr values, value at element is the average PS at that point
 
     for i in range (size):
         dataarray[:][i] = powerspectrum2D(data[:][:][i], width, size)   #this returns the 1D array of averaged k perpendicular values, for that kparr
 
     #want axis not in element steps, but in k steps (both axis), but both axis different lengths
-    rparrsize = size    #or could be size/2. if we want abs(kparr) . . .
+    #rparrsize = size    #or could be size/2. if we want abs(kparr) . . .
     kparrmax = 1./dl
-    kparraxis = np.arange(0,kparrmax+kparrmax/rparrsize,kparrmax/rparrsize) # rmax steps on the kparrallelaxis
+    #kparraxis = np.arange(0,kparrmax+kparrmax/rparrsize,kparrmax/rparrsize) # rmax steps on the kparrallelaxis
 
-    rperpsize = int(np.sqrt(.5*size**2/width))  #or + 1??
+    #rperpsize = int(np.sqrt(.5*size**2/width))  #or + 1??
     kperpmax = np.sqrt(2*((1./(2*float(dl)))**2))
-    kperpaxis = np.arange(0,kperpmax+kperpmax/rperpsize,kperpmax/rperpsize) # rmax steps on the kperpendicularaxis
 
 
-
+    #kperpaxis = np.arange(0,kperpmax+kperpmax/rperpsize,kperpmax/rperpsize) # rmax steps on the kperpendicularaxis
 
     fig = plt.figure()
 
     ax1 = fig.add_subplot(111) # x (z) and y axis
 
-    ax1.imshow(dataarray,cmap='jet',interpolation='nearest')    #is this right?
+    ax1.imshow(dataarray,extent=(0,kperpmax,0,1/(2*dl)), cmap='jet',interpolation='nearest',)    #is this right?
     ax1.set_xlabel('k Parrallel (MPc$^{-1}$)')
     ax1.set_ylabel('k Perpendicular (MPc$^{-1}$)')
     #resize axis how?
@@ -136,8 +136,8 @@ def kperpvskparrgraph(data,width,size,dl):
 
 
 
-    plt.savefig('KperpvsKparr')
-    plt.clf()
+    #plt.savefig('KperpvsKparr')
+    plt.show()
 
 
 ##2D PS Calculation##
