@@ -381,6 +381,31 @@ def rmscalc (twenty1cm,image3D,max):
     squaredcount = squaredcount/(max**3)    #divided by volume to get average
     return np.sqrt(squaredcount)
 
+def PearsonR(twenty1cm,image3D,max):
+
+    #Pearson's R is a correlation indicator also known as a sample correlation coefficient
+    #the equation is sum((x-<x>)(y-<y>))/(sqrt(sum((x-<x>)^2))*sqrt(sum((y-<y>)^2)))
+
+    #sum((x-<x>)(y-<y>)) =
+    Covariance = 0
+    #sum((x-<x>)^2) =
+    twenty1selfcovariance = 0
+    #sum((y-<y>)^2) =
+    imageselfcovariance = 0
+
+    twenty1average = np.average(twenty1cm)  #these are our average values
+    imageaverage = np.average(image3D)
+
+    for i in range(max):
+        for j in range(max):
+            for k in range(max):
+                Covariance += (image3D[i][j][k]-imageaverage)*(twenty1cm[i][j][k]-twenty1average)
+                twenty1selfcovariance += (twenty1cm[i][j][k]-twenty1average)**2
+                imageselfcovariance += (image3D[i][j][k]-imageaverage)**2
+
+    PearsonsR = Covariance/(np.sqrt(twenty1selfcovariance)*np.sqrt(imageselfcovariance))
+
+    return PearsonsR
 '''
 ###################UNFINISHED FRED###############################
 #this function takes ONE image box and represents it as a 2d plot of horizontal average temperature against z
