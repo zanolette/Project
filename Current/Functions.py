@@ -213,6 +213,10 @@ def powerspectrum3D(fourier3Dbox,width,size,dtheta, dl, z,cornercorrection): #he
         kaxis = np.delete(kaxis, (len(kaxis)-1))
         PowerSpectrum = np.delete(PowerSpectrum, (len(PowerSpectrum)-1))
         DelDel = np.delete(DelDel, (len(DelDel)-1))
+        #maybe itll work 2nd time?
+        kaxis = np.delete(kaxis, (len(kaxis)-1))
+        PowerSpectrum = np.delete(PowerSpectrum, (len(PowerSpectrum)-1))
+        DelDel = np.delete(DelDel, (len(DelDel)-1))
 
     return logbinningforPowerspectrum(kaxis, PowerSpectrum, DelDel, dl, 1.5) # delta(k-ko) gives a factor of V - assuming no (2pi)**3 factor - depends on the three dimensional fourier convention -
 
@@ -802,19 +806,20 @@ def PSrmscalc(onex,oney,twox,twoy):
 def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwidth,size,dtheta, dx, z,rmsornot):
 
 
-    realps = np.loadtxt('PowerSpectrumFiles/PS%s'%z, delimiter='\t')
+    #realps = np.loadtxt('PowerSpectrumFiles/PS%s'%z, delimiter='\t')
 
     onek, onepowerspectrum , onedeldel= powerspectrum3D(oneinverse,psdwidth,size,dtheta,dx, z,0) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
-    print 'done imagepowerspectrum'
+    print 'done 1'
     twok, twopowerspectrum , twodeldel= powerspectrum3D(twoinverse,psdwidth,size,dtheta, dx, z,1)
-    print 'done sigmapowerspectrum'
+    print 'done 2'
     threek, threepowerspectrum, threedeldel= powerspectrum3D(threeinverse,psdwidth,size,dtheta,dx, z,0)
-    print 'done twenty1powerspectrum'
+    print 'done 3'
     #fourk, fourpowerspectrum, fourdeldel= powerspectrum3D(fourinverse,psdwidth,size,dtheta,dx, z,0)
     #print 'done twenty1powerspectrum'
 
     if rmsornot == 1:   #will pass in either 1 or 0 as to wether we want to calculate this
         rmsvalue = PSrmscalc(twok,twopowerspectrum,threek,threepowerspectrum)   #sends in 21cm then windowed image
+        print "rms value is", rmsvalue
 
 
     #plots the compared powerspectra
@@ -822,7 +827,7 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
     plt.loglog(twok,twodeldel)
     plt.loglog(threek,threedeldel)
     #plt.loglog(fourk,fourdeldel)
-    plt.loglog(realps[:,0],realps[:,1])
+    #plt.loglog(realps[:,0],realps[:,1])
 
     plt.ylim(0.00009,300)
     plt.xlim(0.01,3)
@@ -837,7 +842,7 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
     plt.loglog(twok,twopowerspectrum)
     plt.loglog(threek,threepowerspectrum)
     #plt.loglog(fourk,fourpowerspectrum)
-    plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3)) #Important: here, as with other plot, we have no 2Pi**2 factor
+    #plt.loglog(realps[:,0],realps[:,1]/(realps[:,0]**3)) #Important: here, as with other plot, we have no 2Pi**2 factor
 
     plt.ylim(0.003,450000)
     plt.xlim(0.01,3)

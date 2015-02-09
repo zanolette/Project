@@ -47,16 +47,16 @@ for fname in glob.glob(path):
 
     #############Load in Files for this z########################################################
 
-    image3Dinverse = np.load('ExperimentMWA128-600Hours/image3Dinv_z%s.npy' %z)
-    #sigma3Dinverse = np.load('ExperimentMWA128-24Hours/sigma3Dinv_z%s.npy' %z)
-    Windowedimageinverse = np.load('ExperimentMWA128-600Hours/windowedinv_z%s.npy' %z)
+    image3Dinverse = np.load('ExperimentMWA128-1Shot/image3Dinv_z%s.npy' %z)
+    sigma3Dinverse = np.load('ExperimentMWA128-1Shot/sigma3Dinv_z%s.npy' %z)
+    Windowedimageinverse = np.load('ExperimentMWA128-1Shot/windowedinv_z%s.npy' %z)
 
-    func.kperpvskparrgraph(image3Dinverse,1,size,dl)
-    func.kperpvskparrgraph(Windowedimageinverse,1,size,dl)
+    #func.kperpvskparrgraph(image3Dinverse,1,size,dl)
+    #func.kperpvskparrgraph(Windowedimageinverse,1,size,dl)
     ###############Calculating fft's################################
 
-    #twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
-    #twenty1inverse = np.fft.fftshift(twenty1inverse)
+    twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
+    twenty1inverse = np.fft.fftshift(twenty1inverse)
 
     #How we get our image from the fourier transform
     #image3D = np.fft.ifftn(image3Dinverse)
@@ -81,7 +81,7 @@ for fname in glob.glob(path):
     #func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
 
     #!!printpowerspectrum is for comparing the windowed,non-windowed and 21cm powerspectrums on one graph, but also saves deldelPS's seperately for comparison!!
-    #PSrmsarray[counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,0)    ##,saves rms error between windowed and 21cm.
+    PSrmsarray[counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
 
     #print 'z', z, 'PSrms', PSrmsarray[counter]
 
