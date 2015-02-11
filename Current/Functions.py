@@ -438,16 +438,21 @@ def visualizereionizationagainstz(image, size, z, theta):
 '''
 
 #Method: prints out all the slices of 2 boxes to be compared - creates gif on freds computer - "convert -delay 10 image*.png animated.gif"
-def visualisereionizationslicebyslice(image,twenty1, size, z, theta):
+def visualisereionizationslicebyslice(image,twenty1, size, z, theta, crosssection):
+
+    if crosssection == True:
+        extraline = 2
+    else:
+        extraline=1
 
     for t in range(size):
         fig = plt.figure()
-        a1=fig.add_subplot(1,2,1)
+        a1=fig.add_subplot(extraline,2,1)
         imgplot = plt.imshow(twenty1[t],extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet',vmin=0,vmax=70)
         a1.set_title('21cmfast')
         plt.xlabel('X axis in $^\circ$s')
         plt.ylabel('Y axis in $^\circ$s')
-        a2=fig.add_subplot(1,2,2)
+        a2=fig.add_subplot(extraline,2,2)
         plt.setp( a2.get_yticklabels(), visible=False)
         imgplot = plt.imshow(image[t],extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet',vmin=0,vmax=70)
         plt.xlabel('X axis in $^\circ$s')
@@ -458,6 +463,16 @@ def visualisereionizationslicebyslice(image,twenty1, size, z, theta):
         cbar=plt.colorbar(imgplot, orientation='vertical',cax=cbar_ax)# shrink=0.6)
 
         cbar.set_label('Temperature (mK)', size = 13)
+
+        if crosssection==True:
+            a3=fig.add_subplot(extraline,2,3)
+            plt.plot(twenty1[t][int(size/2)])
+            plt.xlabel('X axis in $^\circ$s')
+            plt.ylabel('Temperature')
+
+            a4=fig.add_subplot(extraline,2,4)
+            plt.plot(image[t][int(size/2)])
+            plt.xlabel('X axis in $^\circ$s')
 
         plt.savefig('Image/z%simage%03i.png'%(z,t))
         plt.close(fig)
@@ -706,7 +721,8 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
     c = CosmoUnits.C
     theta0 = 0.000070 #this is 4 degrees in radians (ther is a 'conservative' of 1 radian according to the paper which seems way too large)
     nu21 = 1420000000 # Hz
-    Bband = 8000000 # Hz
+
+    Bband = 8000000 #B*size #if B in main is Bchannel then this would get us B band #8000000 # Hz
     #NEED TO TALK TO PRITCHARD ABOUT THIS!!! WHAT IS THE CHARACTERISTIC BEAM THICKNESS!!!?
 
 

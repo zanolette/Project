@@ -47,26 +47,29 @@ for fname in glob.glob(path):
 
     #############Load in Files for this z########################################################
 
-    image3Dinverse = np.load('ExperimentMWA128-1Shot/image3Dinv_z%s.npy' %z)
-    sigma3Dinverse = np.load('ExperimentMWA128-1Shot/sigma3Dinv_z%s.npy' %z)
-    Windowedimageinverse = np.load('ExperimentMWA128-1Shot/windowedinv_z%s.npy' %z)
+    image3Dinverse = np.load('ExperimentMWA128-600Hours/image3Dinv_z%s.npy' %z)
+    #sigma3Dinverse = np.load('ExperimentMWA128-600Hours/sigma3Dinv_z%s.npy' %z)
+    Windowedimageinverse = np.load('ExperimentMWA128-600Hours/windowedinv_z%s.npy' %z)
 
     #func.kperpvskparrgraph(image3Dinverse,1,size,dl)
     #func.kperpvskparrgraph(Windowedimageinverse,1,size,dl)
     ###############Calculating fft's################################
 
-    twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
-    twenty1inverse = np.fft.fftshift(twenty1inverse)
+    #twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
+    #twenty1inverse = np.fft.fftshift(twenty1inverse)
 
     #How we get our image from the fourier transform
-    #image3D = np.fft.ifftn(image3Dinverse)
-    #image3D = np.abs(image3D)
+    image3D = np.fft.ifftn(image3Dinverse)
+    image3D = np.abs(image3D)
 
-    #Windowedimage = np.fft.ifftn(Windowedimageinverse)
-    #Windowedimage = np.abs(Windowedimage)   #abs or real?
+    Windowedimage = np.fft.ifftn(Windowedimageinverse)
+    Windowedimage = np.abs(Windowedimage)   #abs or real?
 
 
     ##################Calculating and saving statistical values############################
+
+    print 'Pearsons R for z', z, 'is: Windowed', func.PearsonR(twenty1,Windowedimage,size), 'nonwindowed:', func.PearsonR(twenty1,image3D,size)
+
     '''
     average21cmtemp[counter] = np.average(twenty1)  #this saves the average 21cm temperature
     averagewindowedimagetemp[counter]=np.average(Windowedimage)   #this saves the average image temperature
@@ -75,13 +78,13 @@ for fname in glob.glob(path):
 
     print 'z', z,'nf',box_info['nf'],  'temp',average21cmtemp[counter],averagewindowedimagetemp[counter], 'rms', rmserrorintemp[counter]
     '''
-    #func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
+    #func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta, True)
 
     #This function compared the phases of the real and imaginary
     #func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
 
     #!!printpowerspectrum is for comparing the windowed,non-windowed and 21cm powerspectrums on one graph, but also saves deldelPS's seperately for comparison!!
-    PSrmsarray[counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
+    #PSrmsarray[counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
 
     #print 'z', z, 'PSrms', PSrmsarray[counter]
 
@@ -116,7 +119,7 @@ for fname in glob.glob(path):
 #################is this P(k) or DelDel??????? if so then need to change units to mK Mpc^-3########################
 
 
-
+'''
 
 func.printvaluesvsz(rmserrorintemp,redshift,neutralfractions,'Temperature (mK)')  #error in temp vs z
 
@@ -141,3 +144,4 @@ ax2.set_xlabel("Un-ionized Fraction")
 plt.savefig('Statisticalvaluesvsz/averagetemperaturecomparisson')   #this saves the graph using the string labelname
 plt.clf()
 
+'''

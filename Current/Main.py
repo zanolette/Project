@@ -72,7 +72,8 @@ for fname in glob.glob(path):
 
     # need to make sure this is correct according to pritchard - noise on complex thing
     tsyst = 50000 + 60000*((1+z)/4.73)**2.55  #(mK) this is from "Probing . . . with the SKA" MG Santos
-    B = 1420.41e6*dl/((1+z)*CosmoUnits.Dcomovingrad(z))        #Bandwidth (Hz) - this is given by frequency inteval. DeltaF = f1-f2, seperated by deltaz = z* deltaL/Dcomovingrad
+    B = 1420.41e6*dl/((1+z)*CosmoUnits.Dcomovingrad(z))        # is this Bband or Bchannel - think its already Bchannel
+    #Bandwidth (Hz) - this is given by frequency inteval. DeltaF = f1-f2, seperated by deltaz = z* deltaL/Dcomovingrad
 
 
     #imports 21cm box and takes single z slice
