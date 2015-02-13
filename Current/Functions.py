@@ -95,12 +95,22 @@ def powerspectrumevolution(data,width,size,dtheta):
 #this takes a 3D fourier space, plots k parrallel vs k perpendicular (remember kperp = sqrt(kx**2 + ky**2),kparr = kz)
 def kperpvskparrgraph(data,width,size,dl):
 
-    length = 1 + int(np.sqrt(.5*size**2/width))
-    print length
+    length = 1 + int(np.sqrt(.5*size**2)/width)
     dataarray = np.zeros((length,size))  #creates our kperp vs kparr values, value at element is the average PS at that point
-
+    '''
     for i in range (size):
-        dataarray[:][i] = powerspectrum2D(data[:][:][i], width, size)   #this returns the 1D array of averaged k perpendicular values, for that kparr
+        ###########i've worked out that we're trying to save the 142 legth bit into a 200 length bit, which is as data array is 200x142 so wrong side###########
+        dataarray[i][:] = dataarray[i][:] * powerspectrum2D(data[:][:][i], width, size)   #this returns the 1D array of averaged k perpendicular values, for that kparr
+        print dataarray[i][:]   #importantly now the first column saves the k// values from data
+    '''
+    for i in range (size):
+
+        temp = powerspectrum2D(data[:][:][i], width, size)   #this returns the 1D array of averaged k perpendicular values, for that kparr
+
+        for j in range(length):
+            dataarray[j][i] = temp[j]
+
+    print dataarray   #importantly now the first column saves the k// values from data
 
     #want axis not in element steps, but in k steps (both axis), but both axis different lengths
     #rparrsize = size    #or could be size/2. if we want abs(kparr) . . .
@@ -117,8 +127,8 @@ def kperpvskparrgraph(data,width,size,dl):
 
     ax1 = fig.add_subplot(111) # x (z) and y axis
 
-    ax1.imshow(dataarray,extent=(0,kperpmax,0,1/(2*dl)), cmap='jet',interpolation='nearest',)    #is this right?
-    ax1.set_xlabel('k Parrallel (MPc$^{-1}$)')
+    ax1.imshow(dataarray,extent=[0,kperpmax,0,1/(2*dl)], cmap='jet',interpolation='nearest')    #is this right?
+    ax1.set_xlabel('k Parrallel (MPc$^{-1}$)')  #might be the wrong way around now
     ax1.set_ylabel('k Perpendicular (MPc$^{-1}$)')
     #resize axis how?
 

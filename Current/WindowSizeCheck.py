@@ -37,7 +37,7 @@ for fname in glob.glob(path):
 
     #DEPENDS ON Z! FIND THIS
     dl = box_info['BoxSize']/size   #so this is how many Mpc per index of box
-    psdwidth = 5    #can change this!
+    psdwidth = 1    #can change this!
 
     #DEFINE EXPERIMENT PARAMETERS
     H = 0.
@@ -54,9 +54,11 @@ for fname in glob.glob(path):
     B = 1420.41e6*dl/((1+z)*CosmoUnits.Dcomovingrad(z))        #Bandwidth (Hz) - this is given by frequency inteval. DeltaF = f1-f2, seperated by deltaz = z* deltaL/Dcomovingrad
 
 
-
     Windowedimageinverse=np.ones((size,size,size), complex)
     Windowedimageinverse=func.EORWINDOW(Windowedimageinverse,size,dl, z,B) # create new variable early, function was changing original variable
+    #print Windowedimageinverse
+    #print 'made windowed image'
 
+    func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl)
 
     print 'z', z, 'inversespacecovered', np.average(Windowedimageinverse)
