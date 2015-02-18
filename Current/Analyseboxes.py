@@ -16,13 +16,14 @@ psdwidth = 1
 CosmoUnits=Cosmo.CosmoUnits()
 
 #These arrays for plotting variable/statistic changes with z/neutral fraction
-PSrmsarray = np.zeros((2, 23))   #this is for z=7 to z=18 runs in half steps, saves windowed and not PS rms
-averagetemp = np.zeros((3, 23))  #this is the average temp: 21cm,image,Windowed
-rmserrorintemp = np.zeros((2, 23))   #this gives rms difference between two images at every point
-PearsonRarray = np.zeros((3, 23)) #this saves z,image vs 21cm Pearson,windowed vs 21cm Parson
+PSrmsarray = np.zeros((2, 28))   #this is for z=7.5 to z=18 runs in half steps, plus some .25 steps before 10.5
+averagetemp = np.zeros((3, 28))  #this is the average temp: 21cm,image,Windowed
+rmserrorintemp = np.zeros((2, 28))   #this gives rms difference between two images at every point
+PearsonRarray = np.zeros((3, 28)) #this saves z,image vs 21cm Pearson,windowed vs 21cm Parson
+MeanValues = np.zeros((12,28))  #will save all of our different mean values, and for 21cm,image and windowed
 
-redshift = np.zeros(23)
-neutralfractions = np.zeros(23)
+redshift = np.zeros(28)
+neutralfractions = np.zeros(28)
 
 counter=0   #this is just to help allocate saved values into the arrays
 
@@ -49,9 +50,9 @@ for fname in glob.glob(path):
 
     #############Load in Files for this z########################################################
 
-    #image3Dinverse = np.load('Experiment/image3Dinv_z%s.npy' %z)
-    #sigma3Dinverse = np.load('Experiment/sigma3Dinv_z%s.npy' %z)
-    Windowedimageinverse = np.load('Experiment100UVCover/windowedinv_z%s.npy' %z)
+    image3Dinverse = np.load('Experiment/image3Dinv_z%s.npy' %z)
+    sigma3Dinverse = np.load('Experiment/sigma3Dinv_z%s.npy' %z)
+    Windowedimageinverse = np.load('Experiment/windowedinv_z%s.npy' %z)
 
     func.kperpvskparrgraph(image3Dinverse,psdwidth,size,dl,z,'image',  1e7, 2e11 )
     func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z,'Windowed',1e7, 2e11)
@@ -108,7 +109,8 @@ for fname in glob.glob(path):
 
     #These functions print the different size distribution analysis methods which we have worked on
     #Saves the text files for the distributions and their statistics plus prints distributions together
-    func.printmeanfreepathdist(image3D,Windowedimage,twenty1, size, dl, cutoff, iterations,z)
+    #these are: mean21,median21,uqmean21,weightedmean21,meanimage, medianimage,uqmeanimage,weightedmeanimage,meanwindowed,medianwindowed,uqmeanwindowed,weightedmeanwindowed
+    MeanValues[:][counter] = func.printmeanfreepathdist(image3D,Windowedimage,twenty1, size, dl, cutoff, iterations,z)
     func.printbubblesizedist(image3D,Windowedimage, twenty1, size, dl, cutoff,z)
 
     ''' - Temperature distribution code and how to plot it
