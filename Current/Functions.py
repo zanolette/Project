@@ -765,12 +765,12 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
 
     #print 'parkis', parrkcutoff
 
-    Niquist = Windowedimageinv[ci][ci][ci]
-    '''
+    #Niquist = Windowedimageinv[ci][ci][ci]
+
     centre = np.zeros((27),dtype=complex)
     counter = 0
 
-    #this is saving the centre cube, so it is safe from masking
+    #this is saving the centre cube, so it is safe from masking - SAVES NIQUIST FREQUENCIES
 
     for i in range (ci -1,ci +2,1):
         for j in range (ci -1,ci +2,1):
@@ -779,7 +779,7 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
                 #print Windowedimageinv[i][j][k]
 
                 counter += 1
-    '''
+
 
     for i in range(size):
         for j in range (size):
@@ -791,7 +791,7 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
                     Windowedimageinv[k][j][i]=0.+0.j#np.nan
                 elif np.abs(k-ci) < kperp*H0*Dz*E*theta0/(c*(1+z)*ktorratio):    #abs as kparrallel = abs(kz)
                     Windowedimageinv[k][j][i]=0.+0.j#np.nan
-    '''
+
     #replaces the central DC cube
     counter=0
     for i in range (ci -1,ci +2,1):
@@ -799,8 +799,8 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
             for k in range (ci -1,ci +2,1):
                 Windowedimageinv[i][j][k] = centre[counter]
                 counter += 1
-    '''
-    Windowedimageinv[ci][ci][ci]=Niquist
+
+    #Windowedimageinv[ci][ci][ci]=Niquist
     return Windowedimageinv
 
 #IMPORTANT: calcuates the rms between the two PS,  divided by 21cm PS to get unitless ratio of rms to real value
