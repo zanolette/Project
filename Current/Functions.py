@@ -1,10 +1,13 @@
 import numpy as np
+import math
 import pylab as pl
 from matplotlib import ticker
 import matplotlib.pyplot as plt
 import boxio as boximport
 import Cosmo as Cosmo
 from matplotlib.colors import LogNorm
+from matplotlib.ticker import MaxNLocator
+import matplotlib.gridspec as gs
 
 def printgraph (image, xrange, yrange, xlabel, ylabel, scalemin,scalemax):   #generic print function with ranges and labels
     if scalemin == 'None':
@@ -467,42 +470,73 @@ def visualizereionizationagainstz(image, size, z, theta):
 #Method: prints out all the slices of 2 boxes to be compared - creates gif on freds computer - "convert -delay 10 image*.png animated.gif"
 def visualisereionizationslicebyslice(image,twenty1, size, z, theta, crosssection,inputname):
 
-    if crosssection == True:
+    if crosssection == True: # include a crosssection of the 21cm signal to the image
         extraline = 2
-    else:
-        extraline=1
-
-    for t in range(size):
-        fig = plt.figure()
-        a1=fig.add_subplot(extraline,2,1)
-        imgplot = plt.imshow(twenty1[t],extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet',vmin=0,vmax=70)
-        a1.set_title('21cmfast')
-        plt.xlabel('X axis in $^\circ$s')
-        plt.ylabel('Y axis in $^\circ$s')
-        a2=fig.add_subplot(extraline,2,2)
-        plt.setp( a2.get_yticklabels(), visible=False)
-        imgplot = plt.imshow(image[t],extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet',vmin=0,vmax=70)
-        plt.xlabel('X axis in $^\circ$s')
-        a2.set_title('SKA Image')
-
-        fig.subplots_adjust(right=0.8)
-        cbar_ax = fig.add_axes([0.85, 0.3, 0.03, 0.4])
-        cbar=plt.colorbar(imgplot, orientation='vertical',cax=cbar_ax)# shrink=0.6)
-
-        cbar.set_label('Temperature (mK)', size = 13)
-
-        if crosssection==True:
-            a3=fig.add_subplot(extraline,2,3)
-            plt.plot(twenty1[t][int(size/2)])
+        for t in range(size):
+            fig = plt.figure( figsize = (9,6))
+            grid = gs.GridSpec(2, 2,        #using gridspec to create our grid
+                       width_ratios=[1,1],
+                       height_ratios=[4,1]
+                       )
+            a1 = plt.subplot(grid[0])
+            #a1=fig.add_subplot(2,2,1)
+            imgplot = plt.imshow(twenty1[t],extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet',vmin=0,vmax=70)
+            a1.set_title('21cmfast')
             plt.xlabel('X axis in $^\circ$s')
-            plt.ylabel('Temperature')
+            plt.ylabel('Y axis in $^\circ$s')
+            a2 = plt.subplot(grid[1])
+            #a2=fig.add_subplot(2,2,2)
+            plt.setp( a2.get_yticklabels(), visible=False)
+            imgplot = plt.imshow(image[t],extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet',vmin=0,vmax=70)
+            plt.xlabel('X axis in $^\circ$s')
+            a2.set_title('SKA Image')
 
-            a4=fig.add_subplot(extraline,2,4)
+            a3 = plt.subplot(grid[2])
+            #a3=fig.add_subplot(2,2,3)
+            plt.plot(twenty1[t][int(size/2)] )
+            a3.yaxis.set_major_locator(MaxNLocator(4))
+            plt.setp( a3.get_xticklabels(), visible=False)
+            #plt.xlabel('X axis in $^\circ$s')
+            plt.ylabel('Temperature (mK)')
+
+            a4 = plt.subplot(grid[3], sharey=a3)
+            #a4=fig.add_subplot(2,2,4)
+            plt.setp( a4.get_yticklabels(), visible=False)
+            plt.setp( a4.get_xticklabels(), visible=False)
             plt.plot(image[t][int(size/2)])
-            plt.xlabel('X axis in $^\circ$s')
+            #plt.xlabel('X axis in $^\circ$s')
 
-        plt.savefig('%sVisualisation/%sz%simage%03i.png'%(inputname,inputname,z,t))
-        plt.close(fig)
+            #fig.tight_layout()
+
+            fig.subplots_adjust(right=0.8)
+            cbar_ax = fig.add_axes([0.85, 0.4, 0.03, 0.4])
+            cbar=plt.colorbar(imgplot, orientation='vertical',cax=cbar_ax)# shrink=0.6)
+
+            cbar.set_label('Temperature (mK)', size = 13)
+            plt.savefig('Image/z%simage%03i.png'%(z,t))
+            plt.close(fig)
+
+    else:
+        for t in range(size):
+            fig = plt.figure( )
+            a1=fig.add_subplot(1,2,1)
+            imgplot = plt.imshow(twenty1[t],extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet',vmin=0,vmax=70)
+            a1.set_title('21cmfast')
+            plt.xlabel('X axis in $^\circ$s')
+            plt.ylabel('Y axis in $^\circ$s')
+            a2=fig.add_subplot(1,2,2)
+            plt.setp( a2.get_yticklabels(), visible=False)
+            imgplot = plt.imshow(image[t],extent=(-theta/2,theta/2,-theta/2,theta/2),interpolation='nearest',cmap='jet',vmin=0,vmax=70)
+            plt.xlabel('X axis in $^\circ$s')
+            a2.set_title('SKA Image')
+            fig.subplots_adjust(right=0.8)
+            cbar_ax = fig.add_axes([0.85, 0.3, 0.03, 0.4])
+            cbar=plt.colorbar(imgplot, orientation='vertical',cax=cbar_ax)# shrink=0.6)
+            cbar.set_label('Temperature (mK)', size = 13)
+            plt.savefig('Image/z%simage%03i.png'%(z,t))
+            plt.close(fig)
+
+
 
 
 #Method: counts and compares the number of corresponding angles (x axis is 21cmfast and y axis is our image)
@@ -1012,6 +1046,7 @@ def meanfreepathstatistics(xdata,ydata): #data is just the bubble size x values
 
     return mean, median, upperquartilemean, weightedmean/mean
 
+
 def averagetempvsz(averagetemp,neutralfractions,redshift):
     fig = plt.figure()
 
@@ -1031,3 +1066,27 @@ def averagetempvsz(averagetemp,neutralfractions,redshift):
 
     plt.savefig('Statisticalvaluesvsz/averagetemperaturecomparisson.png')   #this saves the graph using the string labelname
     plt.clf()
+
+
+def temperaturedistribution(box, size):
+    #function which bins into mK bins the distribution of temperatures in a box. returns 0-70 distribution
+    #chose 70mK as the bulk of the data fits in this range and we needed a cut off.
+
+    distribution = np.zeros(70)
+    countedpoints=0. # cant use size*size*size incase some temperatures go above 70
+
+    for i in range(size):
+        for j in range(size):
+            for k in range(size):
+                if np.floor(box[i][j][k])<70:
+                    distribution[int(math.floor(box[i][j][k]))]+=1.
+                    countedpoints+=1.
+
+                else:
+                    print 'TOO HOT!'
+
+    #normalise
+    distribution = distribution / (countedpoints)
+    return distribution
+
+

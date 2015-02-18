@@ -49,13 +49,14 @@ for fname in glob.glob(path):
 
     #############Load in Files for this z########################################################
 
-    image3Dinverse = np.load('Experiment/image3Dinv_z%s.npy' %z)
-    sigma3Dinverse = np.load('Experiment/sigma3Dinv_z%s.npy' %z)
-    Windowedimageinverse = np.load('Experiment/windowedinv_z%s.npy' %z)
+    #image3Dinverse = np.load('Experiment/image3Dinv_z%s.npy' %z)
+    #sigma3Dinverse = np.load('Experiment/sigma3Dinv_z%s.npy' %z)
+    Windowedimageinverse = np.load('Experiment100UVCover/windowedinv_z%s.npy' %z)
 
     func.kperpvskparrgraph(image3Dinverse,psdwidth,size,dl,z,'image',  1e7, 2e11 )
     func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z,'Windowed',1e7, 2e11)
     func.kperpvskparrgraph(sigma3Dinverse,psdwidth,size,dl,z,'Sigma',10, 1e4)
+
     ###############Calculating fft's################################
 
     twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
@@ -110,6 +111,13 @@ for fname in glob.glob(path):
     func.printmeanfreepathdist(image3D,Windowedimage,twenty1, size, dl, cutoff, iterations,z)
     func.printbubblesizedist(image3D,Windowedimage, twenty1, size, dl, cutoff,z)
 
+    ''' - Temperature distribution code and how to plot it
+    distributionplot=plt.figure()
+    plt.plot(func.temperaturedistribution(Windowedimage, size))
+    plt.plot(func.temperaturedistribution(twenty1, size))
+    plt.savefig('TempDistribution/TempHisto%s.png'%z)
+    plt.clf()
+    '''
     counter += 1    #this increases the counter so the next values are stored in the next element slots of the arrays
 
 
