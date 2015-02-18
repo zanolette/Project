@@ -35,7 +35,19 @@ for fname in glob.glob(path):
     dtheta = float(theta/size)
     print dtheta
 
-    eps = 0.5    #this is instrument efficiency
+    arrayname = 'LOFAR66CoreHB.txt'
+
+    #Define Wavelength - find this out from z!!
+    lda=0.21106*(1+z)   #in meters
+
+    if (arrayname=='LOFAR66CoreHB.txt'):
+        Aeff = 1.5625
+        N = 16
+    else:   #hence assuming its MWA
+        Aeff = 14.5/16
+        N = 16
+
+    eps = (min(lda**2/3.,Aeff)*N)/lda**2  #instrument efficiency: here Aeff is effective area per dipole, N is no. dipoles per station
 
 
     #DEPENDS ON Z! FIND THIS
@@ -58,12 +70,9 @@ for fname in glob.glob(path):
     #print spatialfreq[1] - spatialfreq[0]
     #print scaling
 
-    #Define Wavelength - find this out from z!!
-    lda=0.21106*(1+z)
-
 
     # Now we import array positions
-    (dx,dy,dz)=func.importarray('LOFAR23CoreLB.txt',lda) #this assumes lda doesn't change too much over slices!!! 'MWAcoordinate.txt''vla.a.cfg' 'MWAhalved.txt''MWA128.txt'
+    (dx,dy,dz)=func.importarray(arrayname,lda) #this assumes lda doesn't change too much over slices!!! 'MWAcoordinate.txt''vla.a.cfg' 'MWAhalved.txt''MWA128.txt'
 
 
     #Apply rotation matrix onto baseline vector and maps onto fourier plane.
@@ -108,6 +117,7 @@ for fname in glob.glob(path):
                     sigma3Dinverse[slice][i][j] = tsyst/(eps*np.sqrt(UVcount[i][j]*tint*daysofscanning*B))       #saved seperately to calculate power spectrum seperately, error eqn according to NRAO course + Pritchard
                     real=np.random.normal(np.real(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)     #sqrt(2) here as real and imag components share it
                     imaginary = np.random.normal(np.imag(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)
+                    #####################!!!!!!!!this saves as [k][i][j]!!!!!!#######################
                     image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
 
     #Could have psf stuff here
@@ -123,7 +133,7 @@ for fname in glob.glob(path):
     Windowedimage = np.fft.ifftn(Windowedimageinverse)
     Windowedimage = np.abs(Windowedimage)   #abs or real?
 
-    func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta)
+    func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta,True)
 
     #This function compared the phases of the real and imaginary
     #func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
@@ -148,7 +158,10 @@ for fname in glob.glob(path):
     # This function compares the powerspectra of the image, the twenty1cmsignal and the error
     # func.printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse, psdwidth,size,dtheta,dl, z)
 
-
+    #This function shows the kperpendicular vs kparallel graph
+    func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z,'Windowed')
+    func.kperpvskparrgraph(twenty1inverse,psdwidth,size,dl,z,'21cmimage')
+    func.kperpvskparrgraph(sigma3Dinverse,psdwidth,size,dl,z,'Sigma')
 
     #IF YOU WANT TO SAVE BOXES FOR LATER ANALYSIS - USE THESE
     #np.save('Experiment/image3D_z%s'%(z),image3D)

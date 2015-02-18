@@ -4,6 +4,7 @@ from matplotlib import ticker
 import matplotlib.pyplot as plt
 import boxio as boximport
 import Cosmo as Cosmo
+from matplotlib.colors import LogNorm
 
 def printgraph (image, xrange, yrange, xlabel, ylabel, scalemin,scalemax):   #generic print function with ranges and labels
     if scalemin == 'None':
@@ -93,24 +94,33 @@ def powerspectrumevolution(data,width,size,dtheta):
         print i
 
 #this takes a 3D fourier space, plots k parrallel vs k perpendicular (remember kperp = sqrt(kx**2 + ky**2),kparr = kz)
-def kperpvskparrgraph(data,width,size,dl):
+def kperpvskparrgraph(data,width,size,dl,z,name, minpower,maxpower):
 
     length = 1 + int(np.sqrt(.5*size**2)/width)
-    dataarray = np.zeros((length,size))  #creates our kperp vs kparr values, value at element is the average PS at that point
+    dataarray = np.zeros((size/2,length), dtype=np.float32)  #creates our kperp vs kparr values, value at element is the average PS at that point
+
     '''
     for i in range (size):
         ###########i've worked out that we're trying to save the 142 legth bit into a 200 length bit, which is as data array is 200x142 so wrong side###########
         dataarray[i][:] = dataarray[i][:] * powerspectrum2D(data[:][:][i], width, size)   #this returns the 1D array of averaged k perpendicular values, for that kparr
         print dataarray[i][:]   #importantly now the first column saves the k// values from data
     '''
-    for i in range (size):
 
-        temp = powerspectrum2D(data[:][:][i], width, size)   #this returns the 1D array of averaged k perpendicular values, for that kparr
+    for kperp in range (size/2):
 
-        for j in range(length):
-            dataarray[j][i] = temp[j]
+        temp = powerspectrum2D(data[kperp][:][:], width, size)   #this returns the 1D array of averaged k perpendicular values, from -k to k, for that kparr
+        temp2 = powerspectrum2D(data[size-kperp-1][:][:], width, size) #same as above except taking other side of kparr so we can get |k|
+        temp += temp2   #
+        temp = temp/2.
 
-    print dataarray   #importantly now the first column saves the k// values from data
+
+        #temp = temp[::-1]   #this reverses the order of the array
+
+        for kparr in range(length): #now want to save |k| so will save from 0 to k
+            dataarray[kperp][kparr] = float(temp[kparr])  #length - j so that it goes from 0 - k whereas before it was otherway aroundhh
+
+    #print dataarray.shape
+    #print dataarray   #importantly now the first column saves the k// values from data
 
     #want axis not in element steps, but in k steps (both axis), but both axis different lengths
     #rparrsize = size    #or could be size/2. if we want abs(kparr) . . .
@@ -120,34 +130,38 @@ def kperpvskparrgraph(data,width,size,dl):
     #rperpsize = int(np.sqrt(.5*size**2/width))  #or + 1??
     kperpmax = np.sqrt(2*((1./(2*float(dl)))**2))
 
+    #np.savetxt('kvsk%s.out' %z, dataarray, delimiter='\t')
 
     #kperpaxis = np.arange(0,kperpmax+kperpmax/rperpsize,kperpmax/rperpsize) # rmax steps on the kperpendicularaxis
 
+    # make x and y axis for the powerspectrum plot.
+    x = np.arange(0,float(kperpmax), kperpmax/(length), dtype=np.float)
+
+    y = np.arange(1./(dl*2.),0,-1./(dl*2.)/(size/2), dtype=np.float ) # negative counting as we average from large k inwards
+
+    '''
+    imageplot=ax1.imshow(dataarray, cmap='jet',extent=[0,kperpmax,0,1./(2.*dl)],interpolation='nearest',norm=LogNorm())    #is this right?#extent=[0,kperpmax,0,1/(2*dl)]
+    ax1.set_xlabel('k Perpendicular (MPc$^{-1}$)')
+    ax1.set_ylabel('k Parallel (MPc$^{-1}$)')
+    #plt.colorbar(imageplot)
+    '''
+
     fig = plt.figure()
+    im=plt.pcolormesh(x,y, dataarray, cmap='jet',norm=LogNorm(), vmin=minpower, vmax=maxpower)
+    plt.axis([0.05,kperpmax,1./(dl*2.)/(size/2), 1./(dl*2.)])
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.colorbar()
+    plt.xlabel('k Perpendicular (MPc$^{-1}$)')
+    plt.ylabel('k Parallel (MPc$^{-1}$)')
 
-    ax1 = fig.add_subplot(111) # x (z) and y axis
+    print kperpmax/(length),kperpmax,1./(dl*2.)/(size/2), 1./(dl*2.)
 
-    ax1.imshow(dataarray,extent=[0,kperpmax,0,1/(2*dl)], cmap='jet',interpolation='nearest')    #is this right?
-    ax1.set_xlabel('k Parrallel (MPc$^{-1}$)')  #might be the wrong way around now
-    ax1.set_ylabel('k Perpendicular (MPc$^{-1}$)')
-    #resize axis how?
+    plt.savefig('KvsK/%sKperpvsKparr%s.png'%(name,z))
+    #plt.show()
+    plt.close(fig)
+    print 'done'
 
-    #########This commented section is the print NF thing from below copied to help maybe
-    '''
-    nf_axis_ticklocations = np.array([1, 5, 9, 13, 17]) # in terms of z
-    nfindexes=np.searchsorted(redshift, nf_axis_ticklocations) # finds corresponding indices
-
-    ax2 = ax1.twiny() # further x axis corresponding to the same y axis
-    ax2.set_xticks(nf_axis_ticklocations) # ticks at desires z locations.
-    ax2.set_xticklabels(neutralfractions[nfindexes]) # prints nf for each z location
-    ax2.set_xlabel("Un-ionized Fraction")
-    '''
-
-
-
-
-    #plt.savefig('KperpvsKparr')
-    plt.show()
 
 
 ##2D PS Calculation##
@@ -159,13 +173,16 @@ def powerspectrum2D(data,width,size): #here width means how many pixels wide eac
     #slits of width 'width' and radius is rmax, so longest r is sqrt(r**2 + r**2)
     countarray = np.zeros((2,1 + int(np.sqrt(2.*rmax**2)/width)))
 
+    dataabs = np.copy(data)
+    dataabs = np.abs(dataabs)**2
+
     #goes over all image points, and adds the cumulative counts & number of counts for each band of k
     for i in range(size):
         for j in range (size):
             r = int(np.sqrt((i-rmax)**2 + (j-rmax)**2)/width)   #distance from centre, r/width so can save larger wedges
 
             countarray[1][r] += 1   #adds 1 to count, used to average
-            countarray[0][r] += data[i][j]
+            countarray[0][r] += dataabs[i][j]
             #do we want deldel??
     return countarray[0]/countarray[1]
 
@@ -771,9 +788,9 @@ def EORWINDOW(Windowedimageinv, size, dl,z,B): #units of r are in terms of the i
                 kperp = np.sqrt((i-ci)**2 + (j-ci)**2)
 
                 if np.abs(k-ci) < parrkcutoff:
-                    Windowedimageinv[i][j][k]=0.+0.j#np.nan
+                    Windowedimageinv[k][j][i]=0.+0.j#np.nan
                 elif np.abs(k-ci) < kperp*H0*Dz*E*theta0/(c*(1+z)*ktorratio):    #abs as kparrallel = abs(kz)
-                    Windowedimageinv[i][j][k]=0.+0.j#np.nan
+                    Windowedimageinv[k][j][i]=0.+0.j#np.nan
     '''
     #replaces the central DC cube
     counter=0

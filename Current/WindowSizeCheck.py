@@ -59,6 +59,6 @@ for fname in glob.glob(path):
     #print Windowedimageinverse
     #print 'made windowed image'
 
-    func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl)
+    func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z)
 
     print 'z', z, 'inversespacecovered', np.average(Windowedimageinverse)

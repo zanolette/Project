@@ -47,28 +47,29 @@ for fname in glob.glob(path):
 
     #############Load in Files for this z########################################################
 
-    image3Dinverse = np.load('ExperimentMWA128-600Hours/image3Dinv_z%s.npy' %z)
-    #sigma3Dinverse = np.load('ExperimentMWA128-600Hours/sigma3Dinv_z%s.npy' %z)
-    Windowedimageinverse = np.load('ExperimentMWA128-600Hours/windowedinv_z%s.npy' %z)
+    image3Dinverse = np.load('Experiment/image3Dinv_z%s.npy' %z)
+    sigma3Dinverse = np.load('Experiment/sigma3Dinv_z%s.npy' %z)
+    Windowedimageinverse = np.load('Experiment/windowedinv_z%s.npy' %z)
 
-    #func.kperpvskparrgraph(image3Dinverse,1,size,dl)
-    #func.kperpvskparrgraph(Windowedimageinverse,1,size,dl)
+    func.kperpvskparrgraph(image3Dinverse,psdwidth,size,dl,z,'image',  1e7,2e11 )
+    func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z,'Windowed',1e7,2e11)
+    func.kperpvskparrgraph(sigma3Dinverse,psdwidth,size,dl,z,'Sigma',10, 1e4)
     ###############Calculating fft's################################
 
     #twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
     #twenty1inverse = np.fft.fftshift(twenty1inverse)
 
     #How we get our image from the fourier transform
-    image3D = np.fft.ifftn(image3Dinverse)
-    image3D = np.abs(image3D)
+    #image3D = np.fft.ifftn(image3Dinverse)
+    #image3D = np.abs(image3D)
 
-    Windowedimage = np.fft.ifftn(Windowedimageinverse)
-    Windowedimage = np.abs(Windowedimage)   #abs or real?
+    #Windowedimage = np.fft.ifftn(Windowedimageinverse)
+    #Windowedimage = np.abs(Windowedimage)   #abs or real?
 
 
     ##################Calculating and saving statistical values############################
 
-    print 'Pearsons R for z', z, 'is: Windowed', func.PearsonR(twenty1,Windowedimage,size), 'nonwindowed:', func.PearsonR(twenty1,image3D,size)
+    #print 'Pearsons R for z', z, 'is: Windowed', func.PearsonR(twenty1,Windowedimage,size), 'nonwindowed:', func.PearsonR(twenty1,image3D,size)
 
     '''
     average21cmtemp[counter] = np.average(twenty1)  #this saves the average 21cm temperature
