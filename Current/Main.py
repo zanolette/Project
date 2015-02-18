@@ -133,7 +133,7 @@ for fname in glob.glob(path):
     Windowedimage = np.fft.ifftn(Windowedimageinverse)
     Windowedimage = np.abs(Windowedimage)   #abs or real?
 
-    func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta,True)
+    #func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta,True)
 
     #This function compared the phases of the real and imaginary
     #func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
@@ -159,9 +159,9 @@ for fname in glob.glob(path):
     # func.printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse, psdwidth,size,dtheta,dl, z)
 
     #This function shows the kperpendicular vs kparallel graph
-    func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z,'Windowed')
-    func.kperpvskparrgraph(twenty1inverse,psdwidth,size,dl,z,'21cmimage')
-    func.kperpvskparrgraph(sigma3Dinverse,psdwidth,size,dl,z,'Sigma')
+    #func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z,'Windowed')
+    #func.kperpvskparrgraph(twenty1inverse,psdwidth,size,dl,z,'21cmimage')
+    #func.kperpvskparrgraph(sigma3Dinverse,psdwidth,size,dl,z,'Sigma')
 
     #IF YOU WANT TO SAVE BOXES FOR LATER ANALYSIS - USE THESE
     #np.save('Experiment/image3D_z%s'%(z),image3D)

@@ -16,10 +16,10 @@ psdwidth = 1
 CosmoUnits=Cosmo.CosmoUnits()
 
 #These arrays for plotting variable/statistic changes with z/neutral fraction
-PSrmsarray = np.zeros(23)   #this is for z=7 to z=18 runs in half steps
-average21cmtemp = np.zeros(23)  #this is the average temp
-averagewindowedimagetemp = np.zeros(23) #compared to the above
-rmserrorintemp = np.zeros(23)   #this gives rms difference between two images at every point
+PSrmsarray = np.zeros((2, 23))   #this is for z=7 to z=18 runs in half steps, saves windowed and not PS rms
+averagetemp = np.zeros((3, 23))  #this is the average temp: 21cm,image,Windowed
+rmserrorintemp = np.zeros((2, 23))   #this gives rms difference between two images at every point
+PearsonRarray = np.zeros((3, 23)) #this saves z,image vs 21cm Pearson,windowed vs 21cm Parson
 
 redshift = np.zeros(23)
 neutralfractions = np.zeros(23)
@@ -28,7 +28,7 @@ counter=0   #this is just to help allocate saved values into the arrays
 
 ##########Taking each z box seperately#############
 
-path = "LARGEBOXES/*"
+path = "LARGEBOXES2/*"
 for fname in glob.glob(path):
 
     box_info = boximport.parse_filename(fname)
@@ -45,104 +45,91 @@ for fname in glob.glob(path):
     redshift[counter] = z   #saved for later to put labels on axes
     neutralfractions[counter] = box_info['nf']  #saves neutral fraction of this z
 
+    print 'Now starting z =',z
+
     #############Load in Files for this z########################################################
 
     image3Dinverse = np.load('Experiment/image3Dinv_z%s.npy' %z)
     sigma3Dinverse = np.load('Experiment/sigma3Dinv_z%s.npy' %z)
     Windowedimageinverse = np.load('Experiment/windowedinv_z%s.npy' %z)
 
-    func.kperpvskparrgraph(image3Dinverse,psdwidth,size,dl,z,'image',  1e7,2e11 )
-    func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z,'Windowed',1e7,2e11)
+    func.kperpvskparrgraph(image3Dinverse,psdwidth,size,dl,z,'image',  1e7, 2e11 )
+    func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z,'Windowed',1e7, 2e11)
     func.kperpvskparrgraph(sigma3Dinverse,psdwidth,size,dl,z,'Sigma',10, 1e4)
     ###############Calculating fft's################################
 
-    #twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
-    #twenty1inverse = np.fft.fftshift(twenty1inverse)
+    twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
+    twenty1inverse = np.fft.fftshift(twenty1inverse)
 
     #How we get our image from the fourier transform
-    #image3D = np.fft.ifftn(image3Dinverse)
-    #image3D = np.abs(image3D)
+    image3D = np.fft.ifftn(image3Dinverse)
+    image3D = np.abs(image3D)
 
-    #Windowedimage = np.fft.ifftn(Windowedimageinverse)
-    #Windowedimage = np.abs(Windowedimage)   #abs or real?
+    Windowedimage = np.fft.ifftn(Windowedimageinverse)
+    Windowedimage = np.abs(Windowedimage)   #abs or real?
 
 
     ##################Calculating and saving statistical values############################
 
-    #print 'Pearsons R for z', z, 'is: Windowed', func.PearsonR(twenty1,Windowedimage,size), 'nonwindowed:', func.PearsonR(twenty1,image3D,size)
+    #Calcules PearsonR Value for non-windowed then windowed with z
+    PearsonRarray[0][counter] = z
+    PearsonRarray[1][counter] = func.PearsonR(twenty1,image3D,size)
+    PearsonRarray[2][counter] = func.PearsonR(twenty1,Windowedimage,size)
 
-    '''
-    average21cmtemp[counter] = np.average(twenty1)  #this saves the average 21cm temperature
-    averagewindowedimagetemp[counter]=np.average(Windowedimage)   #this saves the average image temperature
 
-    rmserrorintemp[counter] = func.rmscalc(twenty1,Windowedimage,size)
+    #Temperature statistics
+    averagetemp[0][counter] = np.average(twenty1)  #this saves the average 21cm temperature
+    averagetemp[1][counter] = np.average(image3D)  #this saves the average image temperature
+    averagetemp[2][counter] = np.average(Windowedimage)   #this saves the average windowed image temperature
+    rmserrorintemp[0][counter] = func.rmscalc(twenty1,image3D,size)
+    rmserrorintemp[1][counter] = func.rmscalc(twenty1,Windowedimage,size)
+    #print 'z', z,'nf',box_info['nf'],  'temp',average21cmtemp[counter],averagewindowedimagetemp[counter], 'rms', rmserrorintemp[counter]
 
-    print 'z', z,'nf',box_info['nf'],  'temp',average21cmtemp[counter],averagewindowedimagetemp[counter], 'rms', rmserrorintemp[counter]
-    '''
-    #func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta, True)
+
+    #func.visualisereionizationslicebyslice(Windowedimage, twenty1, size, z, theta, True,'Windowed')
+    #func.visualisereionizationslicebyslice(image3D, twenty1, size, z, theta, True,'Non-Windowed') #don't think we'll need this
+
 
     #This function compared the phases of the real and imaginary
-    #func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
+    #func.phasecomparison(twenty1inverse, Windowedimageinverse, size, z)
+
 
     #!!printpowerspectrum is for comparing the windowed,non-windowed and 21cm powerspectrums on one graph, but also saves deldelPS's seperately for comparison!!
-    #PSrmsarray[counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
-
+    #The first of these is the non-windowed PS rms, the second is the windowed PS rms
+    PSrmsarray[0][counter],PSrmsarray[1][counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
     #print 'z', z, 'PSrms', PSrmsarray[counter]
 
+
     #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
-    #cutoff = 0.65
-    #iterations = 100000
+    cutoff = 0.65
+    iterations = 100000
+
 
     #These functions print the different size distribution analysis methods which we have worked on
-    #THIS FUNCTION SHOWS THE PLOT RATHER THAN SAVING - NEED TO CHANGE BEFORE AUTOMATION
-    #func.printmeanfreepathdist(image3D, twenty1, size, dl, cutoff, iterations)
-    #func.printbubblesizedist(image3D, twenty1, size, dl, cutoff)
-
-    #print 'stats for bubble sizes for z = ', z
-
-    #print func.printmeanfreepathdist(Windowedimage, twenty1, size, dl, cutoff, iterations)
-
-    #func.printbubblesizedist(Windowedimage, twenty1, size, dl, cutoff)
-
-    #This function compares two different 21cmboxes (maybe change it so you can insert
-    #func.visualisereionizationslicebyslice(image3D,twenty1, size, z, theta)
-
-    # This function compares the powerspectra of the image, the twenty1cmsignal and the error
-    # func.printpowerspectrum(image3Dinverse, sigma3Dinverse, twenty1inverse, psdwidth,size,dtheta,dl, z)
+    #Saves the text files for the distributions and their statistics plus prints distributions together
+    func.printmeanfreepathdist(image3D,Windowedimage,twenty1, size, dl, cutoff, iterations,z)
+    func.printbubblesizedist(image3D,Windowedimage, twenty1, size, dl, cutoff,z)
 
     counter += 1    #this increases the counter so the next values are stored in the next element slots of the arrays
+
 
 #print all of the arrays against z/neutral fraction
 #printing z and neutral fraction on two x axes
 #ASSUMES - 3 numpy arrays - z, neutrlfractions and YVALUE
-
-#func.printvaluesvsz(PSrmsarray,redshift,neutralfractions,'PowerSpectrum (mK)')   #error in powerspectrum vs z
-#################is this P(k) or DelDel??????? if so then need to change units to mK Mpc^-3########################
-
-
-'''
-
-func.printvaluesvsz(rmserrorintemp,redshift,neutralfractions,'Temperature (mK)')  #error in temp vs z
+func.printvaluesvsz(PSrmsarray,redshift,neutralfractions,'RMS in PowerSpectrum (mK$^2$ Mpc$^3$)')   #error in powerspectrum vs z
+func.printvaluesvsz(PearsonRarray,redshift,neutralfractions,'Pearson R Value in Temperature (mK)')  #error in temp vs z
+func.printvaluesvsz(rmserrorintemp,redshift,neutralfractions,'RMS in Temperature (mK)')  #error in temp vs z
 
 
 ###############This shows both 21cm and windowed image average temperatures varying with time
-fig = plt.figure()
+func.averagetempvsz(averagetemp,neutralfractions,redshift)
 
-ax1 = fig.add_subplot(111) # x (z) and y axis
 
-ax1.plot(redshift,averagewindowedimagetemp,redshift,average21cmtemp)
-ax1.set_xlabel("Redshift")
-ax1.set_ylabel("Y QUANTITY")
+############Saving all arrays so they can be outputted#########################
+np.savetxt('TextFiles/PSrmsOutputFile',PSrmsarray, delimiter='\t')
+np.savetxt('TextFiles/AverageTempOutputFile',averagetemp, delimiter='\t')
+np.savetxt('TextFiles/RMSErrorsinTempOutputFile',rmserrorintemp, delimiter='\t')
+np.savetxt('TextFiles/PearsonROutputFile',PearsonRarray, delimiter='\t')
 
-nf_axis_ticklocations = np.array([7, 9, 11, 13, 15, 17]) # in terms of z
-nfindexes=np.searchsorted(redshift, nf_axis_ticklocations) # finds corresponding indices
 
-ax2 = ax1.twiny() # further x axis corresponding to the same y axis
-ax2.set_xticks(nf_axis_ticklocations) # ticks at desires z locations.
-ax2.set_xticklabels(neutralfractions[nfindexes]) # prints nf for each z location
-ax2.set_xlabel("Un-ionized Fraction")
 
-plt.savefig('Statisticalvaluesvsz/averagetemperaturecomparisson')   #this saves the graph using the string labelname
-plt.clf()
-
-'''

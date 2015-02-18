@@ -88,7 +88,7 @@ def powerspectrumevolution(data,width,size,dtheta):
         #plt.yticks(range(10,21,1))
         plt.xlabel('k')
         plt.ylabel('P(k)')
-        plt.savefig('test/%i' %i)
+        plt.savefig('test/%i.png' %i)
         plt.clf()
 
         print i
@@ -465,7 +465,7 @@ def visualizereionizationagainstz(image, size, z, theta):
 '''
 
 #Method: prints out all the slices of 2 boxes to be compared - creates gif on freds computer - "convert -delay 10 image*.png animated.gif"
-def visualisereionizationslicebyslice(image,twenty1, size, z, theta, crosssection):
+def visualisereionizationslicebyslice(image,twenty1, size, z, theta, crosssection,inputname):
 
     if crosssection == True:
         extraline = 2
@@ -501,12 +501,12 @@ def visualisereionizationslicebyslice(image,twenty1, size, z, theta, crosssectio
             plt.plot(image[t][int(size/2)])
             plt.xlabel('X axis in $^\circ$s')
 
-        plt.savefig('Image/z%simage%03i.png'%(z,t))
+        plt.savefig('%sVisualisation/%sz%simage%03i.png'%(inputname,inputname,z,t))
         plt.close(fig)
 
 
 #Method: counts and compares the number of corresponding angles (x axis is 21cmfast and y axis is our image)
-def phasecomparison(twenty1, image, size):
+def phasecomparison(twenty1, image, size,z):
 
     phasearray=np.zeros((629,629))
 
@@ -522,7 +522,9 @@ def phasecomparison(twenty1, image, size):
     plt.imshow(phasearray, extent=(0,2*np.pi, 2*np.pi,0))
     plt.xlabel('21cmfast Phase (radians)')
     plt.ylabel('Image Phase (radians)')
-    plt.show()
+    #plt.show()
+    plt.savefig('PhaseComparrison/Phasez%s.png' %z)
+    plt.clf()
 
 # This is a binning algorithm (linear), might have to move on to a log binning if we want clearer data...
 def binningforbubblesizedist(distribution, binsizes):
@@ -852,19 +854,19 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
     #realps = np.loadtxt('PowerSpectrumFiles/PS%s'%z, delimiter='\t')
 
     onek, onepowerspectrum , onedeldel= powerspectrum3D(oneinverse,psdwidth,size,dtheta,dx, z,0) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
-    print 'done 1'
+    #print 'done 1'
     twok, twopowerspectrum , twodeldel= powerspectrum3D(twoinverse,psdwidth,size,dtheta, dx, z,1)
-    print 'done 2'
+    #print 'done 2'
     threek, threepowerspectrum, threedeldel= powerspectrum3D(threeinverse,psdwidth,size,dtheta,dx, z,0)
-    print 'done 3'
-    #fourk, fourpowerspectrum, fourdeldel= powerspectrum3D(fourinverse,psdwidth,size,dtheta,dx, z,0)
+    #print 'done 3'
+    fourk, fourpowerspectrum, fourdeldel= powerspectrum3D(fourinverse,psdwidth,size,dtheta,dx, z,0)
     #print 'done twenty1powerspectrum'
 
-    if rmsornot == 1:   #will pass in either 1 or 0 as to wether we want to calculate this
-        rmsvalue = PSrmscalc(twok,twopowerspectrum,threek,threepowerspectrum)   #sends in 21cm then windowed image
-        print "rms value is", rmsvalue
 
+    #####SavingGraphData#######
+    np.savetxt('PowerSpectrumDataz%s(k,PS,DelDel)(image,21cm,Windowed,sigma).txt' %z, (onek, onepowerspectrum , onedeldel,twok, twopowerspectrum , twodeldel,threek, threepowerspectrum, threedeldel,fourk, fourpowerspectrum, fourdeldel), delimiter='\t')
 
+    #####SavingMatplotLibGraphs########
     #plots the compared powerspectra
     plt.loglog(onek,onedeldel)
     plt.loglog(twok,twodeldel)
@@ -904,8 +906,9 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
     plt.savefig('Powerspectrums/DELDEL_POWERSPEC_z%s.png' %z)
     plt.clf()
 
-    if rmsornot == 1:
-        return rmsvalue #this can then be saved in an array to compare rms error changing with z
+    if rmsornot == 1:   #will pass in either 1 or 0 as to wether we want to calculate this
+        #this can then be saved in an array to compare rms error for windowed and non-windowed changing with z
+        return PSrmscalc(onek,onepowerspectrum,twok,twopowerspectrum),PSrmscalc(twok,twopowerspectrum,threek,threepowerspectrum)
     else:
         return 0
 
@@ -927,47 +930,59 @@ def printvaluesvsz(YVALUE,redshift,neutralfractions,labelname):
     ax2.set_xticklabels(neutralfractions[nfindexes]) # prints nf for each z location
     ax2.set_xlabel("Un-ionized Fraction")
 
-    plt.savefig('Statisticalvaluesvsz/%s_vsz' %labelname)   #this saves the graph using the string labelname
+    plt.savefig('Statisticalvaluesvsz/%s_vsz.png' %labelname)   #this saves the graph using the string labelname
     plt.clf()
 
-def printbubblesizedist(image3D, twenty1, size, dl, cutoff):
+def printbubblesizedist(image3D, twenty1, size, dl, cutoff,z,name):
 
     distimagex, distimagey= bubblesizedistribution(image3D, size,dl,cutoff,'image')
+    distwindowedx, distwindoewedy= bubblesizedistribution(image3D, size,dl,cutoff,'image')
     dist21x, dist21y= bubblesizedistribution(twenty1, size,dl,cutoff,'twenty1')
 
+    np.savetxt('TextFiles/BubbleSizeDistDataz%s(imagex,imagedist,windowedx,windoweddist,21cmx,21cmdist).txt' %z,(distimagex, distimagey,distwindowedx, distwindoewedy,dist21x, dist21y),delimiter='\t')
+
     figure = plt.loglog(distimagex,distimagey)
+    plt.loglog(distwindowedx,distwindoewedy)
     plt.loglog(dist21x, dist21y)
 
     plt.xlabel('Ionised Volume (MPc$^{3}$)')
     plt.ylabel('Probability')
     plt.xlim(2,100000)
     plt.ylim(0.000007,1)
-    plt.show()
+    #plt.show()
+    plt.savefig('BubbleSizeDist/BubbleDistz%s.png' %z)
+    plt.clf()
 
-
-def printmeanfreepathdist(image3D, twenty1, size, dl, cutoff, iterations):
+def printmeanfreepathdist(image3D,Windowed, twenty1, size, dl, cutoff, iterations,z):
 
     imagemeanpathx,imagemeanpathdist = secondbubbledistributioncalculator(image3D,size,cutoff,dl,iterations)
-    #imagemeanpathdist = imagemeanpathdist/imagemeanpathx  #has to be done outside of return so that sum() function worksa
+    #imagemeanpathdist = imagemeanpathdist/imagemeanpathx  #has to be done outside of return so that sum() function works
+    windowedmeanpathx,windowedmeanpathdist = secondbubbledistributioncalculator(Windowed,size,cutoff,dl,iterations)
+    #windowedmeanpathdist = windowedmeanpathdist/windowedmeanpathx  #has to be done outside of return so that sum() function works
     twenty1meanpathx,twenty1meanpathdist = secondbubbledistributioncalculator(twenty1,size,cutoff,dl,iterations)
-    #twenty1meanpathdist = twenty1meanpathdist/twenty1meanpathx  #has to be done outside of return so that sum() function worksa
+    #twenty1meanpathdist = twenty1meanpathdist/twenty1meanpathx  #has to be done outside of return so that sum() function works
 
+    np.savetxt('TextFiles/MeanFreePathDistDataz%s(imagex,imagedist,windowedx,windoweddist,21cmx,21cmdist).txt' %z,(imagemeanpathx,imagemeanpathdist,windowedmeanpathx,windowedmeanpathdist,twenty1meanpathx,twenty1meanpathdist),delimiter='\t')
 
     figure= plt.loglog(imagemeanpathx,imagemeanpathdist)
     plt.loglog(twenty1meanpathx,twenty1meanpathdist)
+    plt.loglog(windowedmeanpathx,windowedmeanpathdist)
 
-    '''
     plt.xlabel('Ionised Volume (MPc$^{3}$)')
     plt.ylabel('Probability')
     plt.xlim(2,100000)
     plt.ylim(0.000007,1)
-    plt.show()
-    '''
-    #mean21,median21,uqmean21 = meanfreepathstatistics(twenty1meanpathx,twenty1meanpathdist)  #this sends the bubble distribution yaxis to be averaged
-    #meanimage, medianimage,uqmeanimage = meanfreepathstatistics(imagemeanpathx,imagemeanpathdist)
+    #plt.show()
+    plt.savefig('MeanFreePathDist/MFPDistributionz%s.png' %z)
+    plt.clf()
+
+    mean21,median21,uqmean21,weightedmean21 = meanfreepathstatistics(twenty1meanpathx,twenty1meanpathdist)  #this sends the bubble distribution yaxis to be averaged
+    meanimage, medianimage,uqmeanimage,weightedmeanimage = meanfreepathstatistics(imagemeanpathx,imagemeanpathdist)
+    meanwindowed,medianwindowed,uqmeanwindowed,weightedmeanwindowed = meanfreepathstatistics(windowedmeanpathx,windowedmeanpathdist)
+    np.savetxt('TextFiles/MeanFreePathStatisticsz%s(21cm,image,windowed)(mean,median,uqmean,weightedmean/mean).txt' %z,(mean21,median21,uqmean21,weightedmean21,meanimage, medianimage,uqmeanimage,weightedmeanimage,meanwindowed,medianwindowed,uqmeanwindowed,weightedmeanwindowed),delimiter='\t')
     #returned below in the form seen above
 
-    return meanfreepathstatistics(twenty1meanpathx,twenty1meanpathdist),meanfreepathstatistics(imagemeanpathx,imagemeanpathdist)     #this gives us back the mean for this z
+    #return meanfreepathstatistics(twenty1meanpathx,twenty1meanpathdist),meanfreepathstatistics(imagemeanpathx,imagemeanpathdist)     #this gives us back the mean for this z
 
 def meanfreepathstatistics(xdata,ydata): #data is just the bubble size x values
 
@@ -996,3 +1011,23 @@ def meanfreepathstatistics(xdata,ydata): #data is just the bubble size x values
     upperquartilemean = upperquartilemean/upperquartilecounter
 
     return mean, median, upperquartilemean, weightedmean/mean
+
+def averagetempvsz(averagetemp,neutralfractions,redshift):
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(111) # x (z) and y axis
+
+    ax1.plot(redshift,averagetemp[2][:],redshift,averagetemp[0][:]) #this is plotting windowed vs 21cmFast temp
+    ax1.set_xlabel("Redshift")
+    ax1.set_ylabel("Y QUANTITY")
+
+    nf_axis_ticklocations = np.array([7, 9, 11, 13, 15, 17]) # in terms of z
+    nfindexes=np.searchsorted(redshift, nf_axis_ticklocations) # finds corresponding indices
+
+    ax2 = ax1.twiny() # further x axis corresponding to the same y axis
+    ax2.set_xticks(nf_axis_ticklocations) # ticks at desires z locations.
+    ax2.set_xticklabels(neutralfractions[nfindexes]) # prints nf for each z location
+    ax2.set_xlabel("Un-ionized Fraction")
+
+    plt.savefig('Statisticalvaluesvsz/averagetemperaturecomparisson.png')   #this saves the graph using the string labelname
+    plt.clf()
