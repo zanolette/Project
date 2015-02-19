@@ -9,6 +9,7 @@ from matplotlib.colors import LogNorm
 from matplotlib.ticker import MaxNLocator
 import matplotlib.gridspec as gs
 
+
 def printgraph (image, xrange, yrange, xlabel, ylabel, scalemin,scalemax):   #generic print function with ranges and labels
     if scalemin == 'None':
         if scalemax == 'None':  #seems convoluted but allows us to use scalemin or max or not
@@ -305,6 +306,7 @@ def logbinningforPowerspectrum(K, PofK, DelDel, dl, powerfactor=1.2):
             k += 1  #if not 0 then looks at the next PofK[k]
 
     kbinssize=np.delete(kbinssize, (np.size(kbinssize)-1)) # delete the top box which doesnt refer to anything
+
     return kbinssize, PofKBins, DelDelBins  # factor of dl**3 as in volume (element^3) but need MPc^3
 
 
@@ -577,7 +579,7 @@ def binningforbubblesizedist(distribution, binsizes):
 
 def logbinningforbubblesizedist(distribution, size,dl, powerfactor=1.5):
 
-    distribution = np.trim_zeros(distribution, 'b') #this trims the trailing zeros
+    #distribution = np.trim_zeros(distribution, 'b') #this trims the trailing zeros
     largestbubble = len(distribution)
 
     numberofbins = int(np.ceil(np.log(largestbubble)/np.log(powerfactor)))
@@ -596,7 +598,7 @@ def logbinningforbubblesizedist(distribution, size,dl, powerfactor=1.5):
             bins[1][i]+=distribution[j]
 
         bins[0][i]=np.sqrt(float(lowtemp*hightemp)) #this gives x value for bin (log position)
-
+    del distribution  #safety measure
     numberofcounts = 0  #this is so we know the normalisation factor
     for i in range(len(bins[1])):
         numberofcounts += bins[1][i]
@@ -604,16 +606,12 @@ def logbinningforbubblesizedist(distribution, size,dl, powerfactor=1.5):
     return dl**3*bins[0], bins[1]/numberofcounts    # factor of dl**3 as in volume (element^3) but need MPc^3
 
 
-def bubblesizedistribution(imageoriginal, size,dl,thresholdfraction,imagename):
+def bubblesizedistribution(imageoriginal, size,dl,thresholdfraction):
 
     image = imageoriginal #we dont want to change the original
-
-    distribution=np.zeros(size*size*size) # this is the maximum size of a bubble so thats what ive made the distribution array equal to
+    distribution=np.zeros(size**3) # this is the maximum size of a bubble so thats what ive made the distribution array equal to
 
     averagetemp=np.average(image)
-
-    print 'printing average temp'
-    print averagetemp
 
     for i in range(size):
         for j in range(size):
@@ -626,8 +624,8 @@ def bubblesizedistribution(imageoriginal, size,dl,thresholdfraction,imagename):
                 else:
                     image[i][j][k] = 1
 
-    print '%s neutral fraction is' % imagename
-    print np.average(image)
+    #print '%s neutral fraction is' % imagename
+    #print np.average(image)
 
     for i in range(size):
         for j in range(size):
@@ -637,7 +635,6 @@ def bubblesizedistribution(imageoriginal, size,dl,thresholdfraction,imagename):
                 if image[i][j][k]==0:
                     image, count = numberofnearestneighbours(image, i, j, k, size)
                     distribution[count]+=1
-
     return logbinningforbubblesizedist(distribution,size,dl, 1.5) #this automatically logbins
 
 
@@ -759,7 +756,7 @@ def secondbubbledistributioncalculator(image,size, thresholdfraction,dl,iteratio
 
 
 
-    meanfreepathdistribution = np.trim_zeros(meanfreepathdistribution, 'b') #this trims the trailing zeros
+    #meanfreepathdistribution = np.trim_zeros(meanfreepathdistribution, 'b') #this trims the trailing zeros
 
     arraysize = len(meanfreepathdistribution)
     volume = np.zeros(arraysize)  #first column is xposition, second is that positions count
@@ -884,7 +881,6 @@ def PSrmscalc(onex,oney,twox,twoy):
 
 def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwidth,size,dtheta, dx, z,rmsornot):
 
-
     #realps = np.loadtxt('PowerSpectrumFiles/PS%s'%z, delimiter='\t')
 
     onek, onepowerspectrum , onedeldel= powerspectrum3D(oneinverse,psdwidth,size,dtheta,dx, z,0) # this is the size of steps in real space dx=float(box_info['dim'])/float(box_info['BoxSize'])
@@ -895,10 +891,12 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
     #print 'done 3'
     fourk, fourpowerspectrum, fourdeldel= powerspectrum3D(fourinverse,psdwidth,size,dtheta,dx, z,0)
     #print 'done twenty1powerspectrum'
-
-
+    #print onek.shape(), (onek.T).shape()
+    #concatenate here so that we can savetext properly, won't do it for multiple arrays
+    totalarray = np.vstack((onek.T,onepowerspectrum.T , onedeldel.T, twok.T, twopowerspectrum.T , twodeldel.T,threek.T, threepowerspectrum.T, threedeldel.T, fourk.T, fourpowerspectrum.T, fourdeldel.T))
+    totalarray = totalarray.T   #so it's the best way round for excel/origin
     #####SavingGraphData#######
-    np.savetxt('PowerSpectrumDataz%s(k,PS,DelDel)(image,21cm,Windowed,sigma).txt' %z, (onek, onepowerspectrum , onedeldel,twok, twopowerspectrum , twodeldel,threek, threepowerspectrum, threedeldel,fourk, fourpowerspectrum, fourdeldel), delimiter='\t')
+    np.savetxt('TextFiles/PowerSpectrumDataz%s(k,PS,DelDel)(image,21cm,Windowed,sigma).txt' %z, totalarray, delimiter='\t')
 
     #####SavingMatplotLibGraphs########
     #plots the compared powerspectra
@@ -967,13 +965,15 @@ def printvaluesvsz(YVALUE,redshift,neutralfractions,labelname):
     plt.savefig('Statisticalvaluesvsz/%s_vsz.png' %labelname)   #this saves the graph using the string labelname
     plt.clf()
 
-def printbubblesizedist(image3D, twenty1, size, dl, cutoff,z,name):
+def printbubblesizedist(image3D, Windowed, twenty1, size, dl, cutoff,z):
 
-    distimagex, distimagey= bubblesizedistribution(image3D, size,dl,cutoff,'image')
-    distwindowedx, distwindoewedy= bubblesizedistribution(image3D, size,dl,cutoff,'image')
-    dist21x, dist21y= bubblesizedistribution(twenty1, size,dl,cutoff,'twenty1')
+    distimagex, distimagey= bubblesizedistribution(image3D, size,dl,cutoff)
+    distwindowedx, distwindoewedy= bubblesizedistribution(Windowed, size,dl,cutoff)
+    dist21x, dist21y= bubblesizedistribution(twenty1, size,dl,cutoff)
 
-    np.savetxt('TextFiles/BubbleSizeDistDataz%s(imagex,imagedist,windowedx,windoweddist,21cmx,21cmdist).txt' %z,(distimagex, distimagey,distwindowedx, distwindoewedy,dist21x, dist21y),delimiter='\t')
+    totalarray= np.vstack((distimagex.T, distimagey.T,distwindowedx.T, distwindoewedy.T,dist21x.T, dist21y.T))
+    totalarray = totalarray.T
+    np.savetxt('TextFiles/BubbleSizeDistDataz%s(imagex,imagedist,windowedx,windoweddist,21cmx,21cmdist).txt' %z,totalarray,delimiter='\t')
 
     figure = plt.loglog(distimagex,distimagey)
     plt.loglog(distwindowedx,distwindoewedy)
@@ -996,7 +996,9 @@ def printmeanfreepathdist(image3D,Windowed, twenty1, size, dl, cutoff, iteration
     twenty1meanpathx,twenty1meanpathdist = secondbubbledistributioncalculator(twenty1,size,cutoff,dl,iterations)
     #twenty1meanpathdist = twenty1meanpathdist/twenty1meanpathx  #has to be done outside of return so that sum() function works
 
-    np.savetxt('TextFiles/MeanFreePathDistDataz%s(imagex,imagedist,windowedx,windoweddist,21cmx,21cmdist).txt' %z,(imagemeanpathx,imagemeanpathdist,windowedmeanpathx,windowedmeanpathdist,twenty1meanpathx,twenty1meanpathdist),delimiter='\t')
+    totalarray = np.vstack((imagemeanpathx.T,imagemeanpathdist.T,windowedmeanpathdist.T,twenty1meanpathdist.T))
+    totalarray = totalarray.T
+    np.savetxt('TextFiles/MeanFreePathDistDataz%s(x,imagedist,windoweddist,21cmdist).txt' %z,totalarray,delimiter='\t')
 
     figure= plt.loglog(imagemeanpathx,imagemeanpathdist)
     plt.loglog(twenty1meanpathx,twenty1meanpathdist)
@@ -1013,10 +1015,9 @@ def printmeanfreepathdist(image3D,Windowed, twenty1, size, dl, cutoff, iteration
     mean21,median21,uqmean21,weightedmean21 = meanfreepathstatistics(twenty1meanpathx,twenty1meanpathdist)  #this sends the bubble distribution yaxis to be averaged
     meanimage, medianimage,uqmeanimage,weightedmeanimage = meanfreepathstatistics(imagemeanpathx,imagemeanpathdist)
     meanwindowed,medianwindowed,uqmeanwindowed,weightedmeanwindowed = meanfreepathstatistics(windowedmeanpathx,windowedmeanpathdist)
-    np.savetxt('TextFiles/MeanFreePathStatisticsz%s(21cm,image,windowed)(mean,median,uqmean,weightedmean/mean).txt' %z,(mean21,median21,uqmean21,weightedmean21,meanimage, medianimage,uqmeanimage,weightedmeanimage,meanwindowed,medianwindowed,uqmeanwindowed,weightedmeanwindowed),delimiter='\t')
     #returned below in the form seen above
 
-    #return meanfreepathstatistics(twenty1meanpathx,twenty1meanpathdist),meanfreepathstatistics(imagemeanpathx,imagemeanpathdist)     #this gives us back the mean for this z
+    return mean21,median21,uqmean21,weightedmean21,meanimage, medianimage,uqmeanimage,weightedmeanimage,meanwindowed,medianwindowed,uqmeanwindowed,weightedmeanwindowed     #this gives us back the mean for this z
 
 def meanfreepathstatistics(xdata,ydata): #data is just the bubble size x values
 

@@ -29,7 +29,7 @@ counter=0   #this is just to help allocate saved values into the arrays
 
 ##########Taking each z box seperately#############
 
-path = "LARGEBOXES2/*"
+path = "LARGEBOXES/*"
 for fname in glob.glob(path):
 
     box_info = boximport.parse_filename(fname)
@@ -88,12 +88,12 @@ for fname in glob.glob(path):
     #print 'z', z,'nf',box_info['nf'],  'temp',average21cmtemp[counter],averagewindowedimagetemp[counter], 'rms', rmserrorintemp[counter]
 
 
-    #func.visualisereionizationslicebyslice(Windowedimage, twenty1, size, z, theta, True,'Windowed')
-    #func.visualisereionizationslicebyslice(image3D, twenty1, size, z, theta, True,'Non-Windowed') #don't think we'll need this
+    func.visualisereionizationslicebyslice(Windowedimage, twenty1, size, z, theta, True,'Windowed')
+    func.visualisereionizationslicebyslice(image3D, twenty1, size, z, theta, True,'Non-Windowed') #don't think we'll need this
 
 
     #This function compared the phases of the real and imaginary
-    #func.phasecomparison(twenty1inverse, Windowedimageinverse, size, z)
+    func.phasecomparison(twenty1inverse, Windowedimageinverse, size, z)
 
 
     #!!printpowerspectrum is for comparing the windowed,non-windowed and 21cm powerspectrums on one graph, but also saves deldelPS's seperately for comparison!!
@@ -113,26 +113,15 @@ for fname in glob.glob(path):
     MeanValues[:][counter] = func.printmeanfreepathdist(image3D,Windowedimage,twenty1, size, dl, cutoff, iterations,z)
     func.printbubblesizedist(image3D,Windowedimage, twenty1, size, dl, cutoff,z)
 
-    ''' - Temperature distribution code and how to plot it
+    # - Temperature distribution code and how to plot it
     distributionplot=plt.figure()
     plt.plot(func.temperaturedistribution(Windowedimage, size))
+    plt.plot(func.temperaturedistribution(image3D, size))
     plt.plot(func.temperaturedistribution(twenty1, size))
     plt.savefig('TempDistribution/TempHisto%s.png'%z)
     plt.clf()
-    '''
+
     counter += 1    #this increases the counter so the next values are stored in the next element slots of the arrays
-
-
-#print all of the arrays against z/neutral fraction
-#printing z and neutral fraction on two x axes
-#ASSUMES - 3 numpy arrays - z, neutrlfractions and YVALUE
-func.printvaluesvsz(PSrmsarray,redshift,neutralfractions,'RMS in PowerSpectrum (mK$^2$ Mpc$^3$)')   #error in powerspectrum vs z
-func.printvaluesvsz(PearsonRarray,redshift,neutralfractions,'Pearson R Value in Temperature (mK)')  #error in temp vs z
-func.printvaluesvsz(rmserrorintemp,redshift,neutralfractions,'RMS in Temperature (mK)')  #error in temp vs z
-
-
-###############This shows both 21cm and windowed image average temperatures varying with time
-func.averagetempvsz(averagetemp,neutralfractions,redshift)
 
 
 ############Saving all arrays so they can be outputted#########################
@@ -142,4 +131,15 @@ np.savetxt('TextFiles/RMSErrorsinTempOutputFile',rmserrorintemp, delimiter='\t')
 np.savetxt('TextFiles/PearsonROutputFile',PearsonRarray, delimiter='\t')
 
 
+#print all of the arrays against z/neutral fraction
+#printing z and neutral fraction on two x axes
+#ASSUMES - 3 numpy arrays - z, neutrlfractions and YVALUE
+'''
+func.printvaluesvsz(PSrmsarray,redshift,neutralfractions,'RMS in PowerSpectrum (mK$^2$ Mpc$^3$)')   #error in powerspectrum vs z
+func.printvaluesvsz(PearsonRarray,redshift,neutralfractions,'Pearson R Value in Temperature (mK)')  #error in temp vs z
+func.printvaluesvsz(rmserrorintemp,redshift,neutralfractions,'RMS in Temperature (mK)')  #error in temp vs z
+'''
+
+###############This shows both 21cm and windowed image average temperatures varying with time
+#func.averagetempvsz(averagetemp,neutralfractions,redshift)
 
