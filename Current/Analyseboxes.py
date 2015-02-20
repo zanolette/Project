@@ -54,24 +54,39 @@ for fname in glob.glob(path):
     sigma3Dinverse = np.load('Experiment/sigma3Dinv_z%s.npy' %z)
     Windowedimageinverse = np.load('Experiment/windowedinv_z%s.npy' %z)
 
+    twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
+    twenty1inverse = np.fft.fftshift(twenty1inverse)
+
+    #############Inverse Space Analysis########################################################
+    
     func.kperpvskparrgraph(image3Dinverse,psdwidth,size,dl,z,'image',  1e7, 2e11 )
     func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z,'Windowed',1e7, 2e11)
     func.kperpvskparrgraph(sigma3Dinverse,psdwidth,size,dl,z,'Sigma',10, 1e4)
 
-    ###############Calculating fft's################################
+    #This function compared the phases of the real and imaginary
+    func.phasecomparison(twenty1inverse, Windowedimageinverse, size, z)
 
-    twenty1inverse = np.fft.fftn(twenty1)   #gives 3D FFT of 21cm box!
-    twenty1inverse = np.fft.fftshift(twenty1inverse)
+    #!!printpowerspectrum is for comparing the windowed,non-windowed and 21cm powerspectrums on one graph, but also saves deldelPS's seperately for comparison!!
+    #The first of these is the non-windowed PS rms, the second is the windowed PS rms
+    PSrmsarray[0][counter],PSrmsarray[1][counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
+    #print 'z', z, 'PSrms', PSrmsarray[counter]
+
+    # delete unused variables
+    del twenty1inverse
+    del sigma3Dinverse
+
+    ###############Calculating fft's################################
 
     #How we get our image from the fourier transform
     image3D = np.fft.ifftn(image3Dinverse)
     image3D = np.abs(image3D)
+    del image3Dinverse
 
     Windowedimage = np.fft.ifftn(Windowedimageinverse)
     Windowedimage = np.abs(Windowedimage)   #abs or real?
+    del Windowedimageinverse
 
-
-    ##################Calculating and saving statistical values############################
+    ##################REAL SPACE ANALYSIS############################
 
     #Calcules PearsonR Value for non-windowed then windowed with z
     PearsonRarray[0][counter] = z
@@ -92,14 +107,6 @@ for fname in glob.glob(path):
     func.visualisereionizationslicebyslice(image3D, twenty1, size, z, theta, True,'Non-Windowed') #don't think we'll need this
 
 
-    #This function compared the phases of the real and imaginary
-    func.phasecomparison(twenty1inverse, Windowedimageinverse, size, z)
-
-
-    #!!printpowerspectrum is for comparing the windowed,non-windowed and 21cm powerspectrums on one graph, but also saves deldelPS's seperately for comparison!!
-    #The first of these is the non-windowed PS rms, the second is the windowed PS rms
-    PSrmsarray[0][counter],PSrmsarray[1][counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
-    #print 'z', z, 'PSrms', PSrmsarray[counter]
 
 
     #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
@@ -114,7 +121,18 @@ for fname in glob.glob(path):
     func.printbubblesizedist(image3D,Windowedimage, twenty1, size, dl, cutoff,z)
 
     # - Temperature distribution code and how to plot it
-    distributionplot=plt.figure()
+
+    Windowtempdist= func.temperaturedistribution(Windowedimage, size)
+    imagetempdist= func.temperaturedistribution(image3D, size)
+    twentytempdist=func.temperaturedistribution(twenty1, size)
+
+    totalarray = np.vstack((Windowtempdist.T, imagetempdist.T, twentytempdist.T))
+    totalarray = totalarray.T   #so it's the best way round for excel/origin
+    #####SavingGraphData#######
+    np.savetxt('TempDistribution/TemperatureDistribution%s(Windowed,image,21cm).txt' %z, totalarray, delimiter='\t')
+
+
+    plt.figure()
     plt.plot(func.temperaturedistribution(Windowedimage, size))
     plt.plot(func.temperaturedistribution(image3D, size))
     plt.plot(func.temperaturedistribution(twenty1, size))
@@ -125,10 +143,10 @@ for fname in glob.glob(path):
 
 
 ############Saving all arrays so they can be outputted#########################
-np.savetxt('TextFiles/PSrmsOutputFile',PSrmsarray, delimiter='\t')
-np.savetxt('TextFiles/AverageTempOutputFile',averagetemp, delimiter='\t')
-np.savetxt('TextFiles/RMSErrorsinTempOutputFile',rmserrorintemp, delimiter='\t')
-np.savetxt('TextFiles/PearsonROutputFile',PearsonRarray, delimiter='\t')
+np.savetxt('TextFiles/PSrmsOutputFile.txt',PSrmsarray, delimiter='\t')
+np.savetxt('TextFiles/AverageTempOutputFile.txt',averagetemp, delimiter='\t')
+np.savetxt('TextFiles/RMSErrorsinTempOutputFile.txt',rmserrorintemp, delimiter='\t')
+np.savetxt('TextFiles/PearsonROutputFile.txt',PearsonRarray, delimiter='\t')
 
 
 #print all of the arrays against z/neutral fraction

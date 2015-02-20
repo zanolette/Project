@@ -981,7 +981,7 @@ def printbubblesizedist(image3D, Windowed, twenty1, size, dl, cutoff,z):
 
     plt.xlabel('Ionised Volume (MPc$^{3}$)')
     plt.ylabel('Probability')
-    plt.xlim(2,100000)
+    plt.xlim(1,100000)
     plt.ylim(0.000007,1)
     #plt.show()
     plt.savefig('BubbleSizeDist/BubbleDistz%s.png' %z)
@@ -1006,7 +1006,7 @@ def printmeanfreepathdist(image3D,Windowed, twenty1, size, dl, cutoff, iteration
 
     plt.xlabel('Ionised Volume (MPc$^{3}$)')
     plt.ylabel('Probability')
-    plt.xlim(2,100000)
+    plt.xlim(1,100000)
     plt.ylim(0.000007,1)
     #plt.show()
     plt.savefig('MeanFreePathDist/MFPDistributionz%s.png' %z)
@@ -1071,21 +1071,19 @@ def averagetempvsz(averagetemp,neutralfractions,redshift):
 
 def temperaturedistribution(box, size):
     #function which bins into mK bins the distribution of temperatures in a box. returns 0-70 distribution
-    #chose 70mK as the bulk of the data fits in this range and we needed a cut off.
+    #chose 80mK as the bulk of the data fits in this range and we needed a cut off.
 
-    distribution = np.zeros(70)
+    distribution = np.zeros(80)
     countedpoints=0. # cant use size*size*size incase some temperatures go above 70
 
     for i in range(size):
         for j in range(size):
             for k in range(size):
-                if np.floor(box[i][j][k])<70:
+                if np.floor(box[i][j][k])<80:
                     distribution[int(math.floor(box[i][j][k]))]+=1.
                     countedpoints+=1.
 
-                else:
-                    print 'TOO HOT!'
-
+    print countedpoints/(size**3), 'fraction of box in TempDistribution'
     #normalise
     distribution = distribution / (countedpoints)
     return distribution

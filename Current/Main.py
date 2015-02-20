@@ -41,13 +41,13 @@ for fname in glob.glob(path):
     lda=0.21106*(1+z)   #in meters
 
     if (arrayname=='LOFAR66CoreHB.txt'):
-        Aeff = 1.5625
-        N = 16
+        Aeff = min(lda**2/3.,1.5625)
+        N = 16*24*66 #number of tiles in a station * number of stations in an array
     else:   #hence assuming its MWA
-        Aeff = 14.5/16
-        N = 16
+        Aeff = min(lda**2/3.,14.5/16)
+        N = 16*128
 
-    eps = (min(lda**2/3.,Aeff)*N)/lda**2  #instrument efficiency: here Aeff is effective area per dipole, N is no. dipoles per station
+    Atotal = Aeff*N  #instrument efficiency: here Aeff is effective area per dipole, N is no. dipoles per station
 
 
     #DEPENDS ON Z! FIND THIS
@@ -74,6 +74,14 @@ for fname in glob.glob(path):
     # Now we import array positions
     (dx,dy,dz)=func.importarray(arrayname,lda) #this assumes lda doesn't change too much over slices!!! 'MWAcoordinate.txt''vla.a.cfg' 'MWAhalved.txt''MWA128.txt'
 
+    #this calculated the longest baseline
+    baselinelengths=np.sqrt(np.multiply(dx,dx)+np.multiply(dy,dy))
+    Dmax = np.max(baselinelengths)
+    print Dmax
+    baselinelengths = None
+
+    eps = Dmax**2/Atotal
+    print eps
 
     #Apply rotation matrix onto baseline vector and maps onto fourier plane.
     UVcount,uvcoveragepercentage = func.rotationmatrix(dx, dy, dz, scaling, H, dH, timestepsneeded, delta, size)
@@ -114,7 +122,7 @@ for fname in glob.glob(path):
         for i in range (size):
             for j in range (size):
                 if UVcount[i][j] != 0:
-                    sigma3Dinverse[slice][i][j] = tsyst/(eps*np.sqrt(UVcount[i][j]*tint*daysofscanning*B))       #saved seperately to calculate power spectrum seperately, error eqn according to NRAO course + Pritchard
+                    sigma3Dinverse[slice][i][j] = (tsyst*eps)/(np.sqrt(UVcount[i][j]*tint*daysofscanning*B))       #saved seperately to calculate power spectrum seperately, error eqn according to NRAO course + Pritchard
                     real=np.random.normal(np.real(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)     #sqrt(2) here as real and imag components share it
                     imaginary = np.random.normal(np.imag(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)
                     #####################!!!!!!!!this saves as [k][i][j]!!!!!!#######################
