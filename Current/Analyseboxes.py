@@ -58,13 +58,19 @@ for fname in glob.glob(path):
     twenty1inverse = np.fft.fftshift(twenty1inverse)
 
     #############Inverse Space Analysis########################################################
-    
+
+    print 'Just before KvsK'
+
     func.kperpvskparrgraph(image3Dinverse,psdwidth,size,dl,z,'image',  1e7, 2e11 )
     func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z,'Windowed',1e7, 2e11)
     func.kperpvskparrgraph(sigma3Dinverse,psdwidth,size,dl,z,'Sigma',10, 1e4)
 
+    print 'Just before Phase'
+
     #This function compared the phases of the real and imaginary
     func.phasecomparison(twenty1inverse, Windowedimageinverse, size, z)
+
+    print 'Just before PS'
 
     #!!printpowerspectrum is for comparing the windowed,non-windowed and 21cm powerspectrums on one graph, but also saves deldelPS's seperately for comparison!!
     #The first of these is the non-windowed PS rms, the second is the windowed PS rms
@@ -72,10 +78,12 @@ for fname in glob.glob(path):
     #print 'z', z, 'PSrms', PSrmsarray[counter]
 
     # delete unused variables
-    del twenty1inverse
-    del sigma3Dinverse
+    #del twenty1inverse
+    #del sigma3Dinverse
 
     ###############Calculating fft's################################
+
+    print 'Just before calculating image3D'
 
     #How we get our image from the fourier transform
     image3D = np.fft.ifftn(image3Dinverse)
@@ -88,11 +96,14 @@ for fname in glob.glob(path):
 
     ##################REAL SPACE ANALYSIS############################
 
+    print 'Just before PearsonR'
+
     #Calcules PearsonR Value for non-windowed then windowed with z
     PearsonRarray[0][counter] = z
     PearsonRarray[1][counter] = func.PearsonR(twenty1,image3D,size)
     PearsonRarray[2][counter] = func.PearsonR(twenty1,Windowedimage,size)
 
+    print 'Just before TempStats'
 
     #Temperature statistics
     averagetemp[0][counter] = np.average(twenty1)  #this saves the average 21cm temperature
@@ -102,26 +113,24 @@ for fname in glob.glob(path):
     rmserrorintemp[1][counter] = func.rmscalc(twenty1,Windowedimage,size)
     #print 'z', z,'nf',box_info['nf'],  'temp',average21cmtemp[counter],averagewindowedimagetemp[counter], 'rms', rmserrorintemp[counter]
 
-
-    func.visualisereionizationslicebyslice(Windowedimage, twenty1, size, z, theta, True,'Windowed')
-    func.visualisereionizationslicebyslice(image3D, twenty1, size, z, theta, True,'Non-Windowed') #don't think we'll need this
-
-
-
+    #print 'Just before Visualisation by slice'
+    #func.visualisereionizationslicebyslice(Windowedimage, twenty1, size, z, theta, True,'Windowed')
+    #func.visualisereionizationslicebyslice(image3D, twenty1, size, z, theta, True,'Non-Windowed') #don't think we'll need this
 
     #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
     cutoff = 0.65
     iterations = 100000
 
-
+    print 'Just before Mean Free Path'
     #These functions print the different size distribution analysis methods which we have worked on
     #Saves the text files for the distributions and their statistics plus prints distributions together
     #these are: mean21,median21,uqmean21,weightedmean21,meanimage, medianimage,uqmeanimage,weightedmeanimage,meanwindowed,medianwindowed,uqmeanwindowed,weightedmeanwindowed
     MeanValues[:][counter] = func.printmeanfreepathdist(image3D,Windowedimage,twenty1, size, dl, cutoff, iterations,z)
+    print 'Just before BubbleSizeDist'
     func.printbubblesizedist(image3D,Windowedimage, twenty1, size, dl, cutoff,z)
 
     # - Temperature distribution code and how to plot it
-
+    print 'Just before TempDist'
     Windowtempdist= func.temperaturedistribution(Windowedimage, size)
     imagetempdist= func.temperaturedistribution(image3D, size)
     twentytempdist=func.temperaturedistribution(twenty1, size)
@@ -138,6 +147,7 @@ for fname in glob.glob(path):
     plt.plot(func.temperaturedistribution(twenty1, size))
     plt.savefig('TempDistribution/TempHisto%s.png'%z)
     plt.clf()
+    print 'Finished this slice'
 
     counter += 1    #this increases the counter so the next values are stored in the next element slots of the arrays
 

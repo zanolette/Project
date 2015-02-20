@@ -8,6 +8,7 @@ import Cosmo as Cosmo
 from matplotlib.colors import LogNorm
 from matplotlib.ticker import MaxNLocator
 import matplotlib.gridspec as gs
+import gc
 
 
 def printgraph (image, xrange, yrange, xlabel, ylabel, scalemin,scalemax):   #generic print function with ranges and labels
@@ -516,7 +517,12 @@ def visualisereionizationslicebyslice(image,twenty1, size, z, theta, crosssectio
 
             cbar.set_label('Temperature (mK)', size = 13)
             plt.savefig('Image/z%simage%03i.png'%(z,t))
-            plt.close(fig)
+            imgplot = None
+            plt.cla()
+            fig.clf()
+            del fig
+            plt.close('all')
+            gc.collect()
 
     else:
         for t in range(size):
@@ -536,7 +542,10 @@ def visualisereionizationslicebyslice(image,twenty1, size, z, theta, crosssectio
             cbar=plt.colorbar(imgplot, orientation='vertical',cax=cbar_ax)# shrink=0.6)
             cbar.set_label('Temperature (mK)', size = 13)
             plt.savefig('Image/z%simage%03i.png'%(z,t))
-            plt.close(fig)
+            plt.cla()
+            fig.clf()
+            plt.close('all')
+            gc.collect()
 
 
 
