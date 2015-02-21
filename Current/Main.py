@@ -107,6 +107,21 @@ for fname in glob.glob(path):
 
     ##########################This is where we introduce a slice################################
 
+    #using UV count - this now merges the UVcoverage and the Image
+
+    centre = np.zeros((27),dtype=complex)
+    counter = 0
+
+    #this is saving the centre cube, so it is safe from masking - SAVES NIQUIST FREQUENCIES
+
+    for i in range (ci -1,ci +2,1):
+            for j in range (ci -1,ci +2,1):
+                for k in range (ci -1,ci +2,1):
+                    centre[counter] = twenty1inverse[i][j][k]
+                    #print Windowedimageinv[i][j][k]
+
+                    counter += 1
+
     for slice in range(size):   #iterates over all slices
 
         print 'z', z, ' Slice: ', slice
@@ -117,8 +132,6 @@ for fname in glob.glob(path):
 
         # for loop that goes through the fourier space matrix and adds noise according to the number of times the signal gets sampled
 
-        #using UV count - this now merges the UVcoverage and the Image
-
         for i in range (size):
             for j in range (size):
                 if UVcount[i][j] != 0:
@@ -127,6 +140,15 @@ for fname in glob.glob(path):
                     imaginary = np.random.normal(np.imag(zhat[i][j]), sigma3Dinverse[slice][i][j]/np.sqrt(2), 1)
                     #####################!!!!!!!!this saves as [k][i][j]!!!!!!#######################
                     image3Dinverse[slice][i][j]=real[0] + imaginary[0]*1j
+
+    #replaces the central DC cube
+    counter=0
+    for i in range (ci -1,ci +2,1):
+        for j in range (ci -1,ci +2,1):
+            for k in range (ci -1,ci +2,1):
+                print image3Dinverse[i][j][k]
+                image3Dinverse[i][j][k] = centre[counter]
+                counter += 1
 
     #Could have psf stuff here
 
@@ -141,7 +163,7 @@ for fname in glob.glob(path):
     Windowedimage = np.fft.ifftn(Windowedimageinverse)
     Windowedimage = np.abs(Windowedimage)   #abs or real?
 
-    #func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta,True)
+    func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta,True, 'Windowed')
 
     #This function compared the phases of the real and imaginary
     #func.phasecomparison(twenty1inverse, Windowedimageinverse, size)
