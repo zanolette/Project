@@ -60,7 +60,7 @@ for fname in glob.glob(path):
     tint = 300.      #interval in seconds
     dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
     totalintegrationtime = 24    #total time in hours
-    daysofscanning = 1 # keep as 1 unless you want more than one day.
+    daysofscanning = 25 # keep as 1 unless you want more than one day.
     timestepsneeded= int(totalintegrationtime * 60 * 60 / tint) # unitlessmeasurement of number of steps needed
     delta = 90./180. * np.pi    #declination angle
     scaling = 1./(size*dtheta) #the length of one interval in inverse space
@@ -114,9 +114,9 @@ for fname in glob.glob(path):
 
     #this is saving the centre cube, so it is safe from masking - SAVES NIQUIST FREQUENCIES
 
-    for i in range (ci -1,ci +2,1):
-            for j in range (ci -1,ci +2,1):
-                for k in range (ci -1,ci +2,1):
+    for i in range (ci,ci +1,1):
+            for j in range (ci,ci +1,1):
+                for k in range (ci,ci +1,1):
                     centre[counter] = twenty1inverse[i][j][k]
                     #print Windowedimageinv[i][j][k]
 
@@ -143,9 +143,9 @@ for fname in glob.glob(path):
 
     #replaces the central DC cube
     counter=0
-    for i in range (ci -1,ci +2,1):
-        for j in range (ci -1,ci +2,1):
-            for k in range (ci -1,ci +2,1):
+    for i in range (ci,ci +1,1):
+        for j in range (ci,ci +1,1):
+            for k in range (ci,ci +1,1):
                 print image3Dinverse[i][j][k]
                 image3Dinverse[i][j][k] = centre[counter]
                 counter += 1
@@ -163,7 +163,7 @@ for fname in glob.glob(path):
     Windowedimage = np.fft.ifftn(Windowedimageinverse)
     Windowedimage = np.abs(Windowedimage)   #abs or real?
 
-    func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta,True, 'Windowed')
+    #func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta,True, 'Windowed')
 
     #This function compared the phases of the real and imaginary
     #func.phasecomparison(twenty1inverse, Windowedimageinverse, size)

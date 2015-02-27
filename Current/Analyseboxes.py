@@ -78,8 +78,8 @@ for fname in glob.glob(path):
     #print 'z', z, 'PSrms', PSrmsarray[counter]
 
     # delete unused variables
-    #del twenty1inverse
-    #del sigma3Dinverse
+    del twenty1inverse
+    del sigma3Dinverse
 
     ###############Calculating fft's################################
 
@@ -114,8 +114,8 @@ for fname in glob.glob(path):
     #print 'z', z,'nf',box_info['nf'],  'temp',average21cmtemp[counter],averagewindowedimagetemp[counter], 'rms', rmserrorintemp[counter]
 
     #print 'Just before Visualisation by slice'
-    #func.visualisereionizationslicebyslice(Windowedimage, twenty1, size, z, theta, True,'Windowed')
-    #func.visualisereionizationslicebyslice(image3D, twenty1, size, z, theta, True,'Non-Windowed') #don't think we'll need this
+    func.visualisereionizationslicebyslice(Windowedimage, twenty1, size, z, theta, True,'Windowed')
+    func.visualisereionizationslicebyslice(image3D, twenty1, size, z, theta, True,'Non-Windowed') #don't think we'll need this
 
     #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
     cutoff = 0.65
