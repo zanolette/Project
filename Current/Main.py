@@ -52,7 +52,7 @@ for fname in glob.glob(path):
 
     #DEPENDS ON Z! FIND THIS
     dl = box_info['BoxSize']/size   #so this is how many Mpc per index of box
-    psdwidth = 5    #can change this!
+    psdwidth = 1    #can change this!
 
 
     #DEFINE EXPERIMENT PARAMETERS
@@ -60,8 +60,8 @@ for fname in glob.glob(path):
     tint = 300.      #interval in seconds
     dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
     totalintegrationtime = 24    #total time in hours
-    daysofscanning = 25 # keep as 1 unless you want more than one day.
-    timestepsneeded= int(totalintegrationtime * 60 * 60 / tint) # unitlessmeasurement of number of steps needed
+    daysofscanning = 1 # keep as 1 unless you want more than one day.
+    timestepsneeded= 1 #int(totalintegrationtime * 60 * 60 / tint) # unitlessmeasurement of number of steps needed
     delta = 90./180. * np.pi    #declination angle
     scaling = 1./(size*dtheta) #the length of one interval in inverse space
 

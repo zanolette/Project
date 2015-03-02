@@ -943,7 +943,7 @@ def printpowerspectrum(oneinverse, twoinverse, threeinverse, fourinverse, psdwid
     plt.ylim(0.003,450000)
     plt.xlim(0.01,3)
     plt.xlabel('k (MPc$^{-1}$)')
-    plt.ylabel('k$^3$ P(k)/2$\pi^2$ (mK Mpc$^{-3}$)')
+    plt.ylabel('k$^3$ P(k)/2$\pi^2$ (mK$^2$)')
     plt.savefig('Powerspectrums/DELDEL_POWERSPEC_z%s.png' %z)
     plt.clf()
 
