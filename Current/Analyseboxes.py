@@ -29,7 +29,7 @@ counter=0   #this is just to help allocate saved values into the arrays
 
 ##########Taking each z box seperately#############
 
-path = "LARGEBOXES2/*"
+path = "LARGEBOXES/*"
 for fname in glob.glob(path):
 
     box_info = boximport.parse_filename(fname)
@@ -61,20 +61,20 @@ for fname in glob.glob(path):
 
     print 'Just before KvsK'
 
-    func.kperpvskparrgraph(image3Dinverse,psdwidth,size,dl,z,'image',  1e7, 2e11 )
-    func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z,'Windowed',1e7, 2e11)
-    func.kperpvskparrgraph(sigma3Dinverse,psdwidth,size,dl,z,'Sigma',10, 1e4)
+    #func.kperpvskparrgraph(image3Dinverse,psdwidth,size,dl,z,'image',  1e7, 2e11 )
+    #func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z,'Windowed',1e7, 2e11)
+    #func.kperpvskparrgraph(sigma3Dinverse,psdwidth,size,dl,z,'Sigma',10, 1e4)
 
     print 'Just before Phase'
 
     #This function compared the phases of the real and imaginary
-    func.phasecomparison(twenty1inverse, Windowedimageinverse, size, z)
+    #func.phasecomparison(twenty1inverse, Windowedimageinverse, size, z)
 
     print 'Just before PS'
 
     #!!printpowerspectrum is for comparing the windowed,non-windowed and 21cm powerspectrums on one graph, but also saves deldelPS's seperately for comparison!!
     #The first of these is the non-windowed PS rms, the second is the windowed PS rms
-    PSrmsarray[0][counter],PSrmsarray[1][counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
+    #PSrmsarray[0][counter],PSrmsarray[1][counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
     #print 'z', z, 'PSrms', PSrmsarray[counter]
 
     # delete unused variables
@@ -95,7 +95,7 @@ for fname in glob.glob(path):
     del Windowedimageinverse
 
     ##################REAL SPACE ANALYSIS############################
-
+    '''
     print 'Just before PearsonR'
 
     #Calcules PearsonR Value for non-windowed then windowed with z
@@ -123,10 +123,10 @@ for fname in glob.glob(path):
     rmserrorintemp[1][counter] = temp2
     print 'RMStemp',z, temp1,temp2
     #print 'z', z,'nf',box_info['nf'],  'temp',average21cmtemp[counter],averagewindowedimagetemp[counter], 'rms', rmserrorintemp[counter]
-
+    '''
     #print 'Just before Visualisation by slice'
-    #func.visualisereionizationslicebyslice(Windowedimage, twenty1, size, z, theta, True,'Windowed')
-    #func.visualisereionizationslicebyslice(image3D, twenty1, size, z, theta, True,'Non-Windowed') #don't think we'll need this
+    func.visualisereionizationslicebyslice(Windowedimage, twenty1, size, z, theta, True,'Windowed')
+    func.visualisereionizationslicebyslice(image3D, twenty1, size, z, theta, True,'Non-Windowed') #don't think we'll need this
 
     #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
     cutoff = 0.65
@@ -136,9 +136,9 @@ for fname in glob.glob(path):
     #These functions print the different size distribution analysis methods which we have worked on
     #Saves the text files for the distributions and their statistics plus prints distributions together
     #these are: mean21,median21,uqmean21,weightedmean21,meanimage, medianimage,uqmeanimage,weightedmeanimage,meanwindowed,medianwindowed,uqmeanwindowed,weightedmeanwindowed
-    #MeanValues[:][counter] = func.printmeanfreepathdist(image3D,Windowedimage,twenty1, size, dl, cutoff, iterations,z)
+    MeanValues[:][counter] = func.printmeanfreepathdist(image3D,Windowedimage,twenty1, size, dl, cutoff, iterations,z)
     print 'Just before BubbleSizeDist'
-    #func.printbubblesizedist(image3D,Windowedimage, twenty1, size, dl, cutoff,z)
+    func.printbubblesizedist(image3D,Windowedimage, twenty1, size, dl, cutoff,z)
 
     '''
     # - Temperature distribution code and how to plot it
