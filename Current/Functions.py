@@ -516,7 +516,7 @@ def visualisereionizationslicebyslice(image,twenty1, size, z, theta, crosssectio
             cbar=plt.colorbar(imgplot, orientation='vertical',cax=cbar_ax)# shrink=0.6)
 
             cbar.set_label('Temperature (mK)', size = 13)
-            plt.savefig('Image/z%simage%03i.png'%(z,t))
+            plt.savefig('Image/%s/z%simage%03i.png'%(inputname,z,t))
             imgplot = None
             plt.cla()
             fig.clf()

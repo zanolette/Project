@@ -17,9 +17,9 @@ psdwidth = 1
 CosmoUnits=Cosmo.CosmoUnits()
 
 #These arrays for plotting variable/statistic changes with z/neutral fraction
-PSrmsarray = np.zeros((2, 28))   #this is for z=7.5 to z=18 runs in half steps, plus some .25 steps before 10.5
-averagetemp = np.zeros((3, 28))  #this is the average temp: 21cm,image,Windowed
-rmserrorintemp = np.zeros((2, 28))   #this gives rms difference between two images at every point
+PSrmsarray = np.zeros((3, 28))   #this is for z=7.5 to z=18 runs in half steps, plus some .25 steps before 10.5
+averagetemp = np.zeros((4, 28))  #this is the average temp: 21cm,image,Windowed
+rmserrorintemp = np.zeros((3, 28))   #this gives rms difference between two images at every point
 PearsonRarray = np.zeros((3, 28)) #this saves z,image vs 21cm Pearson,windowed vs 21cm Parson
 MeanValues = np.zeros((13,28))  #will save all of our different mean values, and for 21cm,image and windowed
 
@@ -65,7 +65,7 @@ for fname in glob.glob(path):
 
     #func.kperpvskparrgraph(image3Dinverse,psdwidth,size,dl,z,'image',  1e7, 2e11 )
     #func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z,'Windowed',1e7, 2e11)
-    #func.kperpvskparrgraph(sigma3Dinverse,psdwidth,size,dl,z,'Sigma',10, 1e4)
+    func.kperpvskparrgraph(sigma3Dinverse,psdwidth,size,dl,z,'Sigma',1e7, 11e2)
 
     print 'Just before Phase'
 
@@ -76,7 +76,8 @@ for fname in glob.glob(path):
 
     #!!printpowerspectrum is for comparing the windowed,non-windowed and 21cm powerspectrums on one graph, but also saves deldelPS's seperately for comparison!!
     #The first of these is the non-windowed PS rms, the second is the windowed PS rms
-    #PSrmsarray[0][counter],PSrmsarray[1][counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
+    #PSrmsarray[0][counter] = z
+    #PSrmsarray[1][counter],PSrmsarray[2][counter]=func.printpowerspectrum(image3Dinverse, twenty1inverse, Windowedimageinverse, sigma3Dinverse, psdwidth,size,dtheta,dl, z,1)    ##,saves rms error between windowed and 21cm.
     #print 'z', z, 'PSrms', PSrmsarray[counter]
 
     # delete unused variables
@@ -97,7 +98,7 @@ for fname in glob.glob(path):
     del Windowedimageinverse
 
     ##################REAL SPACE ANALYSIS############################
-    '''
+
     print 'Just before PearsonR'
 
     #Calcules PearsonR Value for non-windowed then windowed with z
@@ -115,22 +116,24 @@ for fname in glob.glob(path):
     temp1 = np.average(twenty1)
     temp2 = np.average(image3D)
     temp3 = np.average(Windowedimage)
-    averagetemp[0][counter] = temp1  #this saves the average 21cm temperature
-    averagetemp[1][counter] = temp2  #this saves the average image temperature
-    averagetemp[2][counter] = temp3   #this saves the average windowed image temperature
+    averagetemp[0][counter] = z
+    averagetemp[1][counter] = temp1  #this saves the average 21cm temperature
+    averagetemp[2][counter] = temp2  #this saves the average image temperature
+    averagetemp[3][counter] = temp3   #this saves the average windowed image temperature
     print 'averagetemps',z,temp1,temp2,temp3
 
     temp1 =func.rmscalc(twenty1,image3D,size)
     temp2 = func.rmscalc(twenty1,Windowedimage,size)
-    rmserrorintemp[0][counter] = temp1
-    rmserrorintemp[1][counter] = temp2
+    rmserrorintemp[0][counter] = z
+    rmserrorintemp[1][counter] = temp1
+    rmserrorintemp[2][counter] = temp2
     print 'RMStemp',z, temp1,temp2
 
     #print 'z', z,'nf',box_info['nf'],  'temp',average21cmtemp[counter],averagewindowedimagetemp[counter], 'rms', rmserrorintemp[counter]
-    '''
+
     #print 'Just before Visualisation by slice'
-    func.visualisereionizationslicebyslice(Windowedimage, twenty1, size, z, theta, True,'Windowed')
-    func.visualisereionizationslicebyslice(image3D, twenty1, size, z, theta, True,'Non-Windowed') #don't think we'll need this
+    #func.visualisereionizationslicebyslice(Windowedimage, twenty1, size, z, theta, True,'Windowed')
+    #func.visualisereionizationslicebyslice(image3D, twenty1, size, z, theta, True,'Non-Windowed') #don't think we'll need this
 
     #The cutoff refers to the fraction of the average temperature at which the code defines a point to be ionised
     cutoff = 0.65
@@ -140,12 +143,12 @@ for fname in glob.glob(path):
     #These functions print the different size distribution analysis methods which we have worked on
     #Saves the text files for the distributions and their statistics plus prints distributions together
     #these are: mean21,median21,uqmean21,weightedmean21,meanimage, medianimage,uqmeanimage,weightedmeanimage,meanwindowed,medianwindowed,uqmeanwindowed,weightedmeanwindowed
-    MeanValues[:, counter] = func.printmeanfreepathdist(image3D,Windowedimage,twenty1, size, dl, cutoff, iterations,z)
+    #MeanValues[:, counter] = func.printmeanfreepathdist(image3D,Windowedimage,twenty1, size, dl, cutoff, iterations,z)
 
     print 'Just before BubbleSizeDist'
-    func.printbubblesizedist(image3D,Windowedimage, twenty1, size, dl, cutoff,z)
+    #func.printbubblesizedist(image3D,Windowedimage, twenty1, size, dl, cutoff,z)
 
-    '''
+
     # - Temperature distribution code and how to plot it
     print 'Just before TempDist'
     Windowtempdist= func.temperaturedistribution(Windowedimage, size)
@@ -164,14 +167,11 @@ for fname in glob.glob(path):
     plt.clf()
     print 'Finished this slice'
 
-    '''
-    counter += 1    #this increases the counter so the next values are stored in the next element slots of the arrays
 
-
-    np.savetxt('TextFiles/PSrmsOutputFile.txt',PSrmsarray, delimiter='\t')
-    np.savetxt('TextFiles/AverageTempOutputFile.txt',averagetemp, delimiter='\t')
-    np.savetxt('TextFiles/RMSErrorsinTempOutputFile.txt',rmserrorintemp, delimiter='\t')
-    np.savetxt('TextFiles/PearsonROutputFile.txt',PearsonRarray, delimiter='\t')
+    np.savetxt('TextFiles/PSrmsOutputFile.txt',PSrmsarray.T, delimiter='\t')
+    np.savetxt('TextFiles/AverageTempOutputFile.txt',averagetemp.T, delimiter='\t')
+    np.savetxt('TextFiles/RMSErrorsinTempOutputFile.txt',rmserrorintemp.T, delimiter='\t')
+    np.savetxt('TextFiles/PearsonROutputFile.txt',PearsonRarray.T, delimiter='\t')
 
 
     counter += 1    #this increases the counter so the next values are stored in the next element slots of the arrays
