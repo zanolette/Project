@@ -568,7 +568,7 @@ def phasecomparison(twenty1, image, size,z):
     plt.xlabel('21cmfast Phase (radians)')
     plt.ylabel('Image Phase (radians)')
     #plt.show()
-    plt.savefig('PhaseComparrison/Phasez%s.png' %z)
+    plt.savefig('PhaseComparison/Phasez%s.png' %z)
     plt.clf()
 
 # This is a binning algorithm (linear), might have to move on to a log binning if we want clearer data...
@@ -617,7 +617,7 @@ def logbinningforbubblesizedist(distribution, size,dl, powerfactor=1.5):
 
 def bubblesizedistribution(imageoriginal, size,dl,thresholdfraction):
 
-    image = imageoriginal #we dont want to change the original
+    image = np.copy(imageoriginal) #we dont want to change the original
     distribution=np.zeros(size**3) # this is the maximum size of a bubble so thats what ive made the distribution array equal to
 
     averagetemp=np.average(image)
@@ -1026,7 +1026,7 @@ def printmeanfreepathdist(image3D,Windowed, twenty1, size, dl, cutoff, iteration
     meanwindowed,medianwindowed,uqmeanwindowed,weightedmeanwindowed = meanfreepathstatistics(windowedmeanpathx,windowedmeanpathdist)
     #returned below in the form seen above
 
-    return mean21,median21,uqmean21,weightedmean21,meanimage, medianimage,uqmeanimage,weightedmeanimage,meanwindowed,medianwindowed,uqmeanwindowed,weightedmeanwindowed     #this gives us back the mean for this z
+    return np.asarray([mean21, median21,uqmean21,weightedmean21,meanimage, medianimage,uqmeanimage,weightedmeanimage,meanwindowed,medianwindowed,uqmeanwindowed,weightedmeanwindowed])     #this gives us back the mean for this z
 
 def meanfreepathstatistics(xdata,ydata): #data is just the bubble size x values
 
@@ -1089,8 +1089,8 @@ def temperaturedistribution(box, size):
         for j in range(size):
             for k in range(size):
                 if np.floor(box[i][j][k])<80:
-                    distribution[int(math.floor(box[i][j][k]))]+=1.
-                    countedpoints+=1.
+                    distribution[int(math.floor(box[i][j][k]))]+= 1.
+                    countedpoints+= 1.
 
     print countedpoints/(size**3), 'fraction of box in TempDistribution'
     #normalise

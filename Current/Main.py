@@ -35,7 +35,7 @@ for fname in glob.glob(path):
     dtheta = float(theta/size)
     print dtheta
 
-    arrayname = 'LOFAR66CoreHB.txt'
+    arrayname = 'MWA128.txt'
 
     #Define Wavelength - find this out from z!!
     lda=0.21106*(1+z)   #in meters
@@ -60,8 +60,10 @@ for fname in glob.glob(path):
     tint = 300.      #interval in seconds
     dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
     totalintegrationtime = 24    #total time in hours
-    daysofscanning = 1 # keep as 1 unless you want more than one day.
-    timestepsneeded= 1 #int(totalintegrationtime * 60 * 60 / tint) # unitlessmeasurement of number of steps needed
+
+    daysofscanning = 1# keep as 1 unless you want more than one day.
+    timestepsneeded= 1#int(totalintegrationtime * 60 * 60 / tint) # unitlessmeasurement of number of steps needed
+
     delta = 90./180. * np.pi    #declination angle
     scaling = 1./(size*dtheta) #the length of one interval in inverse space
 
@@ -119,6 +121,7 @@ for fname in glob.glob(path):
                 for k in range (ci,ci +1,1):
                     centre[counter] = twenty1inverse[i][j][k]
                     #print Windowedimageinv[i][j][k]
+                    print counter
 
                     counter += 1
 
@@ -153,15 +156,15 @@ for fname in glob.glob(path):
     #Could have psf stuff here
 
     #How we get our image from the fourier transform
-    image3D = np.fft.ifftn(image3Dinverse)
-    image3D = np.abs(image3D)
+    #image3D = np.fft.ifftn(image3Dinverse)
+    #image3D = np.abs(image3D)
 
     #now we have the actual image in k space but we want to add a k space window onto it.
     Windowedimageinverse=np.copy(image3Dinverse) # create new variable early, function was changing original variable
     Windowedimageinverse=func.EORWINDOW(Windowedimageinverse, size, dl,z,B)
 
-    Windowedimage = np.fft.ifftn(Windowedimageinverse)
-    Windowedimage = np.abs(Windowedimage)   #abs or real?
+    #Windowedimage = np.fft.ifftn(Windowedimageinverse)
+    #Windowedimage = np.abs(Windowedimage)   #abs or real?
 
     #func.visualisereionizationslicebyslice(Windowedimage,twenty1, size, z, theta,True, 'Windowed')
 
@@ -196,11 +199,11 @@ for fname in glob.glob(path):
     #IF YOU WANT TO SAVE BOXES FOR LATER ANALYSIS - USE THESE
     #np.save('Experiment/image3D_z%s'%(z),image3D)
     #del image3D
-    np.save('Experiment/image3Dinv_z%s'%(z),image3Dinverse)
+    np.save('Experiment_MWA1Shot/image3Dinv_z%s'%(z),image3Dinverse)
     del image3Dinverse
-    np.save('Experiment/sigma3Dinv_z%s'%(z),sigma3Dinverse)
+    np.save('Experiment_MWA1Shot/sigma3Dinv_z%s'%(z),sigma3Dinverse)
     del sigma3Dinverse
-    np.save('Experiment/windowedinv_z%s'%(z),Windowedimageinverse)
+    np.save('Experiment_MWA1Shot/windowedinv_z%s'%(z),Windowedimageinverse)
     del Windowedimageinverse
     #np.save('Experiment/finalrealimage_z%s'%(z),Windowedimage)
     #del Windowedimage

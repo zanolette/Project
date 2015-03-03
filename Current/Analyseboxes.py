@@ -11,6 +11,7 @@ import glob
 
 psdwidth = 1
 
+
 #Define size of view and resolution
 # defines our universe
 CosmoUnits=Cosmo.CosmoUnits()
@@ -21,6 +22,7 @@ averagetemp = np.zeros((3, 28))  #this is the average temp: 21cm,image,Windowed
 rmserrorintemp = np.zeros((2, 28))   #this gives rms difference between two images at every point
 PearsonRarray = np.zeros((3, 28)) #this saves z,image vs 21cm Pearson,windowed vs 21cm Parson
 MeanValues = np.zeros((13,28))  #will save all of our different mean values, and for 21cm,image and windowed
+
 
 redshift = np.zeros(28)
 neutralfractions = np.zeros(28)
@@ -109,6 +111,7 @@ for fname in glob.glob(path):
     print 'Just before TempStats'
 
     #Temperature statistics
+
     temp1 = np.average(twenty1)
     temp2 = np.average(image3D)
     temp3 = np.average(Windowedimage)
@@ -122,6 +125,7 @@ for fname in glob.glob(path):
     rmserrorintemp[0][counter] = temp1
     rmserrorintemp[1][counter] = temp2
     print 'RMStemp',z, temp1,temp2
+
     #print 'z', z,'nf',box_info['nf'],  'temp',average21cmtemp[counter],averagewindowedimagetemp[counter], 'rms', rmserrorintemp[counter]
     '''
     #print 'Just before Visualisation by slice'
@@ -136,7 +140,8 @@ for fname in glob.glob(path):
     #These functions print the different size distribution analysis methods which we have worked on
     #Saves the text files for the distributions and their statistics plus prints distributions together
     #these are: mean21,median21,uqmean21,weightedmean21,meanimage, medianimage,uqmeanimage,weightedmeanimage,meanwindowed,medianwindowed,uqmeanwindowed,weightedmeanwindowed
-    MeanValues[:][counter] = func.printmeanfreepathdist(image3D,Windowedimage,twenty1, size, dl, cutoff, iterations,z)
+    MeanValues[:, counter] = func.printmeanfreepathdist(image3D,Windowedimage,twenty1, size, dl, cutoff, iterations,z)
+
     print 'Just before BubbleSizeDist'
     func.printbubblesizedist(image3D,Windowedimage, twenty1, size, dl, cutoff,z)
 
@@ -151,23 +156,29 @@ for fname in glob.glob(path):
     totalarray = totalarray.T   #so it's the best way round for excel/origin
     #####SavingGraphData#######
     np.savetxt('TempDistribution/TemperatureDistribution%s(Windowed,image,21cm).txt' %z, totalarray, delimiter='\t')
-
     plt.figure()
-    plt.plot(func.temperaturedistribution(Windowedimage, size))
-    plt.plot(func.temperaturedistribution(image3D, size))
-    plt.plot(func.temperaturedistribution(twenty1, size))
+    plt.plot(Windowtempdist)
+    plt.plot(imagetempdist)
+    plt.plot(twentytempdist)
     plt.savefig('TempDistribution/TempHisto%s.png'%z)
     plt.clf()
     print 'Finished this slice'
+
     '''
     counter += 1    #this increases the counter so the next values are stored in the next element slots of the arrays
 
 
+    np.savetxt('TextFiles/PSrmsOutputFile.txt',PSrmsarray, delimiter='\t')
+    np.savetxt('TextFiles/AverageTempOutputFile.txt',averagetemp, delimiter='\t')
+    np.savetxt('TextFiles/RMSErrorsinTempOutputFile.txt',rmserrorintemp, delimiter='\t')
+    np.savetxt('TextFiles/PearsonROutputFile.txt',PearsonRarray, delimiter='\t')
+
+
+    counter += 1    #this increases the counter so the next values are stored in the next element slots of the arrays
+
+print rmserrorintemp
 ############Saving all arrays so they can be outputted#########################
-np.savetxt('TextFiles/PSrmsOutputFile.txt',PSrmsarray, delimiter='\t')
-np.savetxt('TextFiles/AverageTempOutputFile.txt',averagetemp, delimiter='\t')
-np.savetxt('TextFiles/RMSErrorsinTempOutputFile.txt',rmserrorintemp, delimiter='\t')
-np.savetxt('TextFiles/PearsonROutputFile.txt',PearsonRarray, delimiter='\t')
+
 
 
 #print all of the arrays against z/neutral fraction
