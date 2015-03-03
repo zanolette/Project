@@ -65,7 +65,7 @@ for fname in glob.glob(path):
 
     #func.kperpvskparrgraph(image3Dinverse,psdwidth,size,dl,z,'image',  1e7, 2e11 )
     #func.kperpvskparrgraph(Windowedimageinverse,psdwidth,size,dl,z,'Windowed',1e7, 2e11)
-    func.kperpvskparrgraph(sigma3Dinverse,psdwidth,size,dl,z,'Sigma',1e7, 11e2)
+    func.kperpvskparrgraph(sigma3Dinverse,psdwidth,size,dl,z,'Sigma',1e7, 2e11)
 
     print 'Just before Phase'
 
@@ -143,7 +143,7 @@ for fname in glob.glob(path):
     #These functions print the different size distribution analysis methods which we have worked on
     #Saves the text files for the distributions and their statistics plus prints distributions together
     #these are: mean21,median21,uqmean21,weightedmean21,meanimage, medianimage,uqmeanimage,weightedmeanimage,meanwindowed,medianwindowed,uqmeanwindowed,weightedmeanwindowed
-    #MeanValues[:, counter] = func.printmeanfreepathdist(image3D,Windowedimage,twenty1, size, dl, cutoff, iterations,z)
+    MeanValues[:, counter] = func.printmeanfreepathdist(image3D,Windowedimage,twenty1, size, dl, cutoff, iterations,z)
 
     print 'Just before BubbleSizeDist'
     #func.printbubblesizedist(image3D,Windowedimage, twenty1, size, dl, cutoff,z)
@@ -172,6 +172,7 @@ for fname in glob.glob(path):
     np.savetxt('TextFiles/AverageTempOutputFile.txt',averagetemp.T, delimiter='\t')
     np.savetxt('TextFiles/RMSErrorsinTempOutputFile.txt',rmserrorintemp.T, delimiter='\t')
     np.savetxt('TextFiles/PearsonROutputFile.txt',PearsonRarray.T, delimiter='\t')
+    np.savetxt('TextFiles/MeanValues.txt',MeanValues.T, delimiter='\t')
 
 
     counter += 1    #this increases the counter so the next values are stored in the next element slots of the arrays
