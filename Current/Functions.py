@@ -628,7 +628,7 @@ def bubblesizedistribution(imageoriginal, size,dl,thresholdfraction):
 
                 #set up the ones and zeros according to some cut-off temperature
                 #threshold temperature defined as the required temperature for ionized space
-                if image[i][j][k] < thresholdfraction*averagetemp:
+                if image[i][j][k] < 10:#thresholdfraction*averagetemp:
                     image[i][j][k] = 0  #0 values will be counted, 1's ignored
                 else:
                     image[i][j][k] = 1
@@ -714,10 +714,10 @@ def numberofnearestneighbours(image, i, j, k, size):
     return image, bubblesize
 
 #Method: this calculates the distribution from mean free paths of random points in an ionized region
-def secondbubbledistributioncalculator(image,size, thresholdfraction,dl,iterations = 10000):
+def secondbubbledistributioncalculator(image,size, thresholdfraction,dl,iterations = 100000):
     #dl is dim[box]/size which give how many MPc each element is
 
-    cutoff = thresholdfraction*np.average(image)     #this is cutoff threshold based on average temp
+    cutoff = 10#thresholdfraction*np.average(image)     #this is cutoff threshold based on average temp
 
     #print 'temperature cutoff is', cutoff
 
