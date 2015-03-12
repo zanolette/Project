@@ -11,7 +11,7 @@ import matplotlib.gridspec as gs
 import gc
 
 
-def printgraph (image, xrange, yrange, xlabel, ylabel, scalemin,scalemax):   #generic print function with ranges and labels
+def printgraph (image, xrange, yrange, xlabel, ylabel, scalemin,scalemax, Title):   #generic print function with ranges and labels
     if scalemin == 'None':
         if scalemax == 'None':  #seems convoluted but allows us to use scalemin or max or not
             image2 = plt.imshow(image, extent=(-xrange,xrange,-yrange,yrange), interpolation='nearest',cmap='jet')
@@ -26,7 +26,8 @@ def printgraph (image, xrange, yrange, xlabel, ylabel, scalemin,scalemax):   #ge
     plt.colorbar( orientation='vertical')
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.show()
+    plt.savefig('%s.png'%Title)
+    plt.clf()
 
 #######
 #do we still need this?
@@ -356,7 +357,7 @@ def rotationmatrix(dx, dy, dz, scaling, H, dH, integrationtime, delta, size):
     return (UVcount), tempcounter
 
 #Method: takes uvplane and takes all non-zero values to 1 to give simple psf
-def psf(dtheta,image,size):
+def psf(dtheta,image,size, Title):
 
     psf = np.zeros((size,size))
 
@@ -372,10 +373,10 @@ def psf(dtheta,image,size):
 
     RangeinRealImage = size*dtheta/2.   #rescales the xaxis
 
-    printgraph(imageinv, RangeinRealImage,RangeinRealImage,"theta","theta", 'None', 'None')
+    printgraph(imageinv, RangeinRealImage,RangeinRealImage,'X (Mpc)','Y (Mpc)', 'None', 'None', Title)
 
 #Method: takes 3D fourier space image (central) slice and takes cross section of psf
-def psfcrosssection(dtheta, image,size):
+def psfcrosssection(dtheta, image,size, Array):
 
     ci=int(size/2)
 
@@ -398,8 +399,9 @@ def psfcrosssection(dtheta, image,size):
     crosssection =psf[ci]   #takes central part of psf (as centre is of most interst/circular symmetry)
     psfimage=plt.plot(xaxis,crosssection)
     plt.ylabel('PSF Amplitude')
-    plt.xlabel('theta')
-    plt.show()
+    plt.xlabel('X (Mpc)')
+    plt.savefig('PSFCross%s.png' %Array)
+    plt.clf()
 
 #calcuates the rms  between each pixel away from average value image and 21cmFAST file - dimensionless
 def rmscalc (twenty1cm,image3D,max):

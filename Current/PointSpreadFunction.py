@@ -19,7 +19,8 @@ ci = int(size/2)
 dtheta = float(theta/size)
 print dtheta
 
-arrayname = 'MWA128.txt'
+arrayname = 'vla.b.cfg'
+Array = 'VLA 24 Hours Exposure'
 
 #Define Wavelength - find this out from z!!
 lda=0.21106*(1+z)   #in meters
@@ -41,14 +42,14 @@ psdwidth = 1    #can change this!
 H = 0.
 tint = 300.      #interval in seconds
 dH = tint*(2.*np.pi) / (60.*60.* 24.)     #this is 2pi/time - converts from time interval (seconds) to angle interval
-totalintegrationtime = 6    #total time in hours
+totalintegrationtime = 24    #total time in hours
 
 daysofscanning = 1# keep as 1 unless you want more than one day.
 timestepsneeded= int(totalintegrationtime * 60 * 60 / tint) # unitlessmeasurement of number of steps needed
 
 delta = 90./180. * np.pi    #declination angle
 scaling = 1./(size*dtheta) #the length of one interval in inverse space
-
+print scaling
 #CODE THAT CAN BE USED TO CHECK OUR SPATIAL FREQUENCY IS IN THE RIGHT UNITS
 #spatialfreq=np.fft.fftfreq(size, dtheta)
 #print spatialfreq[1] - spatialfreq[0]
@@ -71,11 +72,13 @@ print eps
 UVcount,uvcoveragepercentage = func.rotationmatrix(dx, dy, dz, scaling, H, dH, timestepsneeded, delta, size)
 UVcount = UVcount.astype(np.float32, copy=False)
 
-image2 = plt.imshow(UVcount, extent=(-1/(2*dl),1/(2*dl),-1/(2*dl),1/(2*dl)), interpolation='nearest',cmap='binary')
+image2 = plt.imshow(UVcount, extent=(-100*(lda/1000)/scaling,100*(lda/1000)/scaling,-100*(lda/1000)/scaling,100*(lda/1000)/scaling), interpolation='nearest',cmap='binary')
 #plt.colorbar( orientation='vertical')
-#plt.xlabel('')
-#plt.ylabel('')
-plt.show()
+plt.xlabel('Kilo Wavelengths')
+plt.ylabel('Kilo Wavelengths')
+plt.title('%s UV Coverage'%Array)
+plt.savefig('UV%s.png' %Array)
+plt.clf()
 
 psf = np.zeros((size,size))
 
@@ -85,6 +88,15 @@ for i in range (size):
         if UVcount[i][j] != 0:
             psf[i][j]=1
 
+image2 = plt.imshow(psf, extent=(-100*(lda/1000)/scaling,100*(lda/1000)/scaling,-100*(lda/1000)/scaling,100*(lda/1000)/scaling), interpolation='nearest',cmap='binary')
+#plt.colorbar( orientation='vertical')
+plt.xlabel('Kilo Wavelengths')
+plt.ylabel('Kilo Wavelengths')
+plt.title('%s UV Coverage'%Array)
+plt.savefig('UVBinary%s.png' %Array)
+plt.clf()
+
 #UVcount = UVcount/UVcount
 
-func.psfcrosssection(dl, psf,size)
+func.psf(dl, psf,size, 'PSF%s.png'%Array)
+func.psfcrosssection(dl, psf,size,Array )
